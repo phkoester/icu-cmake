@@ -4,7 +4,7 @@ icu-cmake adds a CMake build to [ICU4](https://github.com/unicode-org/icu). It d
 source and data files, builds ICU's own data tools, generates the ICU data from the text sources, and
 produces these static libraries:
 
-| Linux           | Windows       | CMake target      | Content
+| Linux           | Windows       | CMake Target      | Content
 | :-------------- | :------------ | :---------------- | :------
 | `libicudata.a`  | `icudata.lib` | `icu-cmake::data` | The ICU data package (`icudtNNl`)
 | `libicui18n.a`  | `icui18n.lib` | `icu-cmake::i18n` | Internationalization library
@@ -19,37 +19,6 @@ icu-cmake is mostly AI-generated and thoroughly human-reviewed.
 
 It is pre-alpha, a hobby project of mine, and possibly dangerous. **Use it at your own risk.**
 
-## Building
-
-Python 3.8 or later is required to run ICU's data build tool. On Windows, `bash` and `python3` from the Git
-for Windows SDK are assumed. To override CMake's choice of interpreter, set `Python3_EXECUTABLE` or
-`Python3_ROOT_DIR`.
-
-With Gaia:
-
-```sh
-$ make build          # Configure and build
-$ make test           # Run the smoke test
-$ GAIA_CXX_TOOLCHAIN=llvm make build test
-```
-
-With plain CMake:
-
-```sh
-$ cmake --preset linux-release
-$ cmake --build --preset linux-release
-$ ctest --preset linux-release
-$ cmake --install build/release --prefix /some/prefix
-```
-
-On Windows:
-
-```sh
-$ cmake --preset windows               # MSVC
-$ cmake --preset windows -T ClangCL    # clang-cl
-$ cmake --build --preset windows-release
-```
-
 ## How It Works
 
 1. The release archives `icu4c-VERSION-sources.tgz` and `icu4c-VERSION-data.zip` are downloaded with
@@ -63,37 +32,6 @@ $ cmake --build --preset windows-release
    or a C file.
 5. The static libraries are assembled from the object libraries and the generated data. `icu-cmake::uc` links
    `icu-cmake::data` publicly, so consumers never have to care about link order.
-
-## Consuming
-
-As an installed package:
-
-```cmake
-find_package(ICU 79.1 CONFIG REQUIRED COMPONENTS uc i18n)
-target_link_libraries(my-target PRIVATE icu-cmake::i18n)
-```
-
-Configure the consumer with `-DCMAKE_PREFIX_PATH=/some/prefix`. The package also defines `ICU_VERSION`,
-`ICU_INCLUDE_DIRS`, `ICU_DATA_FILE` (the installed `.dat` file), and `ICU_<component>_FOUND`.
-
-As a subproject:
-
-```cmake
-include(FetchContent)
-FetchContent_Declare(icu-cmake GIT_REPOSITORY https://github.com/phkoester/icu-cmake.git GIT_TAG main)
-FetchContent_MakeAvailable(icu-cmake)
-target_link_libraries(my-target PRIVATE icu-cmake::uc)
-```
-
-## Installed Layout
-
-| Path                                | Content
-| :---------------------------------- | :------
-| `include/unicode/*.h`               | Public headers of `common`, `i18n`, and `io`
-| `include/icu/toolutil/*.h`          | Headers of `toolutil`
-| `lib/libicu*.a`, `lib/icu*.lib`     | The static libraries
-| `lib/cmake/ICU/ICUConfig.cmake`     | Package configuration for `find_package(ICU CONFIG)`
-| `share/icu/VERSION/icudtNNl.dat`    | The data archive, for runtime loading via `u_setDataDirectory`
 
 ## CMake Variables
 
@@ -110,7 +48,6 @@ target_link_libraries(my-target PRIVATE icu-cmake::uc)
 | `ICU_CMAKE_ICU_SOURCE_DIR`      | `PATH`     | &mdash;                           | Local ICU checkout (repository root, `icu4c`, or `icu4c/source`) instead of downloading
 | `ICU_CMAKE_ICU_SOURCE_HASH`     | `STRING`   | known for 79.1                    | Expected SHA-256 of the sources archive (empty: skip check)
 | `ICU_CMAKE_ICU_VERSION`         | `STRING`   | `79.1`                            | ICU version to download (`release-VERSION` tag; 78.1 or later use this naming scheme)
-| `ICU_CMAKE_INSTALL`             | `BOOL`     | `ON` if master project            | Generate install rules and the CMake package configuration
 
 A Git checkout of ICU contains the data sources, so `ICU_CMAKE_ICU_SOURCE_DIR` alone is sufficient in that
 case. Variables may also be set via environment variables of the same name.

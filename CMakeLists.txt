@@ -28,7 +28,6 @@ AddVar(ICU_CMAKE_ICU_DATA_SOURCE_DIR PATH     ""                          "Local
 AddVar(ICU_CMAKE_ICU_SOURCE_DIR      PATH     ""                          "Local ICU checkout to use instead of downloading the sources")
 AddVar(ICU_CMAKE_ICU_SOURCE_HASH     STRING   ""                          "Expected SHA-256 of the sources archive (empty: skip check)")
 AddVar(ICU_CMAKE_ICU_VERSION         STRING   79.1                        "ICU version to download (release-VERSION tag, 78.1 or later)")
-AddVar(ICU_CMAKE_INSTALL             BOOL     ${ICU_CMAKE_MASTER_PROJECT} "Generate install rules and a CMake package config")
 
 if(BUILD_SHARED_LIBS)
   message(FATAL_ERROR "icu-cmake: Only static libraries are supported, set BUILD_SHARED_LIBS=OFF")
@@ -129,7 +128,7 @@ find_package(Threads REQUIRED)
 
 message(STATUS "icu-cmake: Python3_EXECUTABLE: ${Python3_EXECUTABLE}")
 
-# Subdirectories --------------------------------------------------------------------------------------------
+# Add subdirectories ----------------------------------------------------------------------------------------
 
 add_subdirectory(src/main)
 if(ICU_CMAKE_BUILD_TEST)
