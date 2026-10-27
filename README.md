@@ -12,6 +12,9 @@ produces these static libraries:
 | `libicutu.a`    | `icutu.lib`   | `icu-cmake::tu`   | Tool utilities
 | `libicuuc.a`    | `icuuc.lib`   | `icu-cmake::uc`   | Common library
 
+icu-make depends on [Gaia]([https://github.com/phkoester/gaia), which provides the underlying build system
+at shell level.
+
 icu-cmake is mostly AI-generated and thoroughly human-reviewed.
 
 It is pre-alpha, a hobby project of mine, and possibly dangerous. **Use it at your own risk.**
