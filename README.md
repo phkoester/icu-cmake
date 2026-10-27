@@ -1,6 +1,6 @@
 # icu-cmake
 
-icu-cmake adds a CMake build to [ICU4C](https://github.com/unicode-org/icu). It downloads the ICU release
+`icu-cmake` adds a CMake build to [ICU4C](https://github.com/unicode-org/icu). It downloads the ICU release
 sources, builds ICU's own data tools, generates the ICU data from the text sources, and produces these static
 libraries:
 
@@ -9,7 +9,7 @@ libraries:
 | `libicudata.a`  | `icudata.lib` | `ICU::data`  | The ICU data package (`icudtNNl`)
 | `libicuuc.a`    | `icuuc.lib`   | `ICU::uc`    | Common library
 | `libicui18n.a`  | `icui18n.lib` | `ICU::i18n`  | Internationalization library
-| `libicuio.a`    | `icuio.lib`   | `ICU::io`    | Unicode stdio library
+| `libicuio.a`    | `icuio.lib`   | `ICU::io`    | Unicode standard I/O library
 | `libicutu.a`    | `icutu.lib`   | `ICU::tu`    | Tool utilities
 
 Supported toolchains: GCC and Clang on Linux, MSVC and clang-cl on Windows.
@@ -17,14 +17,9 @@ Supported toolchains: GCC and Clang on Linux, MSVC and clang-cl on Windows.
 The project depends on [Gaia](https://github.com/phkoester/gaia), which provides the underlying build system
 at shell level.
 
+`icu-cmake` is mostly AI-generated and thoroughly human-reviewed.
+
 It is pre-alpha, a hobby project of mine, and possibly dangerous. **Use it at your own risk.**
-
-## Prerequisites
-
-- CMake 4.2 or later
-- Python 3.8 or later (ICU's data build, `icutools.databuilder`, is written in Python)
-- A C and C++ toolchain (C11, C++17)
-- Internet access on first configure, unless local sources are supplied (see below)
 
 ## Building
 
