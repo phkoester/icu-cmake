@@ -49,6 +49,26 @@ function(IcuReadSources dir out)
   set(${out} ${sources} PARENT_SCOPE)
 endfunction()
 
+# IcuPythonPath(path out)
+#
+# Returns `path` in the form the Python interpreter understands: a POSIX path (`/c/...`) for an MSYS2
+# Python on Windows, otherwise `path` unchanged. `path` must not contain generator expressions.
+function(IcuPythonPath path out)
+  if(ICU_PYTHON_CYGPATH)
+    execute_process(
+      COMMAND ${ICU_PYTHON_CYGPATH} -u ${path}
+      OUTPUT_VARIABLE converted
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      RESULT_VARIABLE result
+    )
+    if(NOT result EQUAL 0 OR converted STREQUAL "")
+      message(FATAL_ERROR "icu-cmake: ${ICU_PYTHON_CYGPATH} failed for ${path}")
+    endif()
+    set(path ${converted})
+  endif()
+  set(${out} ${path} PARENT_SCOPE)
+endfunction()
+
 # IcuApplyCommonSettings(name)
 #
 # Applies the compiler settings ICU's own build systems use to a target that compiles ICU sources.
@@ -103,10 +123,10 @@ endfunction()
 # IcuAddTool(name)
 #
 # Adds a build-time tool from `tools/name/sources.txt`. The executable is placed where
-# `icutools.databuilder` expects it:
+# `icutools.databuilder` expects it, depending on `ICU_DATABUILDER_MODE`:
 #
-# - `unix-exec`:    TOOL_DIR/name
-# - `windows-exec`: TOOL_DIR/name/CONFIG/name.exe
+# - `unix-exec`:    ICU_TOOL_BIN_DIR/name
+# - `windows-exec`: ICU_TOOL_DIR/name/CONFIG/name.exe
 function(IcuAddTool name)
   set(dir ${ICU_SOURCE_DIR}/tools/${name})
   IcuReadSources(${dir} sources)
@@ -117,10 +137,10 @@ function(IcuAddTool name)
   target_include_directories(${target} PRIVATE ${dir})
   target_link_libraries(${target} PRIVATE icutu-obj icui18n-obj icuuc-obj icudata-stub ${ICU_SYSTEM_LIBS})
 
-  if(GAIA_OS_WINDOWS)
+  if(ICU_DATABUILDER_MODE STREQUAL "windows-exec")
     set(outputDir ${ICU_TOOL_DIR}/${name}/$<CONFIG>)
   else()
-    set(outputDir ${ICU_TOOL_DIR})
+    set(outputDir ${ICU_TOOL_BIN_DIR})
   endif()
   set_target_properties(${target}
     PROPERTIES

@@ -23,6 +23,11 @@ It is pre-alpha, a hobby project of mine, and possibly dangerous. **Use it at yo
 
 ## Building
 
+Python 3.8 or later is required to run ICU's data build tool. On Windows, both a native Windows Python and
+an MSYS2 Python (e.g. from the Git for Windows SDK) work; the data build is run in ICU's `windows-exec` or
+`unix-exec` mode accordingly. To override CMake's choice of interpreter, set `Python3_EXECUTABLE` or
+`Python3_ROOT_DIR`.
+
 With Gaia:
 
 ```sh

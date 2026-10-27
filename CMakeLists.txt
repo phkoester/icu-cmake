@@ -127,6 +127,39 @@ message(STATUS "icu-cmake: ICU_VERSION: ${ICU_VERSION}, data package: ${ICU_DATA
 find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
 find_package(Threads REQUIRED)
 
+# `icutools.databuilder` spawns the tools via `subprocess` with `shell=True`, so the execution mode must
+# match the Python flavour, not the host OS:
+#
+# - `windows-exec`: `cmd.exe`, backslash paths, tools in `TOOL_DIR/name/CONFIG/name.exe`. Needs a native
+#   Windows Python.
+# - `unix-exec`:    `/bin/sh`, forward-slash paths, tools in `TOOL_DIR/name`. Used on Linux and with an
+#   MSYS2 Python on Windows (e.g. the one of the Git for Windows SDK, reporting `sys.platform` as `cygwin`
+#   or `msys`).
+execute_process(
+  COMMAND ${Python3_EXECUTABLE} -c "import sys; print(sys.platform)"
+  OUTPUT_VARIABLE pythonPlatform
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  RESULT_VARIABLE pythonResult
+)
+if(NOT pythonResult EQUAL 0)
+  message(FATAL_ERROR "icu-cmake: Cannot run ${Python3_EXECUTABLE}")
+endif()
+if(pythonPlatform STREQUAL "win32")
+  set(ICU_DATABUILDER_MODE windows-exec)
+else()
+  set(ICU_DATABUILDER_MODE unix-exec)
+endif()
+message(STATUS "icu-cmake: Python3_EXECUTABLE: ${Python3_EXECUTABLE} (${pythonPlatform}, ${ICU_DATABUILDER_MODE})")
+
+# An MSYS2 Python on Windows needs POSIX paths (`/c/...`): its import system treats `C:/...` as a relative
+# path. `IcuPythonPath` converts paths with the `cygpath` that ships next to the interpreter; the MSYS2
+# runtime converts them back to Windows paths when `/bin/sh` spawns the native tools.
+set(ICU_PYTHON_CYGPATH)
+if(GAIA_OS_WINDOWS AND NOT pythonPlatform STREQUAL "win32")
+  cmake_path(GET Python3_EXECUTABLE PARENT_PATH pythonBinDir)
+  find_program(ICU_PYTHON_CYGPATH cygpath HINTS ${pythonBinDir} NO_DEFAULT_PATH REQUIRED)
+endif()
+
 # Subdirectories --------------------------------------------------------------------------------------------
 
 add_subdirectory(src/main)
