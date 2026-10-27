@@ -1,8 +1,8 @@
 # icu-cmake
 
 icu-cmake adds a CMake build to [ICU4](https://github.com/unicode-org/icu). It downloads the ICU4C release
-sources, builds ICU's own data tools, generates the ICU data from the text sources, and produces these static
-libraries:
+source and data files, builds ICU's own data tools, generates the ICU data from the text sources, and
+produces these static libraries:
 
 | Linux           | Windows       | CMake target      | Content
 | :-------------- | :------------ | :---------------- | :------
@@ -11,8 +11,6 @@ libraries:
 | `libicuio.a`    | `icuio.lib`   | `icu-cmake::io`   | Unicode standard I/O library
 | `libicutu.a`    | `icutu.lib`   | `icu-cmake::tu`   | Tool utilities
 | `libicuuc.a`    | `icuuc.lib`   | `icu-cmake::uc`   | Common library
-
-Supported toolchains: GCC and Clang on Linux, MSVC and clang-cl on Windows.
 
 The project depends on [Gaia](https://github.com/phkoester/gaia), which provides the underlying build system
 at shell level.
