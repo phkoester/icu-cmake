@@ -1,0 +1,10 @@
+/*
+ * gaia-project.json
+ */
+
+{
+  "dependencies": ["gaia"],
+  "version": "0.1.0"
+}
+
+// EOF

@@ -1,0 +1,15 @@
+#
+# .gitignore
+#
+
+/compile_commands.json
+/.cache/
+/build/
+/target/
+
+*.log
+*.log.gz
+*.pyc
+__pycache__/
+
+# EOF

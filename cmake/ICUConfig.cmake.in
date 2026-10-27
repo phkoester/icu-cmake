@@ -1,0 +1,40 @@
+#
+# ICUConfig.cmake
+#
+# Package configuration for ICU built by icu-cmake. Provides the imported targets
+#
+# - ICU::data
+# - ICU::uc
+# - ICU::i18n
+# - ICU::io
+# - ICU::tu
+#
+# and accepts the same component names (`data`, `uc`, `i18n`, `io`, `tu`) as CMake's `FindICU` module.
+#
+
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(Threads)
+
+include("${CMAKE_CURRENT_LIST_DIR}/ICUTargets.cmake")
+
+set(ICU_VERSION "@ICU_VERSION@")
+set(ICU_VERSION_MAJOR "@ICU_VERSION_MAJOR@")
+set(ICU_DATA_NAME "@ICU_DATA_NAME@")
+set_and_check(ICU_INCLUDE_DIRS "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@")
+set_and_check(ICU_DATA_FILE "@PACKAGE_CMAKE_INSTALL_DATADIR@/icu/@ICU_VERSION@/@ICU_DATA_NAME@.dat")
+
+set(ICU_LIBRARIES ICU::io ICU::i18n ICU::uc ICU::data)
+
+foreach(component IN ITEMS data uc i18n io tu)
+  if(TARGET ICU::${component})
+    set(ICU_${component}_FOUND TRUE)
+  else()
+    set(ICU_${component}_FOUND FALSE)
+  endif()
+endforeach()
+
+check_required_components(ICU)
+
+# EOF
