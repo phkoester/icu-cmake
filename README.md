@@ -1,16 +1,16 @@
 # icu-cmake
 
-icu-cmake adds a CMake build to [ICU4C](https://github.com/unicode-org/icu). It downloads the ICU release
+icu-cmake adds a CMake build to [ICU4](https://github.com/unicode-org/icu). It downloads the ICU4C release
 sources, builds ICU's own data tools, generates the ICU data from the text sources, and produces these static
 libraries:
 
 | Linux           | Windows       | CMake target      | Content
 | :-------------- | :------------ | :---------------- | :------
-| `libicudata.a`  | `icudata.lib` | `ICU-cmake::data` | The ICU data package (`icudtNNl`)
-| `libicuuc.a`    | `icuuc.lib`   | `ICU-cmake::uc`   | Common library
-| `libicui18n.a`  | `icui18n.lib` | `ICU-cmake::i18n` | Internationalization library
-| `libicuio.a`    | `icuio.lib`   | `ICU-cmake::io`   | Unicode standard I/O library
-| `libicutu.a`    | `icutu.lib`   | `ICU-cmake::tu`   | Tool utilities
+| `libicudata.a`  | `icudata.lib` | `icu-cmake::data` | The ICU data package (`icudtNNl`)
+| `libicuuc.a`    | `icuuc.lib`   | `icu-cmake::uc`   | Common library
+| `libicui18n.a`  | `icui18n.lib` | `icu-cmake::i18n` | Internationalization library
+| `libicuio.a`    | `icuio.lib`   | `icu-cmake::io`   | Unicode standard I/O library
+| `libicutu.a`    | `icutu.lib`   | `icu-cmake::tu`   | Tool utilities
 
 Supported toolchains: GCC and Clang on Linux, MSVC and clang-cl on Windows.
 
@@ -64,8 +64,8 @@ $ cmake --build --preset windows-release
 4. `python -m icutools.databuilder` runs the tools on the text sources, `pkgdata` packs the result into
    `icudtNNl.dat`, and `genccode` turns the archive into an assembly file (Linux), an object file (Windows),
    or a C file.
-5. The static libraries are assembled from the object libraries and the generated data. `ICU-cmake::uc` links
-   `ICU-cmake::data` publicly, so consumers never have to care about link order.
+5. The static libraries are assembled from the object libraries and the generated data. `icu-cmake::uc` links
+   `icu-cmake::data` publicly, so consumers never have to care about link order.
 
 ## Consuming
 
@@ -73,7 +73,7 @@ As an installed package:
 
 ```cmake
 find_package(ICU 79.1 CONFIG REQUIRED COMPONENTS uc i18n)
-target_link_libraries(my-target PRIVATE ICU-cmake::i18n)
+target_link_libraries(my-target PRIVATE icu-cmake::i18n)
 ```
 
 Configure the consumer with `-DCMAKE_PREFIX_PATH=/some/prefix`. The package also defines `ICU_VERSION`,
@@ -85,7 +85,7 @@ As a subproject:
 include(FetchContent)
 FetchContent_Declare(icu-cmake GIT_REPOSITORY https://github.com/phkoester/icu-cmake.git GIT_TAG main)
 FetchContent_MakeAvailable(icu-cmake)
-target_link_libraries(my-target PRIVATE ICU-cmake::uc)
+target_link_libraries(my-target PRIVATE icu-cmake::uc)
 ```
 
 ## Installed Layout

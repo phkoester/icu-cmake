@@ -229,7 +229,7 @@ set_target_properties(icudata
     LINKER_LANGUAGE C
     OUTPUT_NAME     icudata
 )
-add_library(ICU-cmake::data ALIAS icudata)
+add_library(icu-cmake::data ALIAS icudata)
 
 # `icuuc` ...................................................................................................
 
@@ -246,7 +246,7 @@ set_target_properties(icuuc
     LINKER_LANGUAGE CXX
     OUTPUT_NAME     icuuc
 )
-add_library(ICU-cmake::uc ALIAS icuuc)
+add_library(icu-cmake::uc ALIAS icuuc)
 
 # `icui18n` .................................................................................................
 
@@ -259,7 +259,7 @@ set_target_properties(icui18n
     LINKER_LANGUAGE CXX
     OUTPUT_NAME     icui18n
 )
-add_library(ICU-cmake::i18n ALIAS icui18n)
+add_library(icu-cmake::i18n ALIAS icui18n)
 
 # `icuio` ...................................................................................................
 
@@ -272,7 +272,7 @@ set_target_properties(icuio
     LINKER_LANGUAGE CXX
     OUTPUT_NAME     icuio
 )
-add_library(ICU-cmake::io ALIAS icuio)
+add_library(icu-cmake::io ALIAS icuio)
 
 # `icutu` ...................................................................................................
 
@@ -286,7 +286,7 @@ set_target_properties(icutu
     LINKER_LANGUAGE CXX
     OUTPUT_NAME     icutu
 )
-add_library(ICU-cmake::tu ALIAS icutu)
+add_library(icu-cmake::tu ALIAS icutu)
 
 # Install ---------------------------------------------------------------------------------------------------
 
@@ -319,7 +319,7 @@ if(ICU_CMAKE_INSTALL)
   )
   install(
     EXPORT      ICUTargets
-    NAMESPACE   ICU-cmake::
+    NAMESPACE   icu-cmake::
     DESTINATION ${configDir}
   )
 
