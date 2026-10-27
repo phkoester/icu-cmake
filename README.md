@@ -7,10 +7,10 @@ libraries:
 | Linux           | Windows       | CMake target      | Content
 | :-------------- | :------------ | :---------------- | :------
 | `libicudata.a`  | `icudata.lib` | `icu-cmake::data` | The ICU data package (`icudtNNl`)
-| `libicuuc.a`    | `icuuc.lib`   | `icu-cmake::uc`   | Common library
 | `libicui18n.a`  | `icui18n.lib` | `icu-cmake::i18n` | Internationalization library
 | `libicuio.a`    | `icuio.lib`   | `icu-cmake::io`   | Unicode standard I/O library
 | `libicutu.a`    | `icutu.lib`   | `icu-cmake::tu`   | Tool utilities
+| `libicuuc.a`    | `icuuc.lib`   | `icu-cmake::uc`   | Common library
 
 Supported toolchains: GCC and Clang on Linux, MSVC and clang-cl on Windows.
 
