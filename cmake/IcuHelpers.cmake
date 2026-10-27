@@ -4,49 +4,37 @@
 # Helper functions for building ICU4C with CMake.
 #
 
-# IcuReadVersion(sourceDir outVersion outMajor)
+# Functions -------------------------------------------------------------------------------------------------
+
+# IcuAddObjectLibrary(name dir)
 #
-# Reads `U_ICU_VERSION` and `U_ICU_VERSION_MAJOR_NUM` from `common/unicode/uvernum.h`.
-function(IcuReadVersion sourceDir outVersion outMajor)
-  set(header ${sourceDir}/common/unicode/uvernum.h)
-  if(NOT EXISTS ${header})
-    message(FATAL_ERROR "icu-cmake: Missing ${header}")
-  endif()
-
-  file(STRINGS ${header} majorLine REGEX "^#define U_ICU_VERSION_MAJOR_NUM[ \t]+[0-9]+")
-  string(REGEX REPLACE "^#define U_ICU_VERSION_MAJOR_NUM[ \t]+([0-9]+).*$" "\\1" major "${majorLine}")
-
-  file(STRINGS ${header} versionLine REGEX "^#define U_ICU_VERSION[ \t]+\"[0-9.]+\"")
-  string(REGEX REPLACE "^#define U_ICU_VERSION[ \t]+\"([0-9.]+)\".*$" "\\1" version "${versionLine}")
-
-  if(NOT major MATCHES "^[0-9]+$" OR NOT version MATCHES "^[0-9.]+$")
-    message(FATAL_ERROR "icu-cmake: Cannot parse the ICU version from ${header}")
-  endif()
-
-  set(${outVersion} ${version} PARENT_SCOPE)
-  set(${outMajor} ${major} PARENT_SCOPE)
+# Adds an object library from `dir/sources.txt`.
+function(IcuAddObjectLibrary name dir)
+  IcuReadSources(${dir} sources)
+  add_library(${name} OBJECT ${sources})
+  IcuApplyCommonSettings(${name})
+  target_include_directories(${name} PUBLIC ${dir})
 endfunction()
 
-# IcuReadSources(dir out)
+# IcuAddTool(name)
 #
-# Reads `dir/sources.txt` and returns the listed files with `dir/` prepended.
-function(IcuReadSources dir out)
-  set(file ${dir}/sources.txt)
-  if(NOT EXISTS ${file})
-    message(FATAL_ERROR "icu-cmake: Missing ${file}")
-  endif()
+# Adds a build-time tool from `tools/name/sources.txt`. The executable is placed at `ICU_TOOL_BIN_DIR/name`,
+# where `icutools.databuilder` looks for it.
+function(IcuAddTool name)
+  set(dir ${ICU_SOURCE_DIR}/tools/${name})
+  IcuReadSources(${dir} sources)
 
-  file(STRINGS ${file} lines)
-  set(sources)
-  foreach(line IN LISTS lines)
-    string(STRIP "${line}" line)
-    if(line STREQUAL "" OR line MATCHES "^#")
-      continue()
-    endif()
-    list(APPEND sources ${dir}/${line})
-  endforeach()
+  set(target icu-${name})
+  add_executable(${target} ${sources})
+  IcuApplyCommonSettings(${target})
+  target_include_directories(${target} PRIVATE ${dir})
+  target_link_libraries(${target} PRIVATE icutu-obj icui18n-obj icuuc-obj icudata-stub ${ICU_SYSTEM_LIBS})
 
-  set(${out} ${sources} PARENT_SCOPE)
+  set_target_properties(${target}
+    PROPERTIES
+      OUTPUT_NAME ${name}
+      RUNTIME_OUTPUT_DIRECTORY ${ICU_TOOL_BIN_DIR}
+  )
 endfunction()
 
 # IcuApplyCommonSettings(name)
@@ -90,35 +78,49 @@ function(IcuApplyCommonSettings name)
   )
 endfunction()
 
-# IcuAddObjectLibrary(name dir)
+# IcuReadSources(dir out)
 #
-# Adds an object library from `dir/sources.txt`.
-function(IcuAddObjectLibrary name dir)
-  IcuReadSources(${dir} sources)
-  add_library(${name} OBJECT ${sources})
-  IcuApplyCommonSettings(${name})
-  target_include_directories(${name} PUBLIC ${dir})
+# Reads `dir/sources.txt` and returns the listed files with `dir/` prepended.
+function(IcuReadSources dir out)
+  set(file ${dir}/sources.txt)
+  if(NOT EXISTS ${file})
+    message(FATAL_ERROR "icu-cmake: Missing ${file}")
+  endif()
+
+  file(STRINGS ${file} lines)
+  set(sources)
+  foreach(line IN LISTS lines)
+    string(STRIP "${line}" line)
+    if(line STREQUAL "" OR line MATCHES "^#")
+      continue()
+    endif()
+    list(APPEND sources ${dir}/${line})
+  endforeach()
+
+  set(${out} ${sources} PARENT_SCOPE)
 endfunction()
 
-# IcuAddTool(name)
+# IcuReadVersion(sourceDir outVersion outMajor)
 #
-# Adds a build-time tool from `tools/name/sources.txt`. The executable is placed at `ICU_TOOL_BIN_DIR/name`,
-# where `icutools.databuilder` looks for it.
-function(IcuAddTool name)
-  set(dir ${ICU_SOURCE_DIR}/tools/${name})
-  IcuReadSources(${dir} sources)
+# Reads `U_ICU_VERSION` and `U_ICU_VERSION_MAJOR_NUM` from `common/unicode/uvernum.h`.
+function(IcuReadVersion sourceDir outVersion outMajor)
+  set(header ${sourceDir}/common/unicode/uvernum.h)
+  if(NOT EXISTS ${header})
+    message(FATAL_ERROR "icu-cmake: Missing ${header}")
+  endif()
 
-  set(target icu-${name})
-  add_executable(${target} ${sources})
-  IcuApplyCommonSettings(${target})
-  target_include_directories(${target} PRIVATE ${dir})
-  target_link_libraries(${target} PRIVATE icutu-obj icui18n-obj icuuc-obj icudata-stub ${ICU_SYSTEM_LIBS})
+  file(STRINGS ${header} majorLine REGEX "^#define U_ICU_VERSION_MAJOR_NUM[ \t]+[0-9]+")
+  string(REGEX REPLACE "^#define U_ICU_VERSION_MAJOR_NUM[ \t]+([0-9]+).*$" "\\1" major "${majorLine}")
 
-  set_target_properties(${target}
-    PROPERTIES
-      OUTPUT_NAME ${name}
-      RUNTIME_OUTPUT_DIRECTORY ${ICU_TOOL_BIN_DIR}
-  )
+  file(STRINGS ${header} versionLine REGEX "^#define U_ICU_VERSION[ \t]+\"[0-9.]+\"")
+  string(REGEX REPLACE "^#define U_ICU_VERSION[ \t]+\"([0-9.]+)\".*$" "\\1" version "${versionLine}")
+
+  if(NOT major MATCHES "^[0-9]+$" OR NOT version MATCHES "^[0-9.]+$")
+    message(FATAL_ERROR "icu-cmake: Cannot parse the ICU version from ${header}")
+  endif()
+
+  set(${outVersion} ${version} PARENT_SCOPE)
+  set(${outMajor} ${major} PARENT_SCOPE)
 endfunction()
 
 # EOF

@@ -16,8 +16,9 @@ endif()
 
 project(icu-cmake VERSION 0.1.0 LANGUAGES C CXX)
 
-include($ENV{GAIA_DIR}/src/main/cmake/base.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/IcuHelpers.cmake)
+include($ENV{GAIA_DIR}/src/main/cmake/gaia.cmake)
+
+include(cmake/IcuHelpers.cmake)
 
 # Configuration ---------------------------------------------------------------------------------------------
 
@@ -123,10 +124,7 @@ message(STATUS "icu-cmake: ICU_VERSION: ${ICU_VERSION}, data package: ${ICU_DATA
 
 # Dependencies ----------------------------------------------------------------------------------------------
 
-find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
 find_package(Threads REQUIRED)
-
-message(STATUS "icu-cmake: Python3_EXECUTABLE: ${Python3_EXECUTABLE}")
 
 # Add subdirectories ----------------------------------------------------------------------------------------
 
