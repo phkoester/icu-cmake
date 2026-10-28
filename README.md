@@ -19,7 +19,7 @@ Supported C++ toolchains on Linux are GNU (`g++`) and LLVM (`clang`). On Windows
 (`clang-cl.exe`) and MSVC (`cl.exe`)
 
 At CMake level, icu-cmake may be used as a standalone project out of the box. Just fetch the content and link
-to the desired targets. It's as simple as that. See #how_to_use_this_library_with_cmake for more information.
+to the desired targets. It's as simple as that. See (#how_to_use_this_library_with_cmake) for more information.
 
 At shell level, if you want to use the `Makefile` shipped with the project, icu-cmake depends on
 [Gaia]([https://github.com/phkoester/gaia), which provides the underlying build system and must be properly
