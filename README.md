@@ -14,12 +14,12 @@ writes import libraries (`.lib`) beside the DLLs.
 | `libicutu.a` or `libicutu.so`     | `icutu.lib` or `icutu.dll`     | `icu-cmake::tu`   | Tool utilities
 | `libicuuc.a` or `libicuuc.so`     | `icuuc.lib` or `icuuc.dll`     | `icu-cmake::uc`   | Common library
 
+At CMake level, icu-cmake may be used as a standalone project out of the box. See [Consuming](#consuming) for
+more information.
+
 At shell level, if you want to use the `Makefile` shipped with the project, icu-cmake depends on
 [Gaia]([https://github.com/phkoester/gaia), which provides the underlying build system and must be properly
 set up.
-
-At CMake level, however, icu-cmake may be used as a standalone project out of the box. See
-[Consuming](#consuming) for more information.
 
 icu-cmake is mostly AI-generated and thoroughly human-reviewed.
 
@@ -59,6 +59,7 @@ target_link_libraries(my-target PRIVATE icu-cmake::uc)
 | `BUILD_TESTING`                 | `BOOL`     | `ON`                              | Enable testing and build tests
 | `CMAKE_BUILD_TYPE`              | `STRING`   | `Release` if single configuration | The build type (`Debug` or `Release`)
 | `ICU_CMAKE_BUILD_TEST`          | `BOOL`     | `ON` if master project            | Enable testing and build the smoke test
+| `ICU_CMAKE_BUILD_ICU_TEST`      | `BOOL`     | `OFF`                             | Build and run the test programs from ICU's `source/test` (requires `BUILD_TESTING`; also builds the test data)
 | `ICU_CMAKE_DATA_FILTER_FILE`    | `FILEPATH` | &mdash;                           | ICU [data filter file](https://unicode-org.github.io/icu/userguide/icu_data/buildtool.html) to reduce the data size
 | `ICU_CMAKE_DATA_FORMAT`         | `STRING`   | `asm` (Linux), `object` (Windows) | How `genccode` emits the data: `asm`, `object`, or `c`
 | `ICU_CMAKE_DATA_VERBOSE`        | `BOOL`     | `OFF`                             | Print every command of the ICU data build
@@ -75,7 +76,9 @@ case. Variables may also be set via environment variables of the same name.
 
 - Little-endian targets only.
 - No cross-compilation: the data tools must run on the build host.
-- The `tzdata` override, ICU4J data, and the ICU test suites are not built.
+- The `tzdata` override and ICU4J data are not built.
+- Fuzz targets, performance tests, and the layout-engine test are not built. `ICU_CMAKE_BUILD_ICU_TEST`
+  builds the programs ICU itself runs with `make check`.
 
 ## License
 

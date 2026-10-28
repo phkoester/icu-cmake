@@ -122,7 +122,7 @@ endfunction()
 
 # IcuDetectPython()
 #
-# Sets `ICU_PYTHON_NATIVE_WINDOWS` from the path separator of `PYTHON3_EXECUTABLE`. A native Windows
+# Sets `ICU_PYTHON_NATIVE_WINDOWS` from the path separator of `Python3_EXECUTABLE`. A native Windows
 # Python reports `\`. An MSYS Python reports `/`, like Linux.
 function(IcuDetectPython)
   if(NOT WIN32)
@@ -131,30 +131,68 @@ function(IcuDetectPython)
   endif()
 
   execute_process(
-    COMMAND ${PYTHON3_EXECUTABLE} -c "import os; print('backslash' if os.sep == chr(92) else 'slash')"
+    COMMAND ${Python3_EXECUTABLE} -c "import os; print('backslash' if os.sep == chr(92) else 'slash')"
     OUTPUT_VARIABLE sep
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_VARIABLE error
     RESULT_VARIABLE result
   )
   if(NOT result EQUAL 0)
-    IcuFatalError("Could not run ${PYTHON3_EXECUTABLE}: ${error}")
+    IcuFatalError("Could not run ${Python3_EXECUTABLE}: ${error}")
   endif()
 
   if(sep STREQUAL "backslash")
     set(ICU_PYTHON_NATIVE_WINDOWS ON PARENT_SCOPE)
-    IcuStatus("Python 3 uses Windows paths: ${PYTHON3_EXECUTABLE}")
+    IcuStatus("Python 3 uses Windows paths: ${Python3_EXECUTABLE}")
   elseif(sep STREQUAL "slash")
     set(ICU_PYTHON_NATIVE_WINDOWS OFF PARENT_SCOPE)
-    IcuStatus("Python 3 uses Unix paths: ${PYTHON3_EXECUTABLE}")
+    IcuStatus("Python 3 uses Unix paths: ${Python3_EXECUTABLE}")
   else()
-    IcuFatalError("Invalid path separator from ${PYTHON3_EXECUTABLE}: `${sep}`")
+    IcuFatalError("Invalid path separator from ${Python3_EXECUTABLE}: `${sep}`")
   endif()
 endfunction()
 
 # IcuFatalError(msg)
 function(IcuFatalError msg)
   message(FATAL_ERROR "${PROJECT_NAME}: ${msg}")
+endfunction()
+
+# IcuEnsureSymlink(target link)
+#
+# Makes `link` a symbolic link to `target`. A link that already points there is left in place.
+function(IcuEnsureSymlink target link)
+  cmake_path(SET targetNorm NORMALIZE ${target})
+  if(IS_SYMLINK "${link}")
+    file(READ_SYMLINK "${link}" current)
+    cmake_path(GET link PARENT_PATH linkDir)
+    cmake_path(ABSOLUTE_PATH current BASE_DIRECTORY ${linkDir} NORMALIZE OUTPUT_VARIABLE currentNorm)
+    if(currentNorm STREQUAL targetNorm)
+      return()
+    endif()
+    file(REMOVE "${link}")
+  elseif(EXISTS "${link}")
+    IcuFatalError("Cannot create symlink ${link}: path exists and is not a symlink")
+  endif()
+
+  file(CREATE_LINK "${targetNorm}" "${link}" SYMBOLIC RESULT result)
+  if(result EQUAL 0)
+    return()
+  endif()
+
+  # Directory junctions do not need the privilege a Windows symbolic link needs
+  if(WIN32)
+    file(MAKE_DIRECTORY "${targetNorm}")
+    execute_process(
+      COMMAND cmd /c mklink /J "${link}" "${targetNorm}"
+      RESULT_VARIABLE result
+      ERROR_VARIABLE error
+    )
+  else()
+    set(error)
+  endif()
+  if(NOT result EQUAL 0)
+    IcuFatalError("Could not link ${link} to ${targetNorm}: ${error}")
+  endif()
 endfunction()
 
 # IcuReadSources(dir out)
@@ -177,6 +215,58 @@ function(IcuReadSources dir out)
   endforeach()
 
   set(${out} ${sources} PARENT_SCOPE)
+endfunction()
+
+# IcuReadTestProgram(dir outSources)
+#
+# Sets `outSources` to the sources of the ICU test program in `dir`, or leaves it empty when `dir`
+# is not one test program. A test program has a `Makefile.in` that links `LIBCTESTFW` and lists
+# concrete `.o` files in `OBJECTS`. Data, scripts, benchmarks, fuzz targets, and programs that need
+# libraries this project does not build do not match.
+function(IcuReadTestProgram dir outSources)
+  set(${outSources} "" PARENT_SCOPE)
+  set(makefile ${dir}/Makefile.in)
+  if(NOT EXISTS ${makefile})
+    return()
+  endif()
+
+  # `file(STRINGS)` turns a trailing `\` into a list separator, so continuations are joined here
+  file(READ ${makefile} content)
+  string(REPLACE "\r\n" "\n" content "${content}")
+  string(REPLACE "\\\n" " " content "${content}")
+  if(NOT content MATCHES "LIBCTESTFW")
+    return()
+  endif()
+  if(NOT content MATCHES "(^|\n)OBJECTS[ \t]*=[ \t]*([^\n]*)")
+    return()
+  endif()
+
+  string(STRIP "${CMAKE_MATCH_2}" objectsLine)
+  if(objectsLine STREQUAL "")
+    return()
+  endif()
+  string(REGEX REPLACE "[ \t]+" ";" parts "${objectsLine}")
+  set(bases)
+  foreach(part IN LISTS parts)
+    if(NOT part MATCHES "\\.o$")
+      return()
+    endif()
+    string(REGEX REPLACE "\\.o$" "" base "${part}")
+    list(APPEND bases ${base})
+  endforeach()
+
+  set(sources)
+  foreach(base IN LISTS bases)
+    if(EXISTS ${dir}/${base}.cpp)
+      list(APPEND sources ${dir}/${base}.cpp)
+    elseif(EXISTS ${dir}/${base}.c)
+      list(APPEND sources ${dir}/${base}.c)
+    else()
+      return()
+    endif()
+  endforeach()
+
+  set(${outSources} "${sources}" PARENT_SCOPE)
 endfunction()
 
 # IcuReadVersion(sourceDir outVersion outMajor)
