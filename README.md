@@ -4,8 +4,9 @@ icu-cmake adds a CMake build to [ICU4C](https://github.com/unicode-org/icu). It 
 source and data files, builds ICU's own data tools, generates the ICU data from the text sources, and
 produces the libraries shown in the following table.
 
-With `BUILD_SHARED_LIBS` left `OFF` they are static. With `BUILD_SHARED_LIBS=ON` they are shared: `.so` on
-Linux and DLL on Windows. A Windows shared build also writes import libraries (`.lib`) beside the DLLs.
+With `BUILD_SHARED_LIBS` left `OFF` they are static. With `BUILD_SHARED_LIBS` set to `ON` they are shared:
+`.so` on Linux and DLL on Windows. A Windows shared build also writes import libraries (`.lib`) beside the
+DLLs.
 
 | Linux                             | Windows                        | CMake Target      | Content
 | :-------------------------------- | :----------------------------- | :---------------- | :------
@@ -18,13 +19,9 @@ Linux and DLL on Windows. A Windows shared build also writes import libraries (`
 Supported C++ toolchains on Linux are GNU (`g++`) and LLVM (`clang`). On Windows, they are LLVM
 (`clang-cl.exe`) and MSVC (`cl.exe`)
 
-At CMake level, icu-cmake may be used as a standalone project out of the box. Just fetch the content and link
-to the desired targets. It's as simple as that. See [How to Use It with CMake](#how_to_use_it_with_cmake) for
-detailed instructions.
-
-At shell level, if you want to use the `Makefile` shipped with the project, icu-cmake depends on
-[Gaia]([https://github.com/phkoester/gaia), which provides an underlying build system and must be properly
-set up. However, if all you want is to add icu-cmake as a CMake subproject, this will not bother you at all.
+icu-cmake may be used as a standalone project out of the box. Just fetch the content and link to the desired
+targets. It's as simple as that. See [How to Use It with CMake](#how_to_use_it_with_cmake) for detailed
+instructions.
 
 icu-cmake is mostly AI-generated and thoroughly human-reviewed.
 
@@ -55,7 +52,7 @@ FetchContent_Declare(
 set(ICU_CMAKE_ICU_VERSION 79.1)
 FetchContent_MakeAvailable(icu-cmake)
 
-# Link the common library to your target
+# Link the common library to your target. That's it!
 target_link_libraries(my-target PRIVATE icu-cmake::uc)
 ```
 

@@ -69,10 +69,8 @@ IcuAddVar(BUILD_SHARED_LIBS             BOOL     OFF                         "Bu
 IcuAddVar(BUILD_TESTING                 BOOL     ON                          "Enable testing and build tests")
 IcuAddVar(ICU_CMAKE_BUILD_TEST          BOOL     ${ICU_CMAKE_MASTER_PROJECT} "Enable testing and build the smoke test")
 IcuAddVar(ICU_CMAKE_DATA_FILTER_FILE    FILEPATH ""                          "ICU data filter file (JSON) to reduce the data size")
-IcuAddVar(ICU_CMAKE_ICU_DATA_HASH       STRING   ""                          "Expected SHA-256 of the data archive (empty: skip check)")
 IcuAddVar(ICU_CMAKE_ICU_DATA_SOURCE_DIR PATH     ""                          "Local ICU data sources (`icu4c/source/data`) to use instead of downloading them")
 IcuAddVar(ICU_CMAKE_ICU_SOURCE_DIR      PATH     ""                          "Local ICU checkout to use instead of downloading the sources")
-IcuAddVar(ICU_CMAKE_ICU_SOURCE_HASH     STRING   ""                          "Expected SHA-256 of the sources archive (empty: skip check)")
 IcuAddVar(ICU_CMAKE_ICU_VERSION         STRING   79.1                        "ICU version to download (release-VERSION tag, 78.1 or later)")
 
 # ICU looks up its common data as `icudt<major><letter>`, where the letter is `U_ICUDATA_TYPE_LETTER`:
@@ -86,32 +84,16 @@ else()
   IcuFatalError("Cannot tell the target endianness from CMAKE_CXX_BYTE_ORDER (`${CMAKE_CXX_BYTE_ORDER}`)")
 endif()
 
-# Known hashes of release archives
-if(ICU_CMAKE_ICU_VERSION STREQUAL "79.1")
-  if(ICU_CMAKE_ICU_SOURCE_HASH STREQUAL "")
-    set(ICU_CMAKE_ICU_SOURCE_HASH 06fa63ecb521048f8082f12ad988f6b678d90cbd88aafce24cbc94902b191d99)
-  endif()
-  if(ICU_CMAKE_ICU_DATA_HASH STREQUAL "")
-    set(ICU_CMAKE_ICU_DATA_HASH b3a430009bb5fab77b1a4b98fab85cc8f887e26d4e4166121724298ae14d7224)
-  endif()
-endif()
-
 set(ICU_RELEASE_URL https://github.com/unicode-org/icu/releases/download/release-${ICU_CMAKE_ICU_VERSION})
 
-# IcuFetch(name url hash): Downloads and extracts an archive, setting `${name}_SOURCE_DIR`
-function(IcuFetch name url hash)
+# IcuFetch(name url): Downloads and extracts an archive, setting `${name}_SOURCE_DIR`
+function(IcuFetch name url)
   include(FetchContent)
-
-  set(hashArgs)
-  if(NOT hash STREQUAL "")
-    set(hashArgs URL_HASH SHA256=${hash})
-  endif()
 
   IcuStatus("Fetching ${url}")
   FetchContent_Declare(
     ${name}
     URL ${url}
-    ${hashArgs}
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE
     EXCLUDE_FROM_ALL
   )
@@ -124,7 +106,7 @@ endfunction()
 # Obtain the ICU sources ------------------------------------------------------------------------------------
 
 if(ICU_CMAKE_ICU_SOURCE_DIR STREQUAL "")
-  IcuFetch(icu ${ICU_RELEASE_URL}/icu4c-${ICU_CMAKE_ICU_VERSION}-sources.tgz "${ICU_CMAKE_ICU_SOURCE_HASH}")
+  IcuFetch(icu ${ICU_RELEASE_URL}/icu4c-${ICU_CMAKE_ICU_VERSION}-sources.tgz)
   set(ICU_SOURCE_DIR ${icu_SOURCE_DIR}/source)
 else()
   # Accept a repository root, `icu4c`, or `icu4c/source`
@@ -151,7 +133,7 @@ if(NOT ICU_CMAKE_ICU_DATA_SOURCE_DIR STREQUAL "")
 elseif(EXISTS ${ICU_SOURCE_DIR}/data/locales/LOCALE_DEPS.json)
   set(ICU_DATA_SOURCE_DIR ${ICU_SOURCE_DIR}/data)
 else()
-  IcuFetch(icu-data ${ICU_RELEASE_URL}/icu4c-${ICU_CMAKE_ICU_VERSION}-data.zip "${ICU_CMAKE_ICU_DATA_HASH}")
+  IcuFetch(icu-data ${ICU_RELEASE_URL}/icu4c-${ICU_CMAKE_ICU_VERSION}-data.zip)
   # The archive's single top-level directory `data/` is usually stripped during extraction
   if(EXISTS ${icu-data_SOURCE_DIR}/BUILDRULES.py)
     set(ICU_DATA_SOURCE_DIR ${icu-data_SOURCE_DIR})
