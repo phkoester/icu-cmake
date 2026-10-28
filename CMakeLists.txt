@@ -8,25 +8,6 @@ cmake_minimum_required(VERSION 4.2)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/IcuHelpers.cmake)
 
-# Prerequisites ---------------------------------------------------------------------------------------------
-
-IcuStatus("SHELL: $ENV{SHELL}")
-if($ENV{SHELL} MATCHES ".*\\bash\.exe")
-  IcuStatus("Matches")
-endif()
-
-if(WIN32)
-  if($ENV{DevEnvDir} STREQUAL "")
-    IcuFatalError("Developer Command Prompt for Microsoft Visual Studio is required")
-  endif()
-  if(NOT $ENV{MSYSTEM} STREQUAL "MSYS" OR NOT $ENV{SHELL} MATCHES ".*git.*\\usr\\bin\\bash\.exe")
-    IcuFatalError("Bash shell from Git SDK is required")
-  endif()
-  # On Windows, some output from `find_package` compromises the console mode of Git SDK Bash
-  set(quiet__ QUIET)
-endif()
-find_package(Python3 3.8 ${quiet__} REQUIRED COMPONENTS Interpreter)
-
 # Project ---------------------------------------------------------------------------------------------------
 
 # Is this the master project?
@@ -39,9 +20,45 @@ endif()
 
 project(icu-cmake VERSION 0.1.0 LANGUAGES C CXX)
 
+# Prerequisites ---------------------------------------------------------------------------------------------
+
+if(WIN32)
+  if($ENV{DevEnvDir} STREQUAL "")
+    IcuFatalError("Developer Command Prompt for Microsoft Visual Studio is required")
+  endif()
+  if(NOT $ENV{MSYSTEM} STREQUAL "MSYS" OR NOT $ENV{SHELL} MATCHES "bash\.exe$")
+    IcuFatalError("Bash shell from Git SDK is required")
+  endif()
+endif()
+
+find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
+find_package(Threads REQUIRED)
+
 # General settings ------------------------------------------------------------------------------------------
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Set compiler options -------------------------------------------------------------------------------------
+
+set(COMPILE_FLAGS)
+if(LINUX)
+  # Linux
+elseif(WIN32)
+  # Windows
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # Windows, Clang
+    set(COMPILE_FLAGS
+      -Wno-format
+      -Wno-macro-redefined
+      -Wno-parentheses
+      -Wno-unused-function
+      -Wno-unused-variable
+    )
+  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # Windows, MSVC
+    set(COMPILE_FLAGS /wd4005 /wd4477 /wd4805)
+  endif()
+endif()
 
 # Configuration ---------------------------------------------------------------------------------------------
 
@@ -137,8 +154,6 @@ if(NOT EXISTS ${ICU_DATA_SOURCE_DIR}/BUILDRULES.py OR NOT EXISTS ${ICU_DATA_SOUR
   IcuFatalError("No ICU data sources found in ${ICU_DATA_SOURCE_DIR}")
 endif()
 IcuStatus("ICU_DATA_SOURCE_DIR: ${ICU_DATA_SOURCE_DIR}")
-
-find_package(Threads REQUIRED)
 
 # Determine the ICU version ---------------------------------------------------------------------------------
 
