@@ -6,6 +6,12 @@
 
 # Functions -------------------------------------------------------------------------------------------------
 
+# IcuAddExecutable(name srcFile...)
+function(IcuAddExecutable name)
+  add_executable(${name})
+  target_sources(${name} PRIVATE ${ARGN})
+endfunction()
+
 # IcuAddObjectLibrary(name dir)
 #
 # Adds an object library from `dir/sources.txt`.
@@ -37,6 +43,24 @@ function(IcuAddTool name)
   )
 endfunction()
 
+# IcuAddVar(name type default doc)
+#
+# Adds a CMMake variable. If it is already set, it is left unchanged. Otherwise, if there is an environment
+# variable with the same name, it is used. As a fallback, the default value is used.
+function(IcuAddVar name type default doc)
+  if(NOT DEFINED ${name})
+    if(NOT $ENV{${name}} STREQUAL "")
+      set(${name} $ENV{${name}} CACHE ${type} "${doc}")
+      IcuStatus("Setting ${name} by environment: ${${name}}")
+    else()
+      set(${name} ${default} CACHE ${type} "${doc}")
+      IcuStatus("Setting ${name} to default: ${${name}}")
+    endif()
+  else()
+    IcuStatus("Found ${name}: ${${name}}")
+  endif()
+endfunction()
+
 # IcuApplyCommonSettings(name)
 #
 # Applies the compiler settings ICU's own build systems use to a target that compiles ICU sources.
@@ -56,9 +80,9 @@ function(IcuApplyCommonSettings name)
       U_STATIC_IMPLEMENTATION
   )
 
-  if(GAIA_OS_LINUX)
+  if(LINUX)
     target_compile_definitions(${name} PRIVATE _REENTRANT)
-  elseif(GAIA_OS_WINDOWS)
+  elseif(WIN32)
     target_compile_definitions(${name}
       PRIVATE
         _CRT_SECURE_NO_DEPRECATE
@@ -78,13 +102,18 @@ function(IcuApplyCommonSettings name)
   )
 endfunction()
 
+# IcuFatalError(msg)
+function(IcuFatalError msg)
+  message(FATAL_ERROR "${PROJECT_NAME}: ${msg}")
+endfunction()
+
 # IcuReadSources(dir out)
 #
 # Reads `dir/sources.txt` and returns the listed files with `dir/` prepended.
 function(IcuReadSources dir out)
   set(file ${dir}/sources.txt)
   if(NOT EXISTS ${file})
-    GaiaFatalError("Missing ${file}")
+    IcuFatalError("Missing ${file}")
   endif()
 
   file(STRINGS ${file} lines)
@@ -106,7 +135,7 @@ endfunction()
 function(IcuReadVersion sourceDir outVersion outMajor)
   set(header ${sourceDir}/common/unicode/uvernum.h)
   if(NOT EXISTS ${header})
-    GaiaFatalError("Missing ${header}")
+    IcuFatalError("Missing ${header}")
   endif()
 
   file(STRINGS ${header} majorLine REGEX "^#define U_ICU_VERSION_MAJOR_NUM[ \t]+[0-9]+")
@@ -116,11 +145,27 @@ function(IcuReadVersion sourceDir outVersion outMajor)
   string(REGEX REPLACE "^#define U_ICU_VERSION[ \t]+\"([0-9.]+)\".*$" "\\1" version "${versionLine}")
 
   if(NOT major MATCHES "^[0-9]+$" OR NOT version MATCHES "^[0-9.]+$")
-    GaiaFatalError("Cannot parse the ICU version from ${header}")
+    IcuFatalError("Cannot parse the ICU version from ${header}")
   endif()
 
   set(${outVersion} ${version} PARENT_SCOPE)
   set(${outMajor} ${major} PARENT_SCOPE)
+endfunction()
+
+# IcuStatus(msg)
+function(IcuStatus msg)
+  message(STATUS "${PROJECT_NAME}: ${msg}")
+endfunction()
+
+# IcuUnixPath(in out)
+function(IcuUnixPath in out)
+  if(WIN32)
+    execute_process(COMMAND cygpath -u ${in} OUTPUT_VARIABLE localOut)
+    string(STRIP ${localOut} localOut)
+    set(${out} ${localOut} PARENT_SCOPE)
+  else()
+    set(${out} ${in} PARENT_SCOPE)
+  endif()
 endfunction()
 
 # EOF

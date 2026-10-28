@@ -12,8 +12,12 @@ produces these static libraries:
 | `libicutu.a`    | `icutu.lib`   | `icu-cmake::tu`   | Tool utilities
 | `libicuuc.a`    | `icuuc.lib`   | `icu-cmake::uc`   | Common library
 
-icu-make depends on [Gaia]([https://github.com/phkoester/gaia), which provides the underlying build system
-at shell level.
+At shell level, if you want to use the `Makefile` shipped with the project, icu-cmake depends on
+[Gaia]([https://github.com/phkoester/gaia), which provides the underlying build system and must be properly
+set up.
+
+At CMake level, however, icu-cmake may be used as a standalone project out of the box. See
+[Consuming](#consuming) for more information.
 
 icu-cmake is mostly AI-generated and thoroughly human-reviewed.
 
@@ -32,6 +36,17 @@ It is pre-alpha, a hobby project of mine, and possibly dangerous. **Use it at yo
    or a C file.
 5. The static libraries are assembled from the object libraries and the generated data. `icu-cmake::uc` links
    `icu-cmake::data` publicly, so consumers never have to care about link order.
+
+## Consuming
+
+As a subproject:
+
+```cmake
+include(FetchContent)
+FetchContent_Declare(icu-cmake GIT_REPOSITORY https://github.com/phkoester/icu-cmake.git GIT_TAG main)
+FetchContent_MakeAvailable(icu-cmake)
+target_link_libraries(my-target PRIVATE icu-cmake::uc)
+```
 
 ## CMake Variables
 

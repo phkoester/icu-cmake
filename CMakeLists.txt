@@ -4,6 +4,14 @@
 
 cmake_minimum_required(VERSION 4.2)
 
+# No Gaia includes here, we want to be able to use this as a standalone project
+
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/IcuHelpers.cmake)
+
+# Prerequisites ---------------------------------------------------------------------------------------------
+
+find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
+
 # Project ---------------------------------------------------------------------------------------------------
 
 # Is this the master project?
@@ -16,25 +24,25 @@ endif()
 
 project(icu-cmake VERSION 0.1.0 LANGUAGES C CXX)
 
-include($ENV{GAIA_DIR}/src/main/cmake/gaia.cmake)
+# General settings ------------------------------------------------------------------------------------------
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmake/IcuHelpers.cmake)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Configuration ---------------------------------------------------------------------------------------------
 
-GaiaAddVar(ICU_CMAKE_BUILD_TEST          BOOL     ${ICU_CMAKE_MASTER_PROJECT} "Enable testing and build tests")
-GaiaAddVar(ICU_CMAKE_DATA_FILTER_FILE    FILEPATH ""                          "ICU data filter file (JSON) to reduce the data size")
-GaiaAddVar(ICU_CMAKE_ICU_DATA_HASH       STRING   ""                          "Expected SHA-256 of the data archive (empty: skip check)")
-GaiaAddVar(ICU_CMAKE_ICU_DATA_SOURCE_DIR PATH     ""                          "Local ICU data sources (`icu4c/source/data`) to use instead of downloading them")
-GaiaAddVar(ICU_CMAKE_ICU_SOURCE_DIR      PATH     ""                          "Local ICU checkout to use instead of downloading the sources")
-GaiaAddVar(ICU_CMAKE_ICU_SOURCE_HASH     STRING   ""                          "Expected SHA-256 of the sources archive (empty: skip check)")
-GaiaAddVar(ICU_CMAKE_ICU_VERSION         STRING   79.1                        "ICU version to download (release-VERSION tag, 78.1 or later)")
+IcuAddVar(ICU_CMAKE_BUILD_TEST          BOOL     ${ICU_CMAKE_MASTER_PROJECT} "Enable testing and build tests")
+IcuAddVar(ICU_CMAKE_DATA_FILTER_FILE    FILEPATH ""                          "ICU data filter file (JSON) to reduce the data size")
+IcuAddVar(ICU_CMAKE_ICU_DATA_HASH       STRING   ""                          "Expected SHA-256 of the data archive (empty: skip check)")
+IcuAddVar(ICU_CMAKE_ICU_DATA_SOURCE_DIR PATH     ""                          "Local ICU data sources (`icu4c/source/data`) to use instead of downloading them")
+IcuAddVar(ICU_CMAKE_ICU_SOURCE_DIR      PATH     ""                          "Local ICU checkout to use instead of downloading the sources")
+IcuAddVar(ICU_CMAKE_ICU_SOURCE_HASH     STRING   ""                          "Expected SHA-256 of the sources archive (empty: skip check)")
+IcuAddVar(ICU_CMAKE_ICU_VERSION         STRING   79.1                        "ICU version to download (release-VERSION tag, 78.1 or later)")
 
 if(BUILD_SHARED_LIBS)
-  GaiaFatalError("Only static libraries are supported, set BUILD_SHARED_LIBS=OFF")
+  IcuFatalError("Only static libraries are supported, set BUILD_SHARED_LIBS=OFF")
 endif()
 if(CMAKE_CXX_BYTE_ORDER STREQUAL "BIG_ENDIAN")
-  GaiaFatalError("Big-endian targets are not supported")
+  IcuFatalError("Big-endian targets are not supported")
 endif()
 
 # Known hashes of release archives
@@ -58,7 +66,7 @@ function(IcuFetch name url hash)
     set(hashArgs URL_HASH SHA256=${hash})
   endif()
 
-  GaiaStatus("Fetching ${url}")
+  IcuStatus("Fetching ${url}")
   FetchContent_Declare(
     ${name}
     URL ${url}
@@ -87,10 +95,10 @@ else()
     endif()
   endforeach()
   if(NOT ICU_SOURCE_DIR)
-    GaiaFatalError("No ICU sources found in ${ICU_CMAKE_ICU_SOURCE_DIR}")
+    IcuFatalError("No ICU sources found in ${ICU_CMAKE_ICU_SOURCE_DIR}")
   endif()
 endif()
-GaiaStatus("ICU_SOURCE_DIR: ${ICU_SOURCE_DIR}")
+IcuStatus("ICU_SOURCE_DIR: ${ICU_SOURCE_DIR}")
 
 # Obtain the ICU data sources -------------------------------------------------------------------------------
 #
@@ -111,16 +119,16 @@ else()
   endif()
 endif()
 if(NOT EXISTS ${ICU_DATA_SOURCE_DIR}/BUILDRULES.py OR NOT EXISTS ${ICU_DATA_SOURCE_DIR}/locales/LOCALE_DEPS.json)
-  GaiaFatalError("No ICU data sources found in ${ICU_DATA_SOURCE_DIR}")
+  IcuFatalError("No ICU data sources found in ${ICU_DATA_SOURCE_DIR}")
 endif()
-GaiaStatus("ICU_DATA_SOURCE_DIR: ${ICU_DATA_SOURCE_DIR}")
+IcuStatus("ICU_DATA_SOURCE_DIR: ${ICU_DATA_SOURCE_DIR}")
 
 # Determine the ICU version ---------------------------------------------------------------------------------
 
 IcuReadVersion(${ICU_SOURCE_DIR} ICU_VERSION ICU_VERSION_MAJOR)
 set(ICU_DATA_NAME icudt${ICU_VERSION_MAJOR}l) # Little-endian, ASCII-based data package
 set(ICU_DATA_ENTRY_POINT icudt${ICU_VERSION_MAJOR})
-GaiaStatus("ICU_VERSION: ${ICU_VERSION}, data package: ${ICU_DATA_NAME}")
+IcuStatus("ICU_VERSION: ${ICU_VERSION}, data package: ${ICU_DATA_NAME}")
 
 # Dependencies ----------------------------------------------------------------------------------------------
 
