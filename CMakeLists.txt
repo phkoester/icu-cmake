@@ -10,7 +10,11 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/IcuHelpers.cmake)
 
 # Prerequisites ---------------------------------------------------------------------------------------------
 
-find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
+if(WIN32)
+  find_package(Python3 3.8 QUIET REQUIRED COMPONENTS Interpreter)
+else()
+  find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
+endif()
 
 # Project ---------------------------------------------------------------------------------------------------
 
