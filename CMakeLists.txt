@@ -62,6 +62,8 @@ endif()
 
 # Configuration ---------------------------------------------------------------------------------------------
 
+IcuAddVar(BUILD_SHARED_LIBS             BOOL     OFF                         "Build shared libraries")
+IcuAddVar(BUILD_TESTING                 BOOL     ON                          "Enable testing and build tests")
 IcuAddVar(ICU_CMAKE_BUILD_TEST          BOOL     ${ICU_CMAKE_MASTER_PROJECT} "Enable testing and build tests")
 IcuAddVar(ICU_CMAKE_DATA_FILTER_FILE    FILEPATH ""                          "ICU data filter file (JSON) to reduce the data size")
 IcuAddVar(ICU_CMAKE_ICU_DATA_HASH       STRING   ""                          "Expected SHA-256 of the data archive (empty: skip check)")
@@ -70,9 +72,6 @@ IcuAddVar(ICU_CMAKE_ICU_SOURCE_DIR      PATH     ""                          "Lo
 IcuAddVar(ICU_CMAKE_ICU_SOURCE_HASH     STRING   ""                          "Expected SHA-256 of the sources archive (empty: skip check)")
 IcuAddVar(ICU_CMAKE_ICU_VERSION         STRING   79.1                        "ICU version to download (release-VERSION tag, 78.1 or later)")
 
-if(BUILD_SHARED_LIBS)
-  IcuFatalError("Only static libraries are supported, set BUILD_SHARED_LIBS=OFF")
-endif()
 if(CMAKE_CXX_BYTE_ORDER STREQUAL "BIG_ENDIAN")
   IcuFatalError("Big-endian targets are not supported")
 endif()
@@ -165,7 +164,7 @@ IcuStatus("ICU_VERSION: ${ICU_VERSION}, data package: ${ICU_DATA_NAME}")
 # Add subdirectories ----------------------------------------------------------------------------------------
 
 add_subdirectory(src/main)
-if(ICU_CMAKE_BUILD_TEST)
+if(BUILD_TESTING AND ICU_CMAKE_BUILD_TEST)
   enable_testing()
   add_subdirectory(src/test)
 endif()

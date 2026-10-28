@@ -8,7 +8,8 @@
 # 1. Object libraries for `common`, `i18n`, `io`, and `toolutil`
 # 2. The stub data library and the ICU build tools (linked against the object libraries and the stub data)
 # 3. The ICU data, generated from the text sources by `icutools.databuilder` and the tools
-# 4. The static libraries, assembled from the object libraries and the generated data
+# 4. The libraries, assembled from the object libraries and the generated data. Static, unless
+#    `BUILD_SHARED_LIBS` is on (`.so` on Linux, DLL on Windows).
 #
 
 include(GNUInstallDirs)
@@ -89,6 +90,30 @@ target_compile_definitions(icutu-obj
 )
 target_link_libraries(icutu-obj PUBLIC icui18n-obj)
 
+# The data tools always link ICU statically. On Windows, objects compiled for a DLL dllimport symbols from
+# the other DLLs, so those objects cannot be linked into the tools. The tools get their own static objects.
+if(WIN32 AND BUILD_SHARED_LIBS)
+  IcuAddObjectLibrary(icuuc-tool ${ICU_SOURCE_DIR}/common FOR_TOOLS)
+  target_compile_definitions(icuuc-tool PRIVATE U_COMMON_IMPLEMENTATION)
+
+  IcuAddObjectLibrary(icui18n-tool ${ICU_SOURCE_DIR}/i18n FOR_TOOLS)
+  target_compile_definitions(icui18n-tool PRIVATE U_I18N_IMPLEMENTATION)
+  target_link_libraries(icui18n-tool PUBLIC icuuc-tool)
+
+  IcuAddObjectLibrary(icutu-tool ${ICU_SOURCE_DIR}/tools/toolutil FOR_TOOLS)
+  target_compile_definitions(icutu-tool
+    PRIVATE
+      U_TOOLUTIL_IMPLEMENTATION
+      UNISTR_FROM_CHAR_EXPLICIT=explicit
+      UNISTR_FROM_STRING_EXPLICIT=explicit
+  )
+  target_link_libraries(icutu-tool PUBLIC icui18n-tool)
+
+  set(ICU_TOOL_OBJECT_LIBS icutu-tool icui18n-tool icuuc-tool)
+else()
+  set(ICU_TOOL_OBJECT_LIBS icutu-obj icui18n-obj icuuc-obj)
+endif()
+
 # Stub data -------------------------------------------------------------------------------------------------
 #
 # The build tools link against this empty data package, which lets them run before the real data exists.
@@ -96,7 +121,7 @@ target_link_libraries(icutu-obj PUBLIC icui18n-obj)
 IcuReadSources(${ICU_SOURCE_DIR}/stubdata stubSources)
 add_library(icudata-stub STATIC ${stubSources})
 IcuApplyCommonSettings(icudata-stub)
-target_compile_definitions(icudata-stub PRIVATE STUBDATA_BUILD)
+target_compile_definitions(icudata-stub PRIVATE STUBDATA_BUILD U_STATIC_IMPLEMENTATION)
 target_include_directories(icudata-stub PRIVATE ${ICU_SOURCE_DIR}/common)
 
 # Build tools -----------------------------------------------------------------------------------------------
@@ -194,7 +219,10 @@ elseif(ICU_CMAKE_DATA_FORMAT STREQUAL "object")
   else()
     set(cpuArch x86)
   endif()
-  list(APPEND genccodeArgs -o -c ${cpuArch} --skip-dll-export)
+  list(APPEND genccodeArgs -o -c ${cpuArch})
+  if(NOT BUILD_SHARED_LIBS)
+    list(APPEND genccodeArgs --skip-dll-export)
+  endif()
 else()
   set(dataFile ${ICU_GENERATED_DIR}/${ICU_DATA_NAME}_dat.c)
 endif()
@@ -210,12 +238,33 @@ add_custom_command(
 
 # Libraries -------------------------------------------------------------------------------------------------
 
+if(BUILD_SHARED_LIBS)
+  set(icuLibraryType SHARED)
+else()
+  set(icuLibraryType STATIC)
+endif()
+
 # `icudata` .................................................................................................
 
-add_library(icudata STATIC ${dataFile})
+add_library(icudata ${icuLibraryType} ${dataFile})
 if(ICU_CMAKE_DATA_FORMAT STREQUAL "c")
   IcuApplyCommonSettings(icudata)
   target_include_directories(icudata PRIVATE ${ICU_SOURCE_DIR}/common)
+  if(NOT BUILD_SHARED_LIBS)
+    target_compile_definitions(icudata PRIVATE U_STATIC_IMPLEMENTATION)
+  endif()
+endif()
+if(BUILD_SHARED_LIBS)
+  if(WIN32)
+    # Data-only DLL: there is no `DllMain`. The object format already emits the export directive.
+    target_link_options(icudata PRIVATE "/NOENTRY")
+    if(NOT ICU_CMAKE_DATA_FORMAT STREQUAL "object")
+      target_link_options(icudata PRIVATE "/EXPORT:${ICU_DATA_ENTRY_POINT}_dat,DATA")
+    endif()
+  else()
+    # Same link line ICU uses for `libicudata`: the archive is pure data
+    target_link_options(icudata PRIVATE -nodefaultlibs -nostdlib)
+  endif()
 endif()
 set_target_properties(icudata
   PROPERTIES
@@ -227,8 +276,11 @@ add_library(icu-cmake::data ALIAS icudata)
 
 # `icuuc` ...................................................................................................
 
-add_library(icuuc STATIC $<TARGET_OBJECTS:icuuc-obj>)
-target_compile_definitions(icuuc INTERFACE U_STATIC_IMPLEMENTATION)
+add_library(icuuc ${icuLibraryType} $<TARGET_OBJECTS:icuuc-obj>)
+if(NOT BUILD_SHARED_LIBS)
+  # Static consumers take the symbols from the `.a` / `.lib`, so the headers leave them undecorated
+  target_compile_definitions(icuuc INTERFACE U_STATIC_IMPLEMENTATION)
+endif()
 target_compile_features(icuuc INTERFACE cxx_std_17)
 # Imported targets are treated as system includes anyway, so only the build interface is marked `SYSTEM`
 target_include_directories(icuuc SYSTEM INTERFACE $<BUILD_INTERFACE:${ICU_SOURCE_DIR}/common>)
@@ -244,7 +296,7 @@ add_library(icu-cmake::uc ALIAS icuuc)
 
 # `icui18n` .................................................................................................
 
-add_library(icui18n STATIC $<TARGET_OBJECTS:icui18n-obj>)
+add_library(icui18n ${icuLibraryType} $<TARGET_OBJECTS:icui18n-obj>)
 target_include_directories(icui18n SYSTEM INTERFACE $<BUILD_INTERFACE:${ICU_SOURCE_DIR}/i18n>)
 target_link_libraries(icui18n PUBLIC icuuc)
 set_target_properties(icui18n
@@ -257,7 +309,7 @@ add_library(icu-cmake::i18n ALIAS icui18n)
 
 # `icuio` ...................................................................................................
 
-add_library(icuio STATIC $<TARGET_OBJECTS:icuio-obj>)
+add_library(icuio ${icuLibraryType} $<TARGET_OBJECTS:icuio-obj>)
 target_include_directories(icuio SYSTEM INTERFACE $<BUILD_INTERFACE:${ICU_SOURCE_DIR}/io>)
 target_link_libraries(icuio PUBLIC icui18n)
 set_target_properties(icuio
@@ -270,7 +322,7 @@ add_library(icu-cmake::io ALIAS icuio)
 
 # `icutu` ...................................................................................................
 
-add_library(icutu STATIC $<TARGET_OBJECTS:icutu-obj>)
+add_library(icutu ${icuLibraryType} $<TARGET_OBJECTS:icutu-obj>)
 target_include_directories(icutu SYSTEM INTERFACE $<BUILD_INTERFACE:${ICU_SOURCE_DIR}/tools/toolutil>)
 target_include_directories(icutu INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/icu/toolutil>)
 target_link_libraries(icutu PUBLIC icui18n)

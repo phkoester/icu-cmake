@@ -13,15 +13,24 @@ function(IcuAddExecutable name)
   target_sources(${name} PRIVATE ${ARGN})
 endfunction()
 
-# IcuAddObjectLibrary(name dir)
+# IcuAddObjectLibrary(name dir [FOR_TOOLS])
 #
-# Adds an object library from `dir/sources.txt`.
+# Adds an object library from `dir/sources.txt`. `FOR_TOOLS` compiles with `U_STATIC_IMPLEMENTATION`
+# for the data tools, which always link statically against the stub data. Otherwise the objects follow
+# `BUILD_SHARED_LIBS`: position-independent code when shared, `U_STATIC_IMPLEMENTATION` when static.
 function(IcuAddObjectLibrary name dir)
   IcuReadSources(${dir} sources)
   add_library(${name} OBJECT ${sources})
   target_compile_options(${name} PRIVATE ${COMPILE_FLAGS})
   IcuApplyCommonSettings(${name})
   target_include_directories(${name} PUBLIC ${dir})
+
+  if(ARGN STREQUAL "FOR_TOOLS" OR NOT BUILD_SHARED_LIBS)
+    target_compile_definitions(${name} PRIVATE U_STATIC_IMPLEMENTATION)
+  endif()
+  if(BUILD_SHARED_LIBS AND NOT ARGN STREQUAL "FOR_TOOLS")
+    set_target_properties(${name} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  endif()
 endfunction()
 
 # IcuAddTool(name)
@@ -37,7 +46,8 @@ function(IcuAddTool name)
   target_compile_options(${target} PRIVATE ${COMPILE_FLAGS})
   IcuApplyCommonSettings(${target})
   target_include_directories(${target} PRIVATE ${dir})
-  target_link_libraries(${target} PRIVATE icutu-obj icui18n-obj icuuc-obj icudata-stub ${ICU_SYSTEM_LIBS})
+  target_compile_definitions(${target} PRIVATE U_STATIC_IMPLEMENTATION)
+  target_link_libraries(${target} PRIVATE ${ICU_TOOL_OBJECT_LIBS} icudata-stub ${ICU_SYSTEM_LIBS})
 
   set_target_properties(${target}
     PROPERTIES
@@ -80,7 +90,6 @@ function(IcuApplyCommonSettings name)
   target_compile_definitions(${name}
     PRIVATE
       U_ATTRIBUTE_DEPRECATED=
-      U_STATIC_IMPLEMENTATION
   )
 
   if(LINUX)

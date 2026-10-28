@@ -2,15 +2,17 @@
 
 icu-cmake adds a CMake build to [ICU4C](https://github.com/unicode-org/icu). It downloads the ICU4C release
 source and data files, builds ICU's own data tools, generates the ICU data from the text sources, and
-produces these static libraries:
+produces these libraries. With `BUILD_SHARED_LIBS` left `OFF` they are static. With
+`BUILD_SHARED_LIBS=ON` they are shared: `.so` on Linux and DLL on Windows. A Windows shared build also
+writes import libraries (`.lib`) beside the DLLs.
 
-| Linux           | Windows       | CMake Target      | Content
-| :-------------- | :------------ | :---------------- | :------
-| `libicudata.a`  | `icudata.lib` | `icu-cmake::data` | The ICU data package (`icudtNNl`)
-| `libicui18n.a`  | `icui18n.lib` | `icu-cmake::i18n` | Internationalization library
-| `libicuio.a`    | `icuio.lib`   | `icu-cmake::io`   | Unicode standard I/O library
-| `libicutu.a`    | `icutu.lib`   | `icu-cmake::tu`   | Tool utilities
-| `libicuuc.a`    | `icuuc.lib`   | `icu-cmake::uc`   | Common library
+| Linux                             | Windows                        | CMake Target      | Content
+| :-------------------------------- | :----------------------------- | :---------------- | :------
+| `libicudata.a` or `libicudata.so` | `icudata.lib` or `icudata.dll` | `icu-cmake::data` | The ICU data package (`icudtNNl`)
+| `libicui18n.a` or `libicui18n.so` | `icui18n.lib` or `icui18n.dll` | `icu-cmake::i18n` | Internationalization library
+| `libicuio.a` or `libicuio.so`     | `icuio.lib` or `icuio.dll`     | `icu-cmake::io`   | Unicode standard I/O library
+| `libicutu.a` or `libicutu.so`     | `icutu.lib` or `icutu.dll`     | `icu-cmake::tu`   | Tool utilities
+| `libicuuc.a` or `libicuuc.so`     | `icuuc.lib` or `icuuc.dll`     | `icu-cmake::uc`   | Common library
 
 At shell level, if you want to use the `Makefile` shipped with the project, icu-cmake depends on
 [Gaia]([https://github.com/phkoester/gaia), which provides the underlying build system and must be properly
@@ -34,8 +36,9 @@ It is pre-alpha, a hobby project of mine, and possibly dangerous. **Use it at yo
 4. `python -m icutools.databuilder` runs the tools on the text sources, `pkgdata` packs the result into
    `icudtNNl.dat`, and `genccode` turns the archive into an assembly file (Linux), an object file (Windows),
    or a C file.
-5. The static libraries are assembled from the object libraries and the generated data. `icu-cmake::uc` links
-   `icu-cmake::data` publicly, so consumers never have to care about link order.
+5. The libraries are assembled from the object libraries and the generated data. They are static unless
+   `BUILD_SHARED_LIBS` is on. `icu-cmake::uc` links `icu-cmake::data` publicly, so consumers never have to
+   care about link order. A static build publishes `U_STATIC_IMPLEMENTATION` through the library interface.
 
 ## Consuming
 
@@ -52,6 +55,7 @@ target_link_libraries(my-target PRIVATE icu-cmake::uc)
 
 | Name                            | Type       | Default                           | Description
 | :------------------------------ | :--------- | :-------------------------------- | :----------
+| `BUILD_SHARED_LIBS`             | `BOOL`     | `OFF`                             | Build shared libraries (`.so` on Linux, DLL on Windows) instead of static libraries
 | `BUILD_TESTING`                 | `BOOL`     | `ON`                              | Enable testing and build tests
 | `CMAKE_BUILD_TYPE`              | `STRING`   | `Release` if single configuration | The build type (`Debug` or `Release`)
 | `ICU_CMAKE_BUILD_TEST`          | `BOOL`     | `ON` if master project            | Enable testing and build the smoke test
@@ -69,7 +73,6 @@ case. Variables may also be set via environment variables of the same name.
 
 ## Limitations
 
-- Static libraries only (`BUILD_SHARED_LIBS` must be `OFF`).
 - Little-endian targets only.
 - No cross-compilation: the data tools must run on the build host.
 - The `tzdata` override, ICU4J data, and the ICU test suites are not built.

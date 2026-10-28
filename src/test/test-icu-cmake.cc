@@ -1,7 +1,7 @@
 //
 // test-icu-cmake.cc
 //
-// Smoke test: Checks that the static ICU libraries link and that the real (non-stub) data is embedded.
+// Smoke test: Checks that the ICU libraries link and that the real (non-stub) data is available.
 //
 
 #include <cstdio>
