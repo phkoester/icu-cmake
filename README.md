@@ -2,9 +2,10 @@
 
 icu-cmake adds a CMake build to [ICU4C](https://github.com/unicode-org/icu). It downloads the ICU4C release
 source and data files, builds ICU's own data tools, generates the ICU data from the text sources, and
-produces these libraries. With `BUILD_SHARED_LIBS` left `OFF` they are static. With
-`BUILD_SHARED_LIBS=ON` they are shared: `.so` on Linux and DLL on Windows. A Windows shared build also
-writes import libraries (`.lib`) beside the DLLs.
+produces the libraries shown in the following table.
+
+With `BUILD_SHARED_LIBS` left `OFF` they are static. With `BUILD_SHARED_LIBS=ON` they are shared: `.so` on
+Linux and DLL on Windows. A Windows shared build also writes import libraries (`.lib`) beside the DLLs.
 
 | Linux                             | Windows                        | CMake Target      | Content
 | :-------------------------------- | :----------------------------- | :---------------- | :------
@@ -14,8 +15,11 @@ writes import libraries (`.lib`) beside the DLLs.
 | `libicutu.a` or `libicutu.so`     | `icutu.lib` or `icutu.dll`     | `icu-cmake::tu`   | Tool utilities
 | `libicuuc.a` or `libicuuc.so`     | `icuuc.lib` or `icuuc.dll`     | `icu-cmake::uc`   | Common library
 
-At CMake level, icu-cmake may be used as a standalone project out of the box. See [Consuming](#consuming) for
-more information.
+Supported C++ toolchains on Linux are GNU (`g++`) and LLVM (`clang`). On Windows, they are LLVM
+(`clang-cl.exe`) and MSVC (`cl.exe`)
+
+At CMake level, icu-cmake may be used as a standalone project out of the box. Just fetch the content and link
+to the desired targets. It's as simple as that. See #how_to_use_this_library_with_cmake for more information.
 
 At shell level, if you want to use the `Makefile` shipped with the project, icu-cmake depends on
 [Gaia]([https://github.com/phkoester/gaia), which provides the underlying build system and must be properly
@@ -23,7 +27,27 @@ set up.
 
 icu-cmake is mostly AI-generated and thoroughly human-reviewed.
 
-It is pre-alpha, a hobby project of mine, and possibly dangerous. **Use it at your own risk.**
+icu-cmake is pre-alpha, a hobby project of mine, and possibly dangerous. **Use it at your own risk.**
+
+## How to Use This Library with CMake
+
+```cmake
+include(FetchContent)
+
+# Declare the repository
+FetchContent_Declare(
+  icu-cmake
+  GIT_REPOSITORY https://github.com/phkoester/icu-cmake.git
+  GIT_TAG v0.1.0
+)
+
+# Select desired ICU version, fetch `icu-cmake` as a subproject
+set(ICU_CMAKE_ICU_VERSION 79.1)
+FetchContent_MakeAvailable(icu-cmake)
+
+# Link the common library to your target
+target_link_libraries(my-target PRIVATE icu-cmake::uc)
+```
 
 ## How It Works
 
@@ -39,17 +63,6 @@ It is pre-alpha, a hobby project of mine, and possibly dangerous. **Use it at yo
 5. The libraries are assembled from the object libraries and the generated data. They are static unless
    `BUILD_SHARED_LIBS` is on. `icu-cmake::uc` links `icu-cmake::data` publicly, so consumers never have to
    care about link order. A static build publishes `U_STATIC_IMPLEMENTATION` through the library interface.
-
-## Consuming
-
-As a subproject:
-
-```cmake
-include(FetchContent)
-FetchContent_Declare(icu-cmake GIT_REPOSITORY https://github.com/phkoester/icu-cmake.git GIT_TAG main)
-FetchContent_MakeAvailable(icu-cmake)
-target_link_libraries(my-target PRIVATE icu-cmake::uc)
-```
 
 ## CMake Variables
 
