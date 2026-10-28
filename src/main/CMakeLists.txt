@@ -148,7 +148,7 @@ list(TRANSFORM toolTargets PREPEND icu-)
 # Data ------------------------------------------------------------------------------------------------------
 
 # The tools look up individual data files in `<data dir>/<package name>/`, so the output directory must be
-# named after the package (like `out/build/icudt79l` in ICU's own build)
+# named after the package (like `out/build/icudt79l` or `out/build/icudt79b` in ICU's own build)
 set(dataOutDir ${ICU_DATA_DIR}/out/${ICU_DATA_NAME})
 set(dataTmpDir ${ICU_DATA_DIR}/tmp)
 set(dataList   ${dataTmpDir}/icudata.lst)

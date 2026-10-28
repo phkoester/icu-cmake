@@ -8,7 +8,7 @@ writes import libraries (`.lib`) beside the DLLs.
 
 | Linux                             | Windows                        | CMake Target      | Content
 | :-------------------------------- | :----------------------------- | :---------------- | :------
-| `libicudata.a` or `libicudata.so` | `icudata.lib` or `icudata.dll` | `icu-cmake::data` | The ICU data package (`icudtNNl`)
+| `libicudata.a` or `libicudata.so` | `icudata.lib` or `icudata.dll` | `icu-cmake::data` | The ICU data package (`icudtNNl` or `icudtNNb`)
 | `libicui18n.a` or `libicui18n.so` | `icui18n.lib` or `icui18n.dll` | `icu-cmake::i18n` | Internationalization library
 | `libicuio.a` or `libicuio.so`     | `icuio.lib` or `icuio.dll`     | `icu-cmake::io`   | Unicode standard I/O library
 | `libicutu.a` or `libicutu.so`     | `icutu.lib` or `icutu.dll`     | `icu-cmake::tu`   | Tool utilities
@@ -34,8 +34,8 @@ It is pre-alpha, a hobby project of mine, and possibly dangerous. **Use it at yo
 3. ICU's data tools (`genrb`, `makeconv`, `gencnval`, `genbrk`, `gencfu`, `gendict`, `gensprep`, `icupkg`,
    `pkgdata`, `genccode`) are built against the object libraries and the stub data library.
 4. `python -m icutools.databuilder` runs the tools on the text sources, `pkgdata` packs the result into
-   `icudtNNl.dat`, and `genccode` turns the archive into an assembly file (Linux), an object file (Windows),
-   or a C file.
+   `icudtNNl.dat` (little-endian) or `icudtNNb.dat` (big-endian), and `genccode` turns the archive into an
+   assembly file (Linux), an object file (Windows), or a C file.
 5. The libraries are assembled from the object libraries and the generated data. They are static unless
    `BUILD_SHARED_LIBS` is on. `icu-cmake::uc` links `icu-cmake::data` publicly, so consumers never have to
    care about link order. A static build publishes `U_STATIC_IMPLEMENTATION` through the library interface.
@@ -73,7 +73,6 @@ case. Variables may also be set via environment variables of the same name.
 
 ## Limitations
 
-- Little-endian targets only.
 - No cross-compilation: the data tools must run on the build host.
 - The `tzdata` override and ICU4J data are not built.
 - ICU's own test programs are not built. `ICU_CMAKE_BUILD_TEST` builds a smoke test that checks the libraries

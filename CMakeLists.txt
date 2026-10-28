@@ -75,8 +75,15 @@ IcuAddVar(ICU_CMAKE_ICU_SOURCE_DIR      PATH     ""                          "Lo
 IcuAddVar(ICU_CMAKE_ICU_SOURCE_HASH     STRING   ""                          "Expected SHA-256 of the sources archive (empty: skip check)")
 IcuAddVar(ICU_CMAKE_ICU_VERSION         STRING   79.1                        "ICU version to download (release-VERSION tag, 78.1 or later)")
 
-if(CMAKE_CXX_BYTE_ORDER STREQUAL "BIG_ENDIAN")
-  IcuFatalError("Big-endian targets are not supported")
+# ICU looks up its common data as `icudt<major><letter>`, where the letter is `U_ICUDATA_TYPE_LETTER`:
+# `l` on a little-endian ASCII target and `b` on a big-endian ASCII target. The data tools write bytes in
+# the endianness they were compiled for, which is this target, so the letter has to follow it.
+if(CMAKE_CXX_BYTE_ORDER STREQUAL "LITTLE_ENDIAN")
+  set(ICU_DATA_ENDIAN_LETTER l)
+elseif(CMAKE_CXX_BYTE_ORDER STREQUAL "BIG_ENDIAN")
+  set(ICU_DATA_ENDIAN_LETTER b)
+else()
+  IcuFatalError("Cannot tell the target endianness from CMAKE_CXX_BYTE_ORDER (`${CMAKE_CXX_BYTE_ORDER}`)")
 endif()
 
 # Known hashes of release archives
@@ -160,7 +167,7 @@ IcuStatus("ICU_DATA_SOURCE_DIR: ${ICU_DATA_SOURCE_DIR}")
 # Determine the ICU version ---------------------------------------------------------------------------------
 
 IcuReadVersion(${ICU_SOURCE_DIR} ICU_VERSION ICU_VERSION_MAJOR)
-set(ICU_DATA_NAME icudt${ICU_VERSION_MAJOR}l) # Little-endian, ASCII-based data package
+set(ICU_DATA_NAME icudt${ICU_VERSION_MAJOR}${ICU_DATA_ENDIAN_LETTER}) # `l` or `b`; see the endianness check above
 set(ICU_DATA_ENTRY_POINT icudt${ICU_VERSION_MAJOR})
 IcuStatus("ICU_VERSION: ${ICU_VERSION}, data package: ${ICU_DATA_NAME}")
 
