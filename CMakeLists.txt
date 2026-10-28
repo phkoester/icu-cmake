@@ -11,10 +11,17 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/IcuHelpers.cmake)
 # Prerequisites ---------------------------------------------------------------------------------------------
 
 if(WIN32)
-  find_package(Python3 3.8 QUIET REQUIRED COMPONENTS Interpreter)
-else()
-  find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
+  if($ENV{DevEnvDir} STREQUAL "")
+    IcuFatalError("Developer Command Prompt for Microsoft Visual Studio is required")
+  endif()
+  if($ENV{MSYSTEM} NOT STREQUAL "MSYS" OR $ENV{SHELL} NOT STREQUAL "/usr/bin/bash")
+    IcuFatalError("Bash shell from Git SDK is required")
+  endif()
+  # On Windows, some output from `find_package` compromises the console mode of Git SDK Bash
+  set(quiet__ QUIET)
 endif()
+find_package(Python3 3.8 ${quiet__} REQUIRED COMPONENTS Interpreter)
+find_package(Threads REQUIRED)
 
 # Project ---------------------------------------------------------------------------------------------------
 
@@ -133,10 +140,6 @@ IcuReadVersion(${ICU_SOURCE_DIR} ICU_VERSION ICU_VERSION_MAJOR)
 set(ICU_DATA_NAME icudt${ICU_VERSION_MAJOR}l) # Little-endian, ASCII-based data package
 set(ICU_DATA_ENTRY_POINT icudt${ICU_VERSION_MAJOR})
 IcuStatus("ICU_VERSION: ${ICU_VERSION}, data package: ${ICU_DATA_NAME}")
-
-# Dependencies ----------------------------------------------------------------------------------------------
-
-find_package(Threads REQUIRED)
 
 # Add subdirectories ----------------------------------------------------------------------------------------
 
