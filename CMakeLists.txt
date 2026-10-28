@@ -14,14 +14,13 @@ if(WIN32)
   if($ENV{DevEnvDir} STREQUAL "")
     IcuFatalError("Developer Command Prompt for Microsoft Visual Studio is required")
   endif()
-  if($ENV{MSYSTEM} NOT STREQUAL "MSYS" OR $ENV{SHELL} NOT STREQUAL "/usr/bin/bash")
+  if(NOT $ENV{MSYSTEM} STREQUAL "MSYS" OR NOT $ENV{SHELL} MATCHES ".*git.*\\usr\\bin\\bash\.exe")
     IcuFatalError("Bash shell from Git SDK is required")
   endif()
   # On Windows, some output from `find_package` compromises the console mode of Git SDK Bash
   set(quiet__ QUIET)
 endif()
 find_package(Python3 3.8 ${quiet__} REQUIRED COMPONENTS Interpreter)
-find_package(Threads REQUIRED)
 
 # Project ---------------------------------------------------------------------------------------------------
 
@@ -133,6 +132,8 @@ if(NOT EXISTS ${ICU_DATA_SOURCE_DIR}/BUILDRULES.py OR NOT EXISTS ${ICU_DATA_SOUR
   IcuFatalError("No ICU data sources found in ${ICU_DATA_SOURCE_DIR}")
 endif()
 IcuStatus("ICU_DATA_SOURCE_DIR: ${ICU_DATA_SOURCE_DIR}")
+
+find_package(Threads REQUIRED)
 
 # Determine the ICU version ---------------------------------------------------------------------------------
 
