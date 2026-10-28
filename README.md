@@ -78,20 +78,15 @@ target_link_libraries(my-target PRIVATE icu-cmake::uc)
 
 All of the following options may be supplied either as defined CMake variables or as environment variables:
 
-| Name                            | Type       | Default                           | Description
-| :------------------------------ | :--------- | :-------------------------------- | :----------
-| `BUILD_SHARED_LIBS`             | `BOOL`     | `OFF`                             | Build shared libraries (`.so` on Linux, DLL on Windows) instead of static libraries
-| `BUILD_TESTING`                 | `BOOL`     | `ON`                              | Enable testing and build tests
-| `CMAKE_BUILD_TYPE`              | `STRING`   | `Release` if single configuration | The build type (`Debug` or `Release`)
-| `ICU_CMAKE_BUILD_TEST`          | `BOOL`     | `ON` if master project            | Enable testing and build the smoke test
-| `ICU_CMAKE_DATA_FILTER_FILE`    | `FILEPATH` | &mdash;                           | ICU [data filter file](https://unicode-org.github.io/icu/userguide/icu_data/buildtool.html) to reduce the data size
-| `ICU_CMAKE_DATA_FORMAT`         | `STRING`   | `asm` (Linux), `object` (Windows) | How `genccode` emits the data: `asm`, `object`, or `c`
-| `ICU_CMAKE_DATA_VERBOSE`        | `BOOL`     | `OFF`                             | Print every command of the ICU data build
-| `ICU_CMAKE_ICU_DATA_HASH`       | `STRING`   | known for 79.1                    | Expected SHA-256 of the data archive (empty: skip check)
-| `ICU_CMAKE_ICU_DATA_SOURCE_DIR` | `PATH`     | &mdash;                           | Local ICU data sources (`icu4c/source/data`) instead of downloading them
-| `ICU_CMAKE_ICU_SOURCE_DIR`      | `PATH`     | &mdash;                           | Local ICU checkout (repository root, `icu4c`, or `icu4c/source`) instead of downloading
-| `ICU_CMAKE_ICU_SOURCE_HASH`     | `STRING`   | known for 79.1                    | Expected SHA-256 of the sources archive (empty: skip check)
-| `ICU_CMAKE_ICU_VERSION`         | `STRING`   | `79.1`                            | ICU version to download (`release-VERSION` tag; 78.1 or later use this naming scheme)
+| Name                     | Type       | Default                           | Description
+| :----------------------- | :--------- | :-------------------------------- | :----------
+| `BUILD_SHARED_LIBS`      | `BOOL`     | `OFF`                             | Build shared libraries (`.so` on Linux, DLL on Windows) instead of static libraries
+| `BUILD_TESTING`          | `BOOL`     | `ON`                              | Enable testing and build tests
+| `CMAKE_BUILD_TYPE`       | `STRING`   | `Release` if single configuration | The build type (`Debug` or `Release`)
+| `ICU_CMAKE_BUILD_TEST`   | `BOOL`     | `ON` if master project            | Build the smoke test
+| `ICU_CMAKE_DATA_FORMAT`  | `STRING`   | `asm` (Linux), `object` (Windows) | How `genccode` emits the data: `asm`, `object`, or `c`
+| `ICU_CMAKE_DATA_VERBOSE` | `BOOL`     | `OFF`                             | Print every command of the ICU data build
+| `ICU_CMAKE_ICU_VERSION`  | `STRING`   | `79.1`                            | ICU version to download (`release-VERSION` tag; 78.1 or later use this naming scheme)
 
 ## Limitations
 
