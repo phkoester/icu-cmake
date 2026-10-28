@@ -19,17 +19,27 @@ Supported C++ toolchains on Linux are GNU (`g++`) and LLVM (`clang`). On Windows
 (`clang-cl.exe`) and MSVC (`cl.exe`)
 
 At CMake level, icu-cmake may be used as a standalone project out of the box. Just fetch the content and link
-to the desired targets. It's as simple as that. See [ble](#how_to_use_this_library_with_cmake) for more information.
+to the desired targets. It's as simple as that. See [How to Use It with CMake](#how_to_use_it_with_cmake) for
+detailed instructions.
 
 At shell level, if you want to use the `Makefile` shipped with the project, icu-cmake depends on
-[Gaia]([https://github.com/phkoester/gaia), which provides the underlying build system and must be properly
-set up.
+[Gaia]([https://github.com/phkoester/gaia), which provides an underlying build system and must be properly
+set up. However, if all you want is to add icu-cmake as a CMake subproject, this will not bother you at all.
 
 icu-cmake is mostly AI-generated and thoroughly human-reviewed.
 
 icu-cmake is pre-alpha, a hobby project of mine, and possibly dangerous. **Use it at your own risk.**
 
-## How to Use This Library with CMake
+## Requirements
+
+A Python 3 interpreter with a minimum version of 3.8 is required.
+
+On Windows, both a native Windows Python using Windows paths and an MSYS Python using Unix paths are
+supported.
+
+## How to Use It with CMake
+
+Adding icu-cmake to your project is straightforward:
 
 ```cmake
 include(FetchContent)
@@ -38,7 +48,7 @@ include(FetchContent)
 FetchContent_Declare(
   icu-cmake
   GIT_REPOSITORY https://github.com/phkoester/icu-cmake.git
-  GIT_TAG v0.1.0
+  GIT_TAG        v0.1.0
 )
 
 # Select desired ICU version, fetch `icu-cmake` as a subproject
@@ -55,8 +65,8 @@ target_link_libraries(my-target PRIVATE icu-cmake::uc)
    `FetchContent`. (Since ICU 68, the data text sources are no longer part of the sources archive.)
 2. `common`, `i18n`, `io`, and `toolutil` are compiled into object libraries, using the `sources.txt` files
    ICU ships in each directory.
-3. ICU's data tools (`genrb`, `makeconv`, `gencnval`, `genbrk`, `gencfu`, `gendict`, `gensprep`, `icupkg`,
-   `pkgdata`, `genccode`) are built against the object libraries and the stub data library.
+3. ICU's data tools (`genbrk`, `genccode`, `gencfu`, `gencnval`, `gendict`, `genrb`, `gensprep`, `icupkg`,
+   `makeconv`, and `pkgdata`) are built against the object libraries and the stub data library.
 4. `python -m icutools.databuilder` runs the tools on the text sources, `pkgdata` packs the result into
    `icudtNNl.dat` (little-endian) or `icudtNNb.dat` (big-endian), and `genccode` turns the archive into an
    assembly file (Linux), an object file (Windows), or a C file.
@@ -64,7 +74,9 @@ target_link_libraries(my-target PRIVATE icu-cmake::uc)
    `BUILD_SHARED_LIBS` is on. `icu-cmake::uc` links `icu-cmake::data` publicly, so consumers never have to
    care about link order. A static build publishes `U_STATIC_IMPLEMENTATION` through the library interface.
 
-## CMake Variables
+## CMake Options
+
+All of the following options may be supplied either as defined CMake variables or as environment variables:
 
 | Name                            | Type       | Default                           | Description
 | :------------------------------ | :--------- | :-------------------------------- | :----------
@@ -80,9 +92,6 @@ target_link_libraries(my-target PRIVATE icu-cmake::uc)
 | `ICU_CMAKE_ICU_SOURCE_DIR`      | `PATH`     | &mdash;                           | Local ICU checkout (repository root, `icu4c`, or `icu4c/source`) instead of downloading
 | `ICU_CMAKE_ICU_SOURCE_HASH`     | `STRING`   | known for 79.1                    | Expected SHA-256 of the sources archive (empty: skip check)
 | `ICU_CMAKE_ICU_VERSION`         | `STRING`   | `79.1`                            | ICU version to download (`release-VERSION` tag; 78.1 or later use this naming scheme)
-
-A Git checkout of ICU contains the data sources, so `ICU_CMAKE_ICU_SOURCE_DIR` alone is sufficient in that
-case. Variables may also be set via environment variables of the same name.
 
 ## Limitations
 

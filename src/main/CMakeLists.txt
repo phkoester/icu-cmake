@@ -128,6 +128,7 @@ target_include_directories(icudata-stub PRIVATE ${ICU_SOURCE_DIR}/common)
 
 set(ICU_TOOLS
   genbrk
+  genccode
   gencfu
   gencnval
   gendict
@@ -136,7 +137,6 @@ set(ICU_TOOLS
   icupkg
   makeconv
   pkgdata
-  genccode
 )
 foreach(it IN LISTS ICU_TOOLS)
   IcuAddTool(${it})
