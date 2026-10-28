@@ -10,6 +10,11 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/IcuHelpers.cmake)
 
 # Prerequisites ---------------------------------------------------------------------------------------------
 
+IcuStatus("SHELL: $ENV{SHELL}")
+if($ENV{SHELL} MATCHES ".*\\bash\.exe")
+  IcuStatus("Matches")
+endif()
+
 if(WIN32)
   if($ENV{DevEnvDir} STREQUAL "")
     IcuFatalError("Developer Command Prompt for Microsoft Visual Studio is required")
