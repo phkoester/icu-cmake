@@ -23,15 +23,14 @@ project(icu-cmake VERSION 0.1.0 LANGUAGES C CXX)
 # Prerequisites ---------------------------------------------------------------------------------------------
 
 if(WIN32)
-  if($ENV{DevEnvDir} STREQUAL "")
+  if("$ENV{DevEnvDir}" STREQUAL "")
     IcuFatalError("Developer Command Prompt for Microsoft Visual Studio is required")
   endif()
-  if(NOT $ENV{MSYSTEM} STREQUAL "MSYS" OR NOT $ENV{SHELL} MATCHES "bash\.exe$")
-    IcuFatalError("Bash shell from Git SDK is required")
-  endif()
+  # Git SDK for Windows is not required, we can work with a native Windows Python, too
 endif()
 
 find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
+IcuDetectPython()
 find_package(Threads REQUIRED)
 
 # General settings ------------------------------------------------------------------------------------------

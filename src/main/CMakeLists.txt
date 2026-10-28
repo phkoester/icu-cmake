@@ -18,8 +18,8 @@ set(ICU_DATA_DIR      ${CMAKE_CURRENT_BINARY_DIR}/data)
 set(ICU_GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
 set(ICU_TOOL_DIR      ${CMAKE_CURRENT_BINARY_DIR}/tools)
 
-# `icutools.databuilder` expects tools at `TOOL_DIR/name`. With a multi-config generator, each configuration
-# gets its own `TOOL_DIR`.
+# `unix-exec` expects tools at `TOOL_DIR/name`. With a multi-config generator, each configuration gets its
+# own `TOOL_DIR`. Native Windows Python uses `windows-exec` and a per-tool directory; see `IcuAddTool`.
 get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(isMultiConfig)
   set(toolBinDirSuffix /$<CONFIG>)
@@ -156,17 +156,23 @@ set(datFile    ${ICU_DATA_DIR}/${ICU_DATA_NAME}.dat)
 
 # Step 1: Compile the text sources into binary data files ...................................................
 
-# POSIX paths on Windows: the Git SDK Python treats `C:/...` as a relative path
-IcuUnixPath(${ICU_DATA_SOURCE_DIR} pySrcDir)
-IcuUnixPath(${dataOutDir}          pyOutDir)
-IcuUnixPath(${dataTmpDir}          pyTmpDir)
-IcuUnixPath(${ICU_TOOL_DIR}        pyToolDir)
-
-set(databuilderArgs --mode unix-exec --tool_dir ${pyToolDir}${toolBinDirSuffix})
+# MSYS Python treats `C:/...` as a relative path, so it receives Unix paths and `unix-exec`, as on Linux.
+# Native Windows Python receives backslash paths and `windows-exec`: that mode rewrites `/` to `\` for
+# `cmd`, and switches to PowerShell when a command exceeds `cmd`'s 8191-character limit.
+IcuPythonPath("${ICU_DATA_SOURCE_DIR}" pySrcDir)
+IcuPythonPath("${dataOutDir}"          pyOutDir)
+IcuPythonPath("${dataTmpDir}"          pyTmpDir)
+IcuPythonPath("${ICU_TOOL_DIR}"        pyToolDir)
+if(ICU_PYTHON_NATIVE_WINDOWS)
+  set(databuilderArgs --mode windows-exec --tool_dir "${pyToolDir}" --tool_cfg "$<CONFIG>")
+else()
+  set(pyToolDir "${pyToolDir}${toolBinDirSuffix}")
+  set(databuilderArgs --mode unix-exec --tool_dir "${pyToolDir}")
+endif()
 set(databuilderDeps)
 if(NOT ICU_CMAKE_DATA_FILTER_FILE STREQUAL "")
-  IcuUnixPath(${ICU_CMAKE_DATA_FILTER_FILE} pyFilterFile)
-  list(APPEND databuilderArgs --filter_file ${pyFilterFile})
+  IcuPythonPath("${ICU_CMAKE_DATA_FILTER_FILE}" pyFilterFile)
+  list(APPEND databuilderArgs --filter_file "${pyFilterFile}")
   list(APPEND databuilderDeps ${ICU_CMAKE_DATA_FILTER_FILE})
 endif()
 if(ICU_CMAKE_DATA_VERBOSE)
@@ -180,10 +186,10 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E rm -rf ${dataOutDir} ${dataTmpDir}
   COMMAND ${CMAKE_COMMAND} -E make_directory ${dataOutDir} ${dataTmpDir}
   COMMAND ${CMAKE_COMMAND} -E env PYTHONDONTWRITEBYTECODE=1
-            ${Python3_EXECUTABLE} -m icutools.databuilder
-              --src_dir ${pySrcDir}
-              --out_dir ${pyOutDir}
-              --tmp_dir ${pyTmpDir}
+            ${PYTHON3_EXECUTABLE} -m icutools.databuilder
+              --src_dir "${pySrcDir}"
+              --out_dir "${pyOutDir}"
+              --tmp_dir "${pyTmpDir}"
               ${databuilderArgs}
   DEPENDS ${toolTargets} ${ICU_DATA_SOURCE_DIR}/BUILDRULES.py ${databuilderDeps}
   WORKING_DIRECTORY ${ICU_SOURCE_DIR}/python

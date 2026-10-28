@@ -35,8 +35,9 @@ endfunction()
 
 # IcuAddTool(name)
 #
-# Adds a build-time tool from `tools/name/sources.txt`. The executable is placed at `ICU_TOOL_BIN_DIR/name`,
-# where `icutools.databuilder` looks for it.
+# Adds a build-time tool from `tools/name/sources.txt`. MSYS and Linux place it at `ICU_TOOL_BIN_DIR/name`
+# for `unix-exec`. Native Windows Python places it at `ICU_TOOL_DIR/name/<config>/name.exe` for
+# `windows-exec`.
 function(IcuAddTool name)
   set(dir ${ICU_SOURCE_DIR}/tools/${name})
   IcuReadSources(${dir} sources)
@@ -49,10 +50,15 @@ function(IcuAddTool name)
   target_compile_definitions(${target} PRIVATE U_STATIC_IMPLEMENTATION)
   target_link_libraries(${target} PRIVATE ${ICU_TOOL_OBJECT_LIBS} icudata-stub ${ICU_SYSTEM_LIBS})
 
+  if(ICU_PYTHON_NATIVE_WINDOWS)
+    set(toolDir "${ICU_TOOL_DIR}/${name}/$<CONFIG>")
+  else()
+    set(toolDir ${ICU_TOOL_BIN_DIR})
+  endif()
   set_target_properties(${target}
     PROPERTIES
       OUTPUT_NAME ${name}
-      RUNTIME_OUTPUT_DIRECTORY ${ICU_TOOL_BIN_DIR}
+      RUNTIME_OUTPUT_DIRECTORY ${toolDir}
   )
 endfunction()
 
@@ -114,6 +120,38 @@ function(IcuApplyCommonSettings name)
   )
 endfunction()
 
+# IcuDetectPython()
+#
+# Sets `ICU_PYTHON_NATIVE_WINDOWS` from the path separator of `PYTHON3_EXECUTABLE`. A native Windows
+# Python reports `\`. An MSYS Python reports `/`, like Linux.
+function(IcuDetectPython)
+  if(NOT WIN32)
+    set(ICU_PYTHON_NATIVE_WINDOWS OFF PARENT_SCOPE)
+    return()
+  endif()
+
+  execute_process(
+    COMMAND ${PYTHON3_EXECUTABLE} -c "import os; print('backslash' if os.sep == chr(92) else 'slash')"
+    OUTPUT_VARIABLE sep
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_VARIABLE error
+    RESULT_VARIABLE result
+  )
+  if(NOT result EQUAL 0)
+    IcuFatalError("Could not run ${PYTHON3_EXECUTABLE}: ${error}")
+  endif()
+
+  if(sep STREQUAL "backslash")
+    set(ICU_PYTHON_NATIVE_WINDOWS ON PARENT_SCOPE)
+    IcuStatus("Python 3 uses Windows paths: ${PYTHON3_EXECUTABLE}")
+  elseif(sep STREQUAL "slash")
+    set(ICU_PYTHON_NATIVE_WINDOWS OFF PARENT_SCOPE)
+    IcuStatus("Python 3 uses Unix paths: ${PYTHON3_EXECUTABLE}")
+  else()
+    IcuFatalError("Invalid path separator from ${PYTHON3_EXECUTABLE}: `${sep}`")
+  endif()
+endfunction()
+
 # IcuFatalError(msg)
 function(IcuFatalError msg)
   message(FATAL_ERROR "${PROJECT_NAME}: ${msg}")
@@ -164,20 +202,22 @@ function(IcuReadVersion sourceDir outVersion outMajor)
   set(${outMajor} ${major} PARENT_SCOPE)
 endfunction()
 
+# IcuPythonPath(in out)
+#
+# Converts `in` into a path that the configured Python 3 understands. Native Windows Python gets backslashes.
+# MSYS Python gets a Unix path with forward slashes.
+function(IcuPythonPath in out)
+  if(ICU_PYTHON_NATIVE_WINDOWS)
+    file(TO_NATIVE_PATH "${in}" localOut)
+    set(${out} "${localOut}" PARENT_SCOPE)
+  else()
+    set(${out} "${in}" PARENT_SCOPE)
+  endif()
+endfunction()
+
 # IcuStatus(msg)
 function(IcuStatus msg)
   message(STATUS "${PROJECT_NAME}: ${msg}")
-endfunction()
-
-# IcuUnixPath(in out)
-function(IcuUnixPath in out)
-  if(WIN32)
-    execute_process(COMMAND cygpath -u ${in} OUTPUT_VARIABLE localOut)
-    string(STRIP ${localOut} localOut)
-    set(${out} ${localOut} PARENT_SCOPE)
-  else()
-    set(${out} ${in} PARENT_SCOPE)
-  endif()
 endfunction()
 
 # EOF
