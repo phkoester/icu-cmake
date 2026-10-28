@@ -340,11 +340,4 @@ set_target_properties(icutu
 )
 add_library(icu-cmake::tu ALIAS icutu)
 
-# Values the ICU test build reads. `src/test` is a sibling directory, so these have to live in the parent.
-set(ICU_DATA_DIR         "${ICU_DATA_DIR}"         PARENT_SCOPE)
-set(ICU_SYSTEM_LIBS      ${ICU_SYSTEM_LIBS}        PARENT_SCOPE)
-set(ICU_TOOL_BIN_DIR     "${ICU_TOOL_BIN_DIR}"     PARENT_SCOPE)
-set(ICU_TOOL_DIR         "${ICU_TOOL_DIR}"         PARENT_SCOPE)
-set(ICU_TOOL_OBJECT_LIBS ${ICU_TOOL_OBJECT_LIBS}   PARENT_SCOPE)
-
 # EOF

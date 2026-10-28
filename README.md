@@ -59,7 +59,6 @@ target_link_libraries(my-target PRIVATE icu-cmake::uc)
 | `BUILD_TESTING`                 | `BOOL`     | `ON`                              | Enable testing and build tests
 | `CMAKE_BUILD_TYPE`              | `STRING`   | `Release` if single configuration | The build type (`Debug` or `Release`)
 | `ICU_CMAKE_BUILD_TEST`          | `BOOL`     | `ON` if master project            | Enable testing and build the smoke test
-| `ICU_CMAKE_BUILD_ICU_TEST`      | `BOOL`     | `OFF`                             | Build and run the test programs from ICU's `source/test` (requires `BUILD_TESTING`; also builds the test data)
 | `ICU_CMAKE_DATA_FILTER_FILE`    | `FILEPATH` | &mdash;                           | ICU [data filter file](https://unicode-org.github.io/icu/userguide/icu_data/buildtool.html) to reduce the data size
 | `ICU_CMAKE_DATA_FORMAT`         | `STRING`   | `asm` (Linux), `object` (Windows) | How `genccode` emits the data: `asm`, `object`, or `c`
 | `ICU_CMAKE_DATA_VERBOSE`        | `BOOL`     | `OFF`                             | Print every command of the ICU data build
@@ -77,8 +76,8 @@ case. Variables may also be set via environment variables of the same name.
 - Little-endian targets only.
 - No cross-compilation: the data tools must run on the build host.
 - The `tzdata` override and ICU4J data are not built.
-- Fuzz targets, performance tests, and the layout-engine test are not built. `ICU_CMAKE_BUILD_ICU_TEST`
-  builds the programs ICU itself runs with `make check`.
+- ICU's own test programs are not built. `ICU_CMAKE_BUILD_TEST` builds a smoke test that checks the libraries
+  link and that the real data is available.
 
 ## License
 
