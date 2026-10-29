@@ -19,8 +19,8 @@ DLLs.
 Supported C++ toolchains on Linux are GNU (`g++`) and LLVM (`clang`). On Windows, they are LLVM
 (`clang-cl.exe`) and MSVC (`cl.exe`)
 
-icu-cmake may be used as a standalone project out of the box. Just fetch the content and link to the desired
-targets. It's as simple as that. See the [detailed instructions](#how-to-use-it-with-cmake).
+icu-cmake may be used out of the box. Just fetch the content and link to the desired targets. It's as simple
+as that. See the [detailed instructions](#how-to-use-it-with-cmake).
 
 ## CMake Requirements
 
