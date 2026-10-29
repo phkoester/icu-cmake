@@ -26,6 +26,7 @@ as that. See the [detailed instructions](#how-to-use-it-with-cmake).
 
 * CMake 4.2 or higher.
 * Python 3.8 or higher. On Windows, both a native Windows Python and an MSYS Python will work.
+* The Python package `semver`.
 * On Windows, a Developer Command Prompt from Microsoft Visual Studio is required.
 
 ## How to Use It with CMake
