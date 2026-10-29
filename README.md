@@ -44,7 +44,7 @@ FetchContent_Declare(
 )
 
 # Select desired ICU version, fetch `icu-cmake` as a subproject
-set(ICU_CMAKE_ICU_VERSION 79.1)
+set(ICU_CMAKE_ICU_VERSION 79.1) # This is optional, `79.1` is the default
 FetchContent_MakeAvailable(icu-cmake)
 
 # Link the common library to your target. That's it!
