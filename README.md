@@ -22,12 +22,12 @@ Supported C++ toolchains on Linux are GNU (`g++`) and LLVM (`clang`). On Windows
 icu-cmake may be used as a standalone project out of the box. Just fetch the content and link to the desired
 targets. It's as simple as that. See the [detailed instructions](#how-to-use-it-with-cmake).
 
-## Requirements
+## CMake Requirements
 
 A Python 3 interpreter with a minimum version of 3.8 is required.
 
-On Windows, both a native Windows Python using Windows paths and an MSYS Python using Unix paths are
-supported.
+On Windows, a Developer Command Prompt from Microsoft Visual Studio is required. Both a native Windows Python
+(using Windows paths) and an MSYS Python (using Unix paths) are supported.
 
 ## How to Use It with CMake
 

@@ -180,7 +180,7 @@ if(ICU_CMAKE_DATA_VERBOSE)
 endif()
 
 # `python -m` puts the working directory first on `sys.path`, which is how `icutools` is found. (Setting
-# `PYTHONPATH` to a Windows path would break the Git SDK Python, which splits `C:/...` at the colon.)
+# `PYTHONPATH` to a Windows path would break the MSYS Python, which splits `C:/...` at the colon.)
 add_custom_command(
   OUTPUT  ${dataList}
   COMMAND ${CMAKE_COMMAND} -E rm -rf ${dataOutDir} ${dataTmpDir}
