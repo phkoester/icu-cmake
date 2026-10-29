@@ -56,32 +56,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 set(FETCHCONTENT_QUIET FALSE)
 
-# Set compiler options --------------------------------------------------------------------------------------
-
-set(COMPILE_FLAGS)
-if(LINUX)
-  # Linux
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    # Linux, Clang
-    set(COMPILE_FLAGS -Wno-bidi-chars)
-  endif()
-elseif(WIN32)
-  # Windows
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    # Windows, Clang
-    set(COMPILE_FLAGS
-      -Wno-format
-      -Wno-macro-redefined
-      -Wno-parentheses
-      -Wno-unused-function
-      -Wno-unused-variable
-    )
-  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    # Windows, MSVC
-    set(COMPILE_FLAGS /wd4005 /wd4477 /wd4805)
-  endif()
-endif()
-
 # Configuration ---------------------------------------------------------------------------------------------
 
 GaiaAddVar(BUILD_SHARED_LIBS             BOOL     OFF                         "Build shared libraries")
@@ -100,10 +74,54 @@ if(CMAKE_CXX_BYTE_ORDER STREQUAL "LITTLE_ENDIAN")
 elseif(CMAKE_CXX_BYTE_ORDER STREQUAL "BIG_ENDIAN")
   set(ICU_DATA_ENDIAN_LETTER b)
 else()
-  GaiaFatalError("Cannot tell the target endianness from CMAKE_CXX_BYTE_ORDER (`${CMAKE_CXX_BYTE_ORDER}`)")
+  GaiaFatalError("Cannot tell the target endianness from `CMAKE_CXX_BYTE_ORDER` (`${CMAKE_CXX_BYTE_ORDER}`)")
 endif()
 
 set(ICU_RELEASE_URL https://github.com/unicode-org/icu/releases/download/release-${ICU_CMAKE_ICU_VERSION})
+
+# Set compiler and linker options ---------------------------------------------------------------------------
+
+set(COMPILE_DEFS)
+set(COMPILE_FEATURES)
+set(COMPILE_FLAGS)
+set(LINK_FLAGS)
+
+if(GAIA_OS_LINUX)
+  # Linux
+  set(COMPILE_FLAGS -Wall -Werror -Wextra)
+elseif(GAIA_OS_WINDOWS)
+  if(GAIA_CXX_COMPILER_CLANG)
+    # Windows, Clang
+    set(COMPILE_FLAGS -Wall -Werror -Wextra)
+  elseif(GAIA_CXX_COMPILER_MSVC)
+    # Windows, MSVC
+    # set(COMPILE_FLAGS /wd4005 /wd4477 /wd4805)
+  endif()
+endif()
+
+#set(COMPILE_FLAGS)
+#if(LINUX)
+#  # Linux
+#  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+#    # Linux, Clang
+#    set(COMPILE_FLAGS -Wno-bidi-chars)
+#  endif()
+#elseif(WIN32)
+#  # Windows
+#  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+#    # Windows, Clang
+#    set(COMPILE_FLAGS
+#      -Wno-format
+#      -Wno-macro-redefined
+#      -Wno-parentheses
+#      -Wno-unused-function
+#      -Wno-unused-variable
+#    )
+#  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+#    # Windows, MSVC
+#    set(COMPILE_FLAGS /wd4005 /wd4477 /wd4805)
+#  endif()
+#endif()
 
 # Obtain the ICU sources ------------------------------------------------------------------------------------
 

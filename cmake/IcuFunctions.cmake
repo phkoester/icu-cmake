@@ -14,6 +14,7 @@
 function(IcuAddObjectLibrary name dir)
   IcuReadSources(${dir} sources)
   add_library(${name} OBJECT ${sources})
+  GaiaStatus("LIB COMPILE_FLAGS: ${COMPILE_FLAGS}") # XXX
   target_compile_options(${name} PRIVATE ${COMPILE_FLAGS})
   IcuApplyCommonSettings(${name})
   target_include_directories(${name} PUBLIC ${dir})
@@ -37,6 +38,7 @@ function(IcuAddTool name)
 
   set(target icu-${name})
   add_executable(${target} ${sources})
+  GaiaStatus("TOOL COMPILE_FLAGS: ${COMPILE_FLAGS}") # XXX
   target_compile_options(${target} PRIVATE ${COMPILE_FLAGS})
   IcuApplyCommonSettings(${target})
   target_include_directories(${target} PRIVATE ${dir})
