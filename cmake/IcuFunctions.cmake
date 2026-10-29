@@ -84,23 +84,22 @@ function(IcuApplyCommonSettings name)
     )
   endif()
 
+  # XXX
   # MSVC and clang-cl: source and execution character set UTF-8, treat "not all control paths return a
   # value" as an error, like ICU's Visual Studio projects do
-  target_compile_options(${name}
-    PRIVATE
-      $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/utf-8 /we4715>
-      $<$<COMPILE_LANG_AND_ID:C,MSVC>:/utf-8 /we4715>
-      $<$<AND:$<COMPILE_LANG_AND_ID:CXX,Clang>,$<STREQUAL:${CMAKE_CXX_SIMULATE_ID},MSVC>>:/utf-8>
-      $<$<AND:$<COMPILE_LANG_AND_ID:C,Clang>,$<STREQUAL:${CMAKE_C_SIMULATE_ID},MSVC>>:/utf-8>
-  )
+  #target_compile_options(${name}
+  #  PRIVATE
+  #    $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/utf-8 /we4715>
+  #    $<$<COMPILE_LANG_AND_ID:C,MSVC>:/utf-8 /we4715>
+  #    $<$<AND:$<COMPILE_LANG_AND_ID:CXX,Clang>,$<STREQUAL:${CMAKE_CXX_SIMULATE_ID},MSVC>>:/utf-8>
+  #     $<$<AND:$<COMPILE_LANG_AND_ID:C,Clang>,$<STREQUAL:${CMAKE_C_SIMULATE_ID},MSVC>>:/utf-8>
+  #)
 endfunction()
 
 # IcuFetch(name url)
 #
 # Downloads and extracts an archive, setting `${name}_SOURCE_DIR`.
 function(IcuFetch name url)
-  include(FetchContent)
-
   GaiaStatus("Fetching `${url}` ...")
   FetchContent_Declare(
     ${name}
@@ -120,7 +119,7 @@ endfunction()
 function(IcuReadSources dir out)
   set(file ${dir}/sources.txt)
   if(NOT EXISTS ${file})
-    IcuFatalError("Missing ${file}")
+    GaiaFatalError("Missing ${file}")
   endif()
 
   file(STRINGS ${file} lines)
@@ -142,7 +141,7 @@ endfunction()
 function(IcuReadVersion sourceDir outVersion outMajor)
   set(header ${sourceDir}/common/unicode/uvernum.h)
   if(NOT EXISTS ${header})
-    IcuFatalError("Missing ${header}")
+    GaiaFatalError("Missing ${header}")
   endif()
 
   file(STRINGS ${header} majorLine REGEX "^#define U_ICU_VERSION_MAJOR_NUM[ \t]+[0-9]+")
@@ -152,7 +151,7 @@ function(IcuReadVersion sourceDir outVersion outMajor)
   string(REGEX REPLACE "^#define U_ICU_VERSION[ \t]+\"([0-9.]+)\".*$" "\\1" version "${versionLine}")
 
   if(NOT major MATCHES "^[0-9]+$" OR NOT version MATCHES "^[0-9.]+$")
-    IcuFatalError("Cannot parse the ICU version from ${header}")
+    GaiaFatalError("Cannot parse the ICU version from ${header}")
   endif()
 
   set(${outVersion} ${version} PARENT_SCOPE)

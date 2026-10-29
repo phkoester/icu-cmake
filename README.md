@@ -20,12 +20,7 @@ Supported C++ toolchains on Linux are GNU (`g++`) and LLVM (`clang`). On Windows
 (`clang-cl.exe`) and MSVC (`cl.exe`)
 
 icu-cmake may be used as a standalone project out of the box. Just fetch the content and link to the desired
-targets. It's as simple as that. See [How to Use It with CMake](#how_to_use_it_with_cmake) for detailed
-instructions.
-
-icu-cmake is mostly AI-generated and thoroughly human-reviewed.
-
-icu-cmake is pre-alpha, a hobby project of mine, and possibly dangerous. **Use it at your own risk.**
+targets. It's as simple as that. See the [detailed instructions](#how-to-use-it-with-cmake).
 
 ## Requirements
 

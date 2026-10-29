@@ -4,6 +4,8 @@
 
 cmake_minimum_required(VERSION 4.2)
 
+include(FetchContent)
+
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/IcuFunctions.cmake)
 
 # Project ---------------------------------------------------------------------------------------------------
@@ -18,23 +20,27 @@ endif()
 
 project(icu-cmake VERSION 0.1.0)
 
-# Parent project --------------------------------------------------------------------------------------------
+# Versions --------------------------------------------------------------------------------------------------
 
-if($ENV{GAIA_DIR})
-  set(GAIA_TAG main)
+set(ICU_CMAKE_GAIA_VERSION 1.2.0)
+
+# Gaia ------------------------------------------------------------------------------------------------------
+
+if(NOT "$ENV{GAIA_DIR}" STREQUAL "")
+  FetchContent_Declare(
+    gaia
+    SOURCE_DIR "$ENV{GAIA_DIR}"
+  )
 else()
-  set(GAIA_TAG v1.2.0)
+  FetchContent_Declare(
+    gaia
+    GIT_REPOSITORY https://github.com/phkoester/gaia.git
+    GIT_TAG        v${ICU_CMAKE_GAIA_VERSION}
+    GIT_PROGRESS   TRUE
+    SYSTEM
+    EXCLUDE_FROM_ALL
+  )
 endif()
-
-FetchContent_Declare(
-  gaia
-  GIT_REPOSITORY https://github.com/phkoester/gaia.git
-  GIT_TAG        ${GAIA_TAG}
-  GIT_PROGRESS   TRUE
-  SYSTEM
-  EXCLUDE_FROM_ALL
-)
-
 FetchContent_MakeAvailable(gaia)
 
 # Prerequisites ---------------------------------------------------------------------------------------------
@@ -43,9 +49,14 @@ find_package(Threads REQUIRED)
 
 # General settings ------------------------------------------------------------------------------------------
 
+set(CMAKE_CXX_EXTENSIONS ON)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+set(FETCHCONTENT_QUIET FALSE)
 
-# Set compiler options -------------------------------------------------------------------------------------
+# Set compiler options --------------------------------------------------------------------------------------
 
 set(COMPILE_FLAGS)
 if(LINUX)
@@ -89,7 +100,7 @@ if(CMAKE_CXX_BYTE_ORDER STREQUAL "LITTLE_ENDIAN")
 elseif(CMAKE_CXX_BYTE_ORDER STREQUAL "BIG_ENDIAN")
   set(ICU_DATA_ENDIAN_LETTER b)
 else()
-  IcuFatalError("Cannot tell the target endianness from CMAKE_CXX_BYTE_ORDER (`${CMAKE_CXX_BYTE_ORDER}`)")
+  GaiaFatalError("Cannot tell the target endianness from CMAKE_CXX_BYTE_ORDER (`${CMAKE_CXX_BYTE_ORDER}`)")
 endif()
 
 set(ICU_RELEASE_URL https://github.com/unicode-org/icu/releases/download/release-${ICU_CMAKE_ICU_VERSION})
@@ -109,7 +120,7 @@ else()
     endif()
   endforeach()
   if(NOT ICU_SOURCE_DIR)
-    IcuFatalError("No ICU sources found in ${ICU_CMAKE_ICU_SOURCE_DIR}")
+    GaiaFatalError("No ICU sources found in ${ICU_CMAKE_ICU_SOURCE_DIR}")
   endif()
 endif()
 GaiaStatus("ICU_SOURCE_DIR: ${ICU_SOURCE_DIR}")
