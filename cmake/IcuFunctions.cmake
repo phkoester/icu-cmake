@@ -1,17 +1,10 @@
 #
-# IcuHelpers.cmake
+# IcuFunctions.cmake
 #
 # Helper functions for building ICU4C with CMake.
 #
 
 # Functions -------------------------------------------------------------------------------------------------
-
-# IcuAddExecutable(name srcFile...)
-function(IcuAddExecutable name)
-  add_executable(${name})
-  target_compile_options(${name} PRIVATE ${COMPILE_FLAGS})
-  target_sources(${name} PRIVATE ${ARGN})
-endfunction()
 
 # IcuAddObjectLibrary(name dir [FOR_TOOLS])
 #
@@ -62,24 +55,6 @@ function(IcuAddTool name)
   )
 endfunction()
 
-# IcuAddVar(name type default doc)
-#
-# Adds a CMMake variable. If it is already set, it is left unchanged. Otherwise, if there is an environment
-# variable with the same name, it is used. As a fallback, the default value is used.
-function(IcuAddVar name type default doc)
-  if(NOT DEFINED ${name})
-    if(NOT $ENV{${name}} STREQUAL "")
-      set(${name} $ENV{${name}} CACHE ${type} "${doc}")
-      IcuStatus("Setting ${name} by environment: ${${name}}")
-    else()
-      set(${name} ${default} CACHE ${type} "${doc}")
-      IcuStatus("Setting ${name} to default: ${${name}}")
-    endif()
-  else()
-    IcuStatus("Found ${name}: ${${name}}")
-  endif()
-endfunction()
-
 # IcuApplyCommonSettings(name)
 #
 # Applies the compiler settings ICU's own build systems use to a target that compiles ICU sources.
@@ -120,53 +95,23 @@ function(IcuApplyCommonSettings name)
   )
 endfunction()
 
-# IcuCopyRuntimeFiles(name)
-function(IcuCopyRuntimeFiles name)
-  if(WIN32 AND BUILD_SHARED_LIBS)
-    # `copy_if_newer` requires CMake 4.2
-    add_custom_command(
-      TARGET  ${name} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_newer $<TARGET_RUNTIME_DLLS:${name}> $<TARGET_FILE_DIR:${name}>
-      COMMAND_EXPAND_LISTS
-    )
-  endif()
-endfunction()
-
-# IcuDetectPython()
+# IcuFetch(name url)
 #
-# Sets `ICU_PYTHON_NATIVE_WINDOWS` from the path separator of `Python3_EXECUTABLE`. A native Windows
-# Python reports `\`. An MSYS Python reports `/`, like Linux.
-function(IcuDetectPython)
-  if(NOT WIN32)
-    set(ICU_PYTHON_NATIVE_WINDOWS OFF PARENT_SCOPE)
-    return()
-  endif()
+# Downloads and extracts an archive, setting `${name}_SOURCE_DIR`.
+function(IcuFetch name url)
+  include(FetchContent)
 
-  execute_process(
-    COMMAND ${Python3_EXECUTABLE} -c "import os; print('backslash' if os.sep == chr(92) else 'slash')"
-    OUTPUT_VARIABLE sep
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_VARIABLE error
-    RESULT_VARIABLE result
+  GaiaStatus("Fetching `${url}` ...")
+  FetchContent_Declare(
+    ${name}
+    URL ${url}
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    EXCLUDE_FROM_ALL
   )
-  if(NOT result EQUAL 0)
-    IcuFatalError("Could not run ${Python3_EXECUTABLE}: ${error}")
-  endif()
+  # The archives contain no `CMakeLists.txt` at their root, so this only downloads and extracts
+  FetchContent_MakeAvailable(${name})
 
-  if(sep STREQUAL "backslash")
-    set(ICU_PYTHON_NATIVE_WINDOWS ON PARENT_SCOPE)
-    IcuStatus("Python 3 uses Windows paths: ${Python3_EXECUTABLE}")
-  elseif(sep STREQUAL "slash")
-    set(ICU_PYTHON_NATIVE_WINDOWS OFF PARENT_SCOPE)
-    IcuStatus("Python 3 uses Unix paths: ${Python3_EXECUTABLE}")
-  else()
-    IcuFatalError("Invalid path separator from ${Python3_EXECUTABLE}: `${sep}`")
-  endif()
-endfunction()
-
-# IcuFatalError(msg)
-function(IcuFatalError msg)
-  message(FATAL_ERROR "${PROJECT_NAME}: ${msg}")
+  set(${name}_SOURCE_DIR ${${name}_SOURCE_DIR} PARENT_SCOPE)
 endfunction()
 
 # IcuReadSources(dir out)
@@ -212,24 +157,6 @@ function(IcuReadVersion sourceDir outVersion outMajor)
 
   set(${outVersion} ${version} PARENT_SCOPE)
   set(${outMajor} ${major} PARENT_SCOPE)
-endfunction()
-
-# IcuPythonPath(in out)
-#
-# Converts `in` into a path that the configured Python 3 understands. Native Windows Python gets backslashes.
-# MSYS Python gets a Unix path with forward slashes.
-function(IcuPythonPath in out)
-  if(ICU_PYTHON_NATIVE_WINDOWS)
-    file(TO_NATIVE_PATH "${in}" localOut)
-    set(${out} "${localOut}" PARENT_SCOPE)
-  else()
-    set(${out} "${in}" PARENT_SCOPE)
-  endif()
-endfunction()
-
-# IcuStatus(msg)
-function(IcuStatus msg)
-  message(STATUS "${PROJECT_NAME}: ${msg}")
 endfunction()
 
 # EOF

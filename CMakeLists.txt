@@ -4,9 +4,7 @@
 
 cmake_minimum_required(VERSION 4.2)
 
-# No Gaia includes here, we want to be able to use this as a standalone project
-
-include(${CMAKE_CURRENT_LIST_DIR}/cmake/IcuHelpers.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/IcuFunctions.cmake)
 
 # Project ---------------------------------------------------------------------------------------------------
 
@@ -18,19 +16,29 @@ if(NOT DEFINED ICU_CMAKE_MASTER_PROJECT)
   endif()
 endif()
 
-project(icu-cmake VERSION 0.1.0 LANGUAGES C CXX)
+project(icu-cmake VERSION 0.1.0)
+
+# Parent project --------------------------------------------------------------------------------------------
+
+if($ENV{GAIA_DIR})
+  set(GAIA_TAG main)
+else()
+  set(GAIA_TAG v1.2.0)
+endif()
+
+FetchContent_Declare(
+  gaia
+  GIT_REPOSITORY https://github.com/phkoester/gaia.git
+  GIT_TAG        ${GAIA_TAG}
+  GIT_PROGRESS   TRUE
+  SYSTEM
+  EXCLUDE_FROM_ALL
+)
+
+FetchContent_MakeAvailable(gaia)
 
 # Prerequisites ---------------------------------------------------------------------------------------------
 
-if(WIN32)
-  if("$ENV{DevEnvDir}" STREQUAL "")
-    IcuFatalError("Developer Command Prompt for Microsoft Visual Studio is required")
-  endif()
-  # Git SDK for Windows is not required, we can work with a native Windows Python, too
-endif()
-
-find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
-IcuDetectPython()
 find_package(Threads REQUIRED)
 
 # General settings ------------------------------------------------------------------------------------------
@@ -65,13 +73,13 @@ endif()
 
 # Configuration ---------------------------------------------------------------------------------------------
 
-IcuAddVar(BUILD_SHARED_LIBS             BOOL     OFF                         "Build shared libraries")
-IcuAddVar(BUILD_TESTING                 BOOL     ON                          "Enable testing and build tests")
-IcuAddVar(ICU_CMAKE_BUILD_TEST          BOOL     ${ICU_CMAKE_MASTER_PROJECT} "Enable testing and build the smoke test")
-IcuAddVar(ICU_CMAKE_DATA_FILTER_FILE    FILEPATH ""                          "ICU data filter file (JSON) to reduce the data size")
-IcuAddVar(ICU_CMAKE_ICU_DATA_SOURCE_DIR PATH     ""                          "Local ICU data sources (`icu4c/source/data`) to use instead of downloading them")
-IcuAddVar(ICU_CMAKE_ICU_SOURCE_DIR      PATH     ""                          "Local ICU checkout to use instead of downloading the sources")
-IcuAddVar(ICU_CMAKE_ICU_VERSION         STRING   79.1                        "ICU version to download (release-VERSION tag, 78.1 or later)")
+GaiaAddVar(BUILD_SHARED_LIBS             BOOL     OFF                         "Build shared libraries")
+GaiaAddVar(BUILD_TESTING                 BOOL     ON                          "Enable testing and build tests")
+GaiaAddVar(ICU_CMAKE_BUILD_TEST          BOOL     ${ICU_CMAKE_MASTER_PROJECT} "Enable testing and build the smoke test")
+GaiaAddVar(ICU_CMAKE_DATA_FILTER_FILE    FILEPATH ""                          "ICU data filter file (JSON) to reduce the data size")
+GaiaAddVar(ICU_CMAKE_ICU_DATA_SOURCE_DIR PATH     ""                          "Local ICU data sources (`icu4c/source/data`) to use instead of downloading them")
+GaiaAddVar(ICU_CMAKE_ICU_SOURCE_DIR      PATH     ""                          "Local ICU checkout to use instead of downloading the sources")
+GaiaAddVar(ICU_CMAKE_ICU_VERSION         STRING   79.1                        "ICU version to download (release-VERSION tag, 78.1 or later)")
 
 # ICU looks up its common data as `icudt<major><letter>`, where the letter is `U_ICUDATA_TYPE_LETTER`:
 # `l` on a little-endian ASCII target and `b` on a big-endian ASCII target. The data tools write bytes in
@@ -85,23 +93,6 @@ else()
 endif()
 
 set(ICU_RELEASE_URL https://github.com/unicode-org/icu/releases/download/release-${ICU_CMAKE_ICU_VERSION})
-
-# IcuFetch(name url): Downloads and extracts an archive, setting `${name}_SOURCE_DIR`
-function(IcuFetch name url)
-  include(FetchContent)
-
-  IcuStatus("Fetching ${url}")
-  FetchContent_Declare(
-    ${name}
-    URL ${url}
-    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-    EXCLUDE_FROM_ALL
-  )
-  # The archives contain no `CMakeLists.txt` at their root, so this only downloads and extracts
-  FetchContent_MakeAvailable(${name})
-
-  set(${name}_SOURCE_DIR ${${name}_SOURCE_DIR} PARENT_SCOPE)
-endfunction()
 
 # Obtain the ICU sources ------------------------------------------------------------------------------------
 
@@ -121,7 +112,7 @@ else()
     IcuFatalError("No ICU sources found in ${ICU_CMAKE_ICU_SOURCE_DIR}")
   endif()
 endif()
-IcuStatus("ICU_SOURCE_DIR: ${ICU_SOURCE_DIR}")
+GaiaStatus("ICU_SOURCE_DIR: ${ICU_SOURCE_DIR}")
 
 # Obtain the ICU data sources -------------------------------------------------------------------------------
 #
@@ -142,16 +133,16 @@ else()
   endif()
 endif()
 if(NOT EXISTS ${ICU_DATA_SOURCE_DIR}/BUILDRULES.py OR NOT EXISTS ${ICU_DATA_SOURCE_DIR}/locales/LOCALE_DEPS.json)
-  IcuFatalError("No ICU data sources found in ${ICU_DATA_SOURCE_DIR}")
+  GaiaFatalError("No ICU data sources found in ${ICU_DATA_SOURCE_DIR}")
 endif()
-IcuStatus("ICU_DATA_SOURCE_DIR: ${ICU_DATA_SOURCE_DIR}")
+GaiaStatus("ICU_DATA_SOURCE_DIR: ${ICU_DATA_SOURCE_DIR}")
 
 # Determine the ICU version ---------------------------------------------------------------------------------
 
 IcuReadVersion(${ICU_SOURCE_DIR} ICU_VERSION ICU_VERSION_MAJOR)
 set(ICU_DATA_NAME icudt${ICU_VERSION_MAJOR}${ICU_DATA_ENDIAN_LETTER}) # `l` or `b`; see the endianness check above
 set(ICU_DATA_ENTRY_POINT icudt${ICU_VERSION_MAJOR})
-IcuStatus("ICU_VERSION: ${ICU_VERSION}, data package: ${ICU_DATA_NAME}")
+GaiaStatus("ICU_VERSION: ${ICU_VERSION}, data package: ${ICU_DATA_NAME}")
 
 # Add subdirectories ----------------------------------------------------------------------------------------
 
