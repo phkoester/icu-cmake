@@ -40,7 +40,7 @@ include(FetchContent)
 FetchContent_Declare(
   icu-cmake
   GIT_REPOSITORY https://github.com/phkoester/icu-cmake.git
-  GIT_TAG        v0.1.0
+  GIT_TAG        v0.1.1
 )
 
 # Select desired ICU version, fetch `icu-cmake` as a subproject
