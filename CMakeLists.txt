@@ -26,7 +26,7 @@ set(ICU_CMAKE_GAIA_VERSION 1.2.0)
 
 # Gaia ------------------------------------------------------------------------------------------------------
 
-if(NOT "$ENV{GAIA_DIR}" STREQUAL "")
+if(DEFINED ENV{GAIA_DIR})
   FetchContent_Declare(
     gaia
     SOURCE_DIR "$ENV{GAIA_DIR}"
@@ -58,26 +58,16 @@ set(FETCHCONTENT_QUIET FALSE)
 
 # Configuration ---------------------------------------------------------------------------------------------
 
-GaiaAddVar(BUILD_SHARED_LIBS             BOOL     OFF                         "Build shared libraries")
-GaiaAddVar(BUILD_TESTING                 BOOL     ON                          "Enable testing and build tests")
-GaiaAddVar(ICU_CMAKE_BUILD_TEST          BOOL     ${ICU_CMAKE_MASTER_PROJECT} "Enable testing and build the smoke test")
-GaiaAddVar(ICU_CMAKE_DATA_FILTER_FILE    FILEPATH ""                          "ICU data filter file (JSON) to reduce the data size")
-GaiaAddVar(ICU_CMAKE_ICU_DATA_SOURCE_DIR PATH     ""                          "Local ICU data sources (`icu4c/source/data`) to use instead of downloading them")
-GaiaAddVar(ICU_CMAKE_ICU_SOURCE_DIR      PATH     ""                          "Local ICU checkout to use instead of downloading the sources")
-GaiaAddVar(ICU_CMAKE_ICU_VERSION         STRING   79.1                        "ICU version to download (release-VERSION tag, 78.1 or later)")
-
-# ICU looks up its common data as `icudt<major><letter>`, where the letter is `U_ICUDATA_TYPE_LETTER`:
-# `l` on a little-endian ASCII target and `b` on a big-endian ASCII target. The data tools write bytes in
-# the endianness they were compiled for, which is this target, so the letter has to follow it.
-if(CMAKE_CXX_BYTE_ORDER STREQUAL "LITTLE_ENDIAN")
-  set(ICU_DATA_ENDIAN_LETTER l)
-elseif(CMAKE_CXX_BYTE_ORDER STREQUAL "BIG_ENDIAN")
-  set(ICU_DATA_ENDIAN_LETTER b)
+if(GAIA_OS_WINDOWS)
+  set(defaultDataFormat__ object)
 else()
-  GaiaFatalError("Cannot tell the target endianness from `CMAKE_CXX_BYTE_ORDER` (`${CMAKE_CXX_BYTE_ORDER}`)")
+  set(defaultDataFormat__ asm)
 endif()
 
-set(ICU_RELEASE_URL https://github.com/unicode-org/icu/releases/download/release-${ICU_CMAKE_ICU_VERSION})
+GaiaAddVar(ICU_CMAKE_BUILD_TEST          BOOL     ${ICU_CMAKE_MASTER_PROJECT} "Enable testing and build the smoke test")
+GaiaAddVar(ICU_CMAKE_DATA_FORMAT         STRING   ${defaultDataFormat__}      "Format of the generated data: `asm`, `object`, or `c`")
+GaiaAddVar(ICU_CMAKE_DATA_VERBOSE        BOOL     OFF                         "Print every command of the ICU data build")
+GaiaAddVar(ICU_CMAKE_ICU_VERSION         STRING   79.1                        "ICU version to download (release-VERSION tag, 78.1 or later)")
 
 # Set compiler and linker options ---------------------------------------------------------------------------
 
@@ -92,81 +82,62 @@ if(GAIA_OS_LINUX)
 elseif(GAIA_OS_WINDOWS)
   if(GAIA_CXX_COMPILER_CLANG)
     # Windows, Clang
-    set(COMPILE_FLAGS -Wall -Werror -Wextra)
+    set(COMPILE_FLAGS -Werror -Wextra
+      -Wno-format
+      -Wno-macro-redefined
+      -Wno-parentheses
+      -Wno-sign-compare
+      -Wno-unused-function
+      -Wno-unused-parameter
+      -Wno-unused-variable
+    )
   elseif(GAIA_CXX_COMPILER_MSVC)
     # Windows, MSVC
-    # set(COMPILE_FLAGS /wd4005 /wd4477 /wd4805)
+    set(COMPILE_FLAGS /wd4005 /wd4477 /wd4805)
   endif()
 endif()
 
-#set(COMPILE_FLAGS)
-#if(LINUX)
-#  # Linux
-#  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-#    # Linux, Clang
-#    set(COMPILE_FLAGS -Wno-bidi-chars)
-#  endif()
-#elseif(WIN32)
-#  # Windows
-#  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-#    # Windows, Clang
-#    set(COMPILE_FLAGS
-#      -Wno-format
-#      -Wno-macro-redefined
-#      -Wno-parentheses
-#      -Wno-unused-function
-#      -Wno-unused-variable
-#    )
-#  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-#    # Windows, MSVC
-#    set(COMPILE_FLAGS /wd4005 /wd4477 /wd4805)
-#  endif()
-#endif()
+# Fetch -----------------------------------------------------------------------------------------------------
 
-# Obtain the ICU sources ------------------------------------------------------------------------------------
+set(ICU_RELEASE_URL https://github.com/unicode-org/icu/releases/download/release-${ICU_CMAKE_ICU_VERSION})
 
-if(ICU_CMAKE_ICU_SOURCE_DIR STREQUAL "")
-  IcuFetch(icu ${ICU_RELEASE_URL}/icu4c-${ICU_CMAKE_ICU_VERSION}-sources.tgz)
-  set(ICU_SOURCE_DIR ${icu_SOURCE_DIR}/source)
-else()
-  # Accept a repository root, `icu4c`, or `icu4c/source`
-  set(ICU_SOURCE_DIR)
-  foreach(it IN ITEMS icu4c/source source .)
-    if(EXISTS ${ICU_CMAKE_ICU_SOURCE_DIR}/${it}/common/unicode/uvernum.h)
-      cmake_path(SET ICU_SOURCE_DIR NORMALIZE ${ICU_CMAKE_ICU_SOURCE_DIR}/${it})
-      break()
-    endif()
-  endforeach()
-  if(NOT ICU_SOURCE_DIR)
-    GaiaFatalError("No ICU sources found in ${ICU_CMAKE_ICU_SOURCE_DIR}")
-  endif()
-endif()
+# Fetch the ICU sources .....................................................................................
+
+IcuFetch(icu ${ICU_RELEASE_URL}/icu4c-${ICU_CMAKE_ICU_VERSION}-sources.tgz)
+set(ICU_SOURCE_DIR ${icu_SOURCE_DIR}/source)
 GaiaStatus("ICU_SOURCE_DIR: ${ICU_SOURCE_DIR}")
 
-# Obtain the ICU data sources -------------------------------------------------------------------------------
+# Fetch the ICU data sources ................................................................................
 #
 # Since ICU 68, the release source archives ship without the data text sources (only a prebuilt `.dat`). They
 # are published separately as `icu4c-VERSION-data.zip`. A Git checkout contains them in `icu4c/source/data`.
+#
+# ...........................................................................................................
 
-if(NOT ICU_CMAKE_ICU_DATA_SOURCE_DIR STREQUAL "")
-  set(ICU_DATA_SOURCE_DIR ${ICU_CMAKE_ICU_DATA_SOURCE_DIR})
-elseif(EXISTS ${ICU_SOURCE_DIR}/data/locales/LOCALE_DEPS.json)
-  set(ICU_DATA_SOURCE_DIR ${ICU_SOURCE_DIR}/data)
+IcuFetch(icu-data ${ICU_RELEASE_URL}/icu4c-${ICU_CMAKE_ICU_VERSION}-data.zip)
+# The archive's single top-level directory `data/` is usually stripped during extraction
+if(EXISTS ${icu-data_SOURCE_DIR}/BUILDRULES.py)
+  set(ICU_DATA_SOURCE_DIR ${icu-data_SOURCE_DIR})
 else()
-  IcuFetch(icu-data ${ICU_RELEASE_URL}/icu4c-${ICU_CMAKE_ICU_VERSION}-data.zip)
-  # The archive's single top-level directory `data/` is usually stripped during extraction
-  if(EXISTS ${icu-data_SOURCE_DIR}/BUILDRULES.py)
-    set(ICU_DATA_SOURCE_DIR ${icu-data_SOURCE_DIR})
-  else()
-    set(ICU_DATA_SOURCE_DIR ${icu-data_SOURCE_DIR}/data)
-  endif()
+  set(ICU_DATA_SOURCE_DIR ${icu-data_SOURCE_DIR}/data)
 endif()
 if(NOT EXISTS ${ICU_DATA_SOURCE_DIR}/BUILDRULES.py OR NOT EXISTS ${ICU_DATA_SOURCE_DIR}/locales/LOCALE_DEPS.json)
   GaiaFatalError("No ICU data sources found in ${ICU_DATA_SOURCE_DIR}")
 endif()
 GaiaStatus("ICU_DATA_SOURCE_DIR: ${ICU_DATA_SOURCE_DIR}")
 
-# Determine the ICU version ---------------------------------------------------------------------------------
+# Determine the ICU version and data-package name -----------------------------------------------------------
+
+# ICU looks up its common data as `icudt<major><letter>`, where the letter is `U_ICUDATA_TYPE_LETTER`: `l` on
+# a little-endian ASCII target and `b` on a big-endian ASCII target. The data tools write bytes in the
+# endianness they were compiled for, which is this target, so the letter has to follow it
+if(CMAKE_CXX_BYTE_ORDER STREQUAL "LITTLE_ENDIAN")
+  set(ICU_DATA_ENDIAN_LETTER l)
+elseif(CMAKE_CXX_BYTE_ORDER STREQUAL "BIG_ENDIAN")
+  set(ICU_DATA_ENDIAN_LETTER b)
+else()
+  GaiaFatalError("Cannot tell the target endianness from `CMAKE_CXX_BYTE_ORDER` (`${CMAKE_CXX_BYTE_ORDER}`)")
+endif()
 
 IcuReadVersion(${ICU_SOURCE_DIR} ICU_VERSION ICU_VERSION_MAJOR)
 set(ICU_DATA_NAME icudt${ICU_VERSION_MAJOR}${ICU_DATA_ENDIAN_LETTER}) # `l` or `b`; see the endianness check above

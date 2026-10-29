@@ -43,14 +43,6 @@ endif()
 # - `object`: `genccode -o` writes a `.obj` file directly (Windows)
 # - `c`:      `genccode` writes a `.c` file with a byte array (any platform; slow to compile)
 
-if(WIN32)
-  set(defaultDataFormat object)
-else()
-  set(defaultDataFormat asm)
-endif()
-GaiaAddVar(ICU_CMAKE_DATA_FORMAT  STRING ${defaultDataFormat} "Format of the generated data: `asm`, `object`, or `c`")
-GaiaAddVar(ICU_CMAKE_DATA_VERBOSE BOOL   OFF                  "Print every command of the ICU data build")
-
 if(NOT ICU_CMAKE_DATA_FORMAT MATCHES "^(asm|object|c)$")
   GaiaFatalError("ICU_CMAKE_DATA_FORMAT: Invalid value `${ICU_CMAKE_DATA_FORMAT}`")
 endif()
@@ -156,25 +148,17 @@ set(datFile    ${ICU_DATA_DIR}/${ICU_DATA_NAME}.dat)
 
 # Step 1: Compile the text sources into binary data files ...................................................
 
-# MSYS Python treats `C:/...` as a relative path, so it receives Unix paths and `unix-exec`, as on Linux.
-# Native Windows Python receives backslash paths and `windows-exec`: that mode rewrites `/` to `\` for
-# `cmd`, and switches to PowerShell when a command exceeds `cmd`'s 8191-character limit.
 GaiaPythonPath("${ICU_DATA_SOURCE_DIR}" pySrcDir)
 GaiaPythonPath("${dataOutDir}"          pyOutDir)
 GaiaPythonPath("${dataTmpDir}"          pyTmpDir)
 GaiaPythonPath("${ICU_TOOL_DIR}"        pyToolDir)
-if(ICU_PYTHON_NATIVE_WINDOWS)
+if(GAIA_PYTHON_NATIVE_WINDOWS)
   set(databuilderArgs --mode windows-exec --tool_dir "${pyToolDir}" --tool_cfg "$<CONFIG>")
 else()
   set(pyToolDir "${pyToolDir}${toolBinDirSuffix}")
   set(databuilderArgs --mode unix-exec --tool_dir "${pyToolDir}")
 endif()
 set(databuilderDeps)
-if(NOT ICU_CMAKE_DATA_FILTER_FILE STREQUAL "")
-  GaiaPythonPath("${ICU_CMAKE_DATA_FILTER_FILE}" pyFilterFile)
-  list(APPEND databuilderArgs --filter_file "${pyFilterFile}")
-  list(APPEND databuilderDeps ${ICU_CMAKE_DATA_FILTER_FILE})
-endif()
 if(ICU_CMAKE_DATA_VERBOSE)
   list(APPEND databuilderArgs --verbose)
 endif()

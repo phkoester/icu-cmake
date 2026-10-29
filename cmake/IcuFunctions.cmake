@@ -14,7 +14,6 @@
 function(IcuAddObjectLibrary name dir)
   IcuReadSources(${dir} sources)
   add_library(${name} OBJECT ${sources})
-  GaiaStatus("LIB COMPILE_FLAGS: ${COMPILE_FLAGS}") # XXX
   target_compile_options(${name} PRIVATE ${COMPILE_FLAGS})
   IcuApplyCommonSettings(${name})
   target_include_directories(${name} PUBLIC ${dir})
@@ -38,14 +37,13 @@ function(IcuAddTool name)
 
   set(target icu-${name})
   add_executable(${target} ${sources})
-  GaiaStatus("TOOL COMPILE_FLAGS: ${COMPILE_FLAGS}") # XXX
   target_compile_options(${target} PRIVATE ${COMPILE_FLAGS})
   IcuApplyCommonSettings(${target})
   target_include_directories(${target} PRIVATE ${dir})
   target_compile_definitions(${target} PRIVATE U_STATIC_IMPLEMENTATION)
   target_link_libraries(${target} PRIVATE ${ICU_TOOL_OBJECT_LIBS} icudata-stub ${ICU_SYSTEM_LIBS})
 
-  if(ICU_PYTHON_NATIVE_WINDOWS)
+  if(GAIA_PYTHON_NATIVE_WINDOWS)
     set(toolDir "${ICU_TOOL_DIR}/${name}/$<CONFIG>")
   else()
     set(toolDir ${ICU_TOOL_BIN_DIR})
@@ -85,17 +83,6 @@ function(IcuApplyCommonSettings name)
         WIN32_LEAN_AND_MEAN
     )
   endif()
-
-  # XXX
-  # MSVC and clang-cl: source and execution character set UTF-8, treat "not all control paths return a
-  # value" as an error, like ICU's Visual Studio projects do
-  #target_compile_options(${name}
-  #  PRIVATE
-  #    $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/utf-8 /we4715>
-  #    $<$<COMPILE_LANG_AND_ID:C,MSVC>:/utf-8 /we4715>
-  #    $<$<AND:$<COMPILE_LANG_AND_ID:CXX,Clang>,$<STREQUAL:${CMAKE_CXX_SIMULATE_ID},MSVC>>:/utf-8>
-  #     $<$<AND:$<COMPILE_LANG_AND_ID:C,Clang>,$<STREQUAL:${CMAKE_C_SIMULATE_ID},MSVC>>:/utf-8>
-  #)
 endfunction()
 
 # IcuFetch(name url)
