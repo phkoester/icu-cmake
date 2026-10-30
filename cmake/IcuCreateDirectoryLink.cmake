@@ -18,7 +18,7 @@ function(IcuCreateDirectoryLink original linkName)
 
   file(CREATE_LINK "${original}" "${linkName}" SYMBOLIC RESULT result)
   if(result AND WIN32)
-    # `mklink` treats `/` as a switch, so a CMake path such as `C:/Users/...` is the option `Users`.
+    # `mklink` treats `/` as a switch, so a CMake path such as `C:/Users/...` is the option `Users`
     file(TO_NATIVE_PATH "${linkName}" linkNameNative)
     file(TO_NATIVE_PATH "${original}" originalNative)
     execute_process(
@@ -39,9 +39,11 @@ function(IcuCreateDirectoryLink original linkName)
   endif()
 endfunction()
 
+# `cmake -P` ------------------------------------------------------------------------------------------------
+
 if(CMAKE_SCRIPT_MODE_FILE AND CMAKE_SCRIPT_MODE_FILE STREQUAL CMAKE_CURRENT_LIST_FILE)
   if(NOT DEFINED original OR NOT DEFINED linkName)
-    message(FATAL_ERROR "icu-cmake: -Doriginal and -DlinkName are required")
+    message(FATAL_ERROR "icu-cmake: `-Doriginal` and `-DlinkName` are required")
   endif()
   IcuCreateDirectoryLink("${original}" "${linkName}")
 endif()

@@ -60,14 +60,14 @@ set(FETCHCONTENT_QUIET FALSE)
 # Configuration ---------------------------------------------------------------------------------------------
 
 if(GAIA_OS_WINDOWS)
-  set(defaultDataFormat__ object)
+  set(defaultDataFormat object)
 else()
-  set(defaultDataFormat__ asm)
+  set(defaultDataFormat asm)
 endif()
 
 GaiaAddVar(ICU_CMAKE_BUILD_ICU_TEST BOOL   ${ICU_CMAKE_MASTER_PROJECT} "Build the ICU tests")
 GaiaAddVar(ICU_CMAKE_BUILD_TEST     BOOL   ${ICU_CMAKE_MASTER_PROJECT} "Build the smoke test")
-GaiaAddVar(ICU_CMAKE_DATA_FORMAT    STRING ${defaultDataFormat__}      "How `genccode` emits the data: `asm`, `object`, or `c`")
+GaiaAddVar(ICU_CMAKE_DATA_FORMAT    STRING ${defaultDataFormat}        "How `genccode` emits the data: `asm`, `object`, or `c`")
 GaiaAddVar(ICU_CMAKE_DATA_VERBOSE   BOOL   OFF                         "Print every command of the ICU data build")
 GaiaAddVar(ICU_CMAKE_ICU_VERSION    STRING 79.1                        "ICU version to download (`release-VERSION` tag; 78.1 or later use this naming scheme)")
 

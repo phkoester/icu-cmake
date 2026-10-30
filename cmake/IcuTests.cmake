@@ -46,7 +46,7 @@ function(IcuAddOneIcuTest target)
 
   # `collationperf` passes `char16_t *` to `CompareStringW` and `LCMapStringW`. MSVC converts that to
   # `wchar_t *`. Clang does not. The prefix header adds the missing overloads and `timeGetTime`, which
-  # `WIN32_LEAN_AND_MEAN` leaves out of `windows.h`. The fetched source stays as it is.
+  # `WIN32_LEAN_AND_MEAN` leaves out of `windows.h`. The fetched source stays as it is
   set(winLibs)
   foreach(source IN LISTS ARG_SOURCES)
     if(WIN32 AND source MATCHES "collationperf/collperf\\.cpp$")
@@ -58,7 +58,7 @@ function(IcuAddOneIcuTest target)
       )
       list(APPEND winLibs winmm)
     endif()
-    # `std::insert_iterator` is not pulled in by the headers this fuzzer includes.
+    # `std::insert_iterator` is not pulled in by the headers this fuzzer includes
     if(source MATCHES "(^|/)locale_morph_fuzzer\\.cpp$")
       if(WIN32)
         set(stdIterator "/FIiterator")
@@ -81,8 +81,8 @@ function(IcuAddOneIcuTest target)
       ${ICU_SOURCE_DIR}/tools/toolutil
       ${ICU_SOURCE_DIR}/tools/ctestfw
   )
-  # The values are string literals: ICU concatenates them with the next string in the source.
-  # Forward slashes and a trailing `/` keep that concatenation valid on Windows.
+  # The values are string literals: ICU concatenates them with the next string in the source. Forward slashes
+  # and a trailing `/` keep that concatenation valid on Windows
   target_compile_definitions(${target}
     PRIVATE
       "U_TOPSRCDIR=\"${icuTopSrc}\""
@@ -120,7 +120,7 @@ function(IcuAddTestsFromMakefile makefile)
   file(READ "${makefile}" text)
   string(REPLACE "\r\n" "\n" text "${text}")
   string(REPLACE "\r" "\n" text "${text}")
-  # CMake's regex has no `\t`. A tab has to be inserted into the character class.
+  # CMake's regex has no `\t`. A tab has to be inserted into the character class
   string(ASCII 9 tab)
   string(REGEX REPLACE "\\\\[${tab} ]*\n" " " text "${text}")
   # Newlines become list separators, so semicolons already in the file have to survive that
@@ -363,7 +363,7 @@ file(WRITE "${ICU_FUZZER_INPUT}" "abc123\n")
 
 IcuAddCtestfw(icu-ctestfw)
 if(WIN32 AND BUILD_SHARED_LIBS)
-  # The data tools are static. A ctestfw built against the DLLs cannot be linked into `gentest`.
+  # The data tools are static. A ctestfw built against the DLLs cannot be linked into `gentest`
   IcuAddCtestfw(icu-ctestfw-tool FOR_TOOLS)
   set(gentestCtestfw icu-ctestfw-tool)
 else()
@@ -427,7 +427,7 @@ add_custom_command(
       --out_dir "${pyTestOut}"
       --tmp_dir "${pyTestTmp}"
       ${ICU_DATABUILDER_ARGS}
-  # The data list is generated in `src/main`. Naming `icudata` as well makes sure it is built first.
+  # The data list is generated in `src/main`. Naming `icudata` as well makes sure it is built first
   DEPENDS icu-gentest icu-gennorm2 icudata ${ICU_DATA_LIST}
     ${ICU_SOURCE_DIR}/test/testdata/BUILDRULES.py
     ${ICU_CMAKE_DIR}/cmake/IcuCreateDirectoryLink.cmake
