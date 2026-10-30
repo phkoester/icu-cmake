@@ -88,17 +88,19 @@ elseif(GAIA_OS_WINDOWS)
   if(GAIA_CXX_COMPILER_CLANG)
     # Windows, Clang
     set(COMPILE_FLAGS -Werror -Wextra
+      -Wno-deprecated-declarations
       -Wno-format
       -Wno-macro-redefined
       -Wno-parentheses
       -Wno-sign-compare
+      -Wno-unused-but-set-variable
       -Wno-unused-function
       -Wno-unused-parameter
       -Wno-unused-variable
     )
   elseif(GAIA_CXX_COMPILER_MSVC)
     # Windows, MSVC
-    set(COMPILE_FLAGS /bigobj /wd4005 /wd4477 /wd4805 /Zc:preprocessor)
+    set(COMPILE_FLAGS /bigobj /wd4005 /wd4312 /wd4477 /wd4805 /Zc:preprocessor)
   endif()
 endif()
 
