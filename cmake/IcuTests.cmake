@@ -38,20 +38,6 @@ function(IcuAddCtestfw target)
   endif()
 endfunction()
 
-# IcuTestSourceFromObject(dir object out)
-#
-# Maps `name.o` from a makefile to `dir/name.cpp` or `dir/name.c`.
-function(IcuTestSourceFromObject dir object out)
-  string(REGEX REPLACE "\\.o$" "" stem "${object}")
-  if(EXISTS "${dir}/${stem}.cpp")
-    set(${out} "${dir}/${stem}.cpp" PARENT_SCOPE)
-  elseif(EXISTS "${dir}/${stem}.c")
-    set(${out} "${dir}/${stem}.c" PARENT_SCOPE)
-  else()
-    set(${out} "" PARENT_SCOPE)
-  endif()
-endfunction()
-
 # IcuAddOneIcuTest(target ...)
 #
 # One ICU test executable and its CTest entry.
@@ -338,6 +324,20 @@ function(IcuAddTestsFromMakefile makefile)
   endforeach()
 
   set(icuDiscoveredTests ${icuDiscoveredTests} ${added} PARENT_SCOPE)
+endfunction()
+
+# IcuTestSourceFromObject(dir object out)
+#
+# Maps `name.o` from a makefile to `dir/name.cpp` or `dir/name.c`.
+function(IcuTestSourceFromObject dir object out)
+  string(REGEX REPLACE "\\.o$" "" stem "${object}")
+  if(EXISTS "${dir}/${stem}.cpp")
+    set(${out} "${dir}/${stem}.cpp" PARENT_SCOPE)
+  elseif(EXISTS "${dir}/${stem}.c")
+    set(${out} "${dir}/${stem}.c" PARENT_SCOPE)
+  else()
+    set(${out} "" PARENT_SCOPE)
+  endif()
 endfunction()
 
 # Unicode version -------------------------------------------------------------------------------------------

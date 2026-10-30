@@ -1,14 +1,10 @@
 /*
  * test-icu-cmake.cc
  *
- * Smoke test: Checks that the ICU libraries link and that the real (non-stub) data is available
- *
- * Usage:
- *
- * - `test-icu-cmake` runs all tests
- * - `test-icu-cmake --list` lists them
- * - `test-icu-cmake <name>` runs one
+ * Smoke test: Checks that the ICU libraries link and that the real (non-stub) data is available.
  */
+
+#include <gtest/gtest.h>
 
 #include "unicode/ubrk.h"
 #include "unicode/ucnv.h"
@@ -20,24 +16,13 @@
 #include "unicode/uversion.h"
 
 #include <cstdio>
-#include <cstring>
 #include <string>
 
 using namespace std;
 
-// Local functions ------------------------------------------------------------------------------------------
-
 namespace {
 
-int failures = 0;
-
-void
-check(bool condition, const char* what) {
-  printf("%s: %s\n", condition ? "PASS" : "FAIL", what);
-  if (!condition) {
-    ++failures;
-  }
-}
+// Local functions ------------------------------------------------------------------------------------------
 
 string
 toUtf8(const UChar* s, int32_t length) {
@@ -53,133 +38,75 @@ toUtf8(const UChar* s, int32_t length) {
 
 } // namespace
 
-// Test functions -------------------------------------------------------------------------------------------
+// `TEST` ---------------------------------------------------------------------------------------------------
 
-void
-testBreakIterator() {
+TEST(icu, BreakIterator) {
   UErrorCode status = U_ZERO_ERROR;
   const UChar text[] = u"Hello wonderful world";
   UBreakIterator* iterator = ubrk_open(UBRK_WORD, "en_US", text, -1, &status);
-  check(U_SUCCESS(status), "ubrk_open(UBRK_WORD)");
-  if (U_SUCCESS(status)) {
-    int words = 0;
-    ubrk_first(iterator);
-    while (ubrk_next(iterator) != UBRK_DONE) {
-      if (ubrk_getRuleStatus(iterator) >= UBRK_WORD_LETTER) {
-        ++words;
-      }
+  ASSERT_TRUE(U_SUCCESS(status)) << "ubrk_open(UBRK_WORD): " << u_errorName(status);
+
+  int words = 0;
+  ubrk_first(iterator);
+  while (ubrk_next(iterator) != UBRK_DONE) {
+    if (ubrk_getRuleStatus(iterator) >= UBRK_WORD_LETTER) {
+      ++words;
     }
-    printf("Words: %d\n", words);
-    check(words == 3, "ubrk word iterator finds 3 words");
   }
+  EXPECT_EQ(words, 3) << "ubrk word iterator finds 3 words";
   ubrk_close(iterator);
 }
 
-void
-testConverter() {
+TEST(icu, Converter) {
   UErrorCode status = U_ZERO_ERROR;
   UConverter* converter = ucnv_open("ISO-8859-15", &status);
-  check(U_SUCCESS(status), "ucnv_open(\"ISO-8859-15\") finds the converter data");
+  EXPECT_TRUE(U_SUCCESS(status)) << "ucnv_open(\"ISO-8859-15\") finds the converter data: "
+                                 << u_errorName(status);
   ucnv_close(converter);
 }
 
-void
-testIo() {
+TEST(icu, Io) {
   UFILE* out = u_finit(stdout, nullptr, nullptr);
-  check(out != nullptr, "u_finit(stdout)");
-  if (out != nullptr) {
-    int32_t written = u_fprintf(out, "u_fprintf: %d %S\n", 42, u"Grüße");
-    check(written > 0, "u_fprintf writes");
-    u_fclose(out);
-  }
+  ASSERT_NE(out, nullptr) << "u_finit(stdout)";
+  int32_t written = u_fprintf(out, "u_fprintf: %d %S\n", 42, u"Grüße");
+  EXPECT_GT(written, 0) << "u_fprintf writes";
+  u_fclose(out);
 }
 
-void
-testNumberFormat() {
-  UErrorCode status = U_ZERO_ERROR;
-  UNumberFormat* format = unum_open(UNUM_DECIMAL, nullptr, 0, "de_DE", nullptr, &status);
-  check(U_SUCCESS(status), "unum_open(\"de_DE\")");
-  if (U_SUCCESS(status)) {
-    UChar buffer[64];
-    int32_t length = unum_formatDouble(format, 1234567.89, buffer, 64, nullptr, &status);
-    string formatted = toUtf8(buffer, length);
-    printf("Formatted number: %s\n", formatted.c_str());
-    check(U_SUCCESS(status) && formatted == "1.234.567,89", "unum_formatDouble uses German separators");
-  }
-  unum_close(format);
-}
-
-void
-testResourceBundle() {
+TEST(icu, ResourceBundle) {
   // Opening a locale bundle fails against the stub data, so this proves the real data is linked in
   UErrorCode status = U_ZERO_ERROR;
   UResourceBundle* bundle = ures_open(nullptr, "de", &status);
-  check(U_SUCCESS(status) && status != U_USING_DEFAULT_WARNING && status != U_USING_FALLBACK_WARNING,
-        "ures_open(\"de\") finds the German locale data");
-  if (U_SUCCESS(status)) {
-    int32_t length = 0;
-    const UChar* name = ures_getStringByKey(bundle, "ExemplarCharacters", &length, &status);
-    check(U_SUCCESS(status) && name != nullptr && length > 0, "ures_getStringByKey(\"ExemplarCharacters\")");
-  }
+  ASSERT_TRUE(U_SUCCESS(status)) << "ures_open(\"de\"): " << u_errorName(status);
+  EXPECT_NE(status, U_USING_DEFAULT_WARNING) << "ures_open(\"de\") finds the German locale data";
+  EXPECT_NE(status, U_USING_FALLBACK_WARNING) << "ures_open(\"de\") finds the German locale data";
+
+  int32_t length = 0;
+  const UChar* name = ures_getStringByKey(bundle, "ExemplarCharacters", &length, &status);
+  EXPECT_TRUE(U_SUCCESS(status)) << "ures_getStringByKey(\"ExemplarCharacters\"): " << u_errorName(status);
+  EXPECT_NE(name, nullptr);
+  EXPECT_GT(length, 0);
   ures_close(bundle);
 }
 
-void
-testVersion() {
+TEST(icu, NumberFormat) {
+  UErrorCode status = U_ZERO_ERROR;
+  UNumberFormat* format = unum_open(UNUM_DECIMAL, nullptr, 0, "de_DE", nullptr, &status);
+  ASSERT_TRUE(U_SUCCESS(status)) << "unum_open(\"de_DE\"): " << u_errorName(status);
+
+  UChar buffer[64];
+  int32_t length = unum_formatDouble(format, 1234567.89, buffer, 64, nullptr, &status);
+  EXPECT_TRUE(U_SUCCESS(status)) << "unum_formatDouble: " << u_errorName(status);
+  EXPECT_EQ(toUtf8(buffer, length), "1.234.567,89") << "unum_formatDouble uses German separators";
+  unum_close(format);
+}
+
+TEST(icu, Version) {
   UVersionInfo info;
   char buffer[U_MAX_VERSION_STRING_LENGTH];
   u_getVersion(info);
   u_versionToString(info, buffer);
-  printf("ICU version: %s\n", buffer);
-  check(strcmp(buffer, U_ICU_VERSION) == 0, "u_getVersion matches U_ICU_VERSION");
-}
-
-// `Test` ---------------------------------------------------------------------------------------------------
-struct Test {
-  const char* name;
-  void (*function)();
-};
-
-// `src/test/CMakeLists.txt` parses this table to register each entry as its own CTest test, so keep one
-// entry per line in the form `{"Name", testName},`
-const Test tests[] = {
-  {"Version", testVersion},
-  {"ResourceBundle", testResourceBundle},
-  {"NumberFormat", testNumberFormat},
-  {"BreakIterator", testBreakIterator},
-  {"Converter", testConverter},
-  {"Io", testIo},
-};
-
-// `main` ---------------------------------------------------------------------------------------------------
-
-int
-main(int argc, char** argv) {
-  if (argc > 2) {
-    fprintf(stderr, "Usage: %s [--list | <test>]\n", argv[0]);
-    return 1;
-  }
-  if (argc == 2 && strcmp(argv[1], "--list") == 0) {
-    for (const Test& test : tests) {
-      printf("%s\n", test.name);
-    }
-    return 0;
-  }
-
-  bool found = false;
-  for (const Test& test : tests) {
-    if (argc == 1 || strcmp(argv[1], test.name) == 0) {
-      test.function();
-      found = true;
-    }
-  }
-  if (!found) {
-    fprintf(stderr, "Unknown test: %s\n", argv[1]);
-    return 1;
-  }
-
-  printf("%d failure(s)\n", failures);
-  return failures == 0 ? 0 : 1;
+  EXPECT_STREQ(buffer, U_ICU_VERSION) << "u_getVersion matches U_ICU_VERSION";
 }
 
 // EOF

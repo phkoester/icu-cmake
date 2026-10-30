@@ -23,6 +23,7 @@ project(icu-cmake VERSION 0.1.1)
 # Versions --------------------------------------------------------------------------------------------------
 
 set(ICU_CMAKE_GAIA_VERSION 1.2.2)
+set(ICU_CMAKE_GTEST_VERSION 1.17.0)
 
 # Gaia ------------------------------------------------------------------------------------------------------
 
@@ -104,6 +105,34 @@ elseif(GAIA_OS_WINDOWS)
     # Windows, MSVC
     set(COMPILE_FLAGS /bigobj /wd4005 /wd4068 /wd4312 /wd4477 /wd4805 /Zc:preprocessor)
   endif()
+endif()
+
+# Dependencies ----------------------------------------------------------------------------------------------
+
+# GTest .....................................................................................................
+
+if(BUILD_TESTING AND ICU_CMAKE_BUILD_TEST)
+  FetchContent_Declare(
+    GTest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG        v${ICU_CMAKE_GTEST_VERSION}
+    GIT_PROGRESS   TRUE
+    SYSTEM
+    EXCLUDE_FROM_ALL
+  )
+
+  block()
+    set(BUILD_SHARED_LIBS OFF)
+    if(GAIA_OS_WINDOWS)
+      # For Windows: Prevent overriding the parent project's compiler/linker settings
+      set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    endif()
+    FetchContent_MakeAvailable(GTest)
+    if(GAIA_CXX_COMPILER_LLVM)
+      target_compile_options(gtest PRIVATE -Wno-character-conversion)
+      target_compile_options(gmock PRIVATE -Wno-character-conversion)
+    endif()
+  endblock()
 endif()
 
 # Fetch -----------------------------------------------------------------------------------------------------
