@@ -59,6 +59,31 @@ endfunction()
 function(IcuAddOneIcuTest target)
   cmake_parse_arguments(PARSE_ARGV 1 ARG "" "TEST_DIR" "SOURCES;LIBS;ARGS")
 
+  # `collationperf` passes `char16_t *` to `CompareStringW` and `LCMapStringW`. MSVC converts that to
+  # `wchar_t *`. Clang does not. The prefix header adds the missing overloads and `timeGetTime`, which
+  # `WIN32_LEAN_AND_MEAN` leaves out of `windows.h`. The fetched source stays as it is.
+  set(winLibs)
+  foreach(source IN LISTS ARG_SOURCES)
+    if(WIN32 AND source MATCHES "collationperf/collperf\\.cpp$")
+      set(icuWin32Char16 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/IcuWin32Char16.h")
+      set_source_files_properties("${source}"
+        PROPERTIES
+          COMPILE_OPTIONS "/FI${icuWin32Char16}"
+          OBJECT_DEPENDS "${icuWin32Char16}"
+      )
+      list(APPEND winLibs winmm)
+    endif()
+    # `std::insert_iterator` is not pulled in by the headers this fuzzer includes.
+    if(source MATCHES "(^|/)locale_morph_fuzzer\\.cpp$")
+      if(WIN32)
+        set(stdIterator "/FIiterator")
+      else()
+        set(stdIterator "SHELL:-include iterator")
+      endif()
+      set_source_files_properties("${source}" PROPERTIES COMPILE_OPTIONS "${stdIterator}")
+    endif()
+  endforeach()
+
   add_executable(${target} ${ARG_SOURCES})
   target_compile_options(${target} PRIVATE ${icuTestCompileFlags})
   IcuApplyCommonSettings(${target})
@@ -89,6 +114,7 @@ function(IcuAddOneIcuTest target)
       icu-cmake::io
       icu-cmake::tu
       ${ARG_LIBS}
+      ${winLibs}
   )
   set_target_properties(${target} PROPERTIES LINKER_LANGUAGE CXX)
   GaiaCopyRuntimeFiles(${target})

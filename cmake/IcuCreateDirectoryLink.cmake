@@ -18,13 +18,24 @@ function(IcuCreateDirectoryLink original linkName)
 
   file(CREATE_LINK "${original}" "${linkName}" SYMBOLIC RESULT result)
   if(result AND WIN32)
+    # `mklink` treats `/` as a switch, so a CMake path such as `C:/Users/...` is the option `Users`.
+    file(TO_NATIVE_PATH "${linkName}" linkNameNative)
+    file(TO_NATIVE_PATH "${original}" originalNative)
     execute_process(
-      COMMAND cmd /c mklink /J "${linkName}" "${original}"
+      COMMAND cmd /c mklink /J "${linkNameNative}" "${originalNative}"
       RESULT_VARIABLE result
+      OUTPUT_VARIABLE linkOutput
+      ERROR_VARIABLE linkError
     )
+    if(linkOutput)
+      string(APPEND linkError "${linkOutput}")
+    endif()
   endif()
   if(result)
-    message(FATAL_ERROR "icu-cmake: Could not link `${linkName}` to `${original}`: ${result}")
+    if(linkError)
+      string(PREPEND linkError "\n")
+    endif()
+    message(FATAL_ERROR "icu-cmake: Could not link `${linkName}` to `${original}`: ${result}${linkError}")
   endif()
 endfunction()
 
