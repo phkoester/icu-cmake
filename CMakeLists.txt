@@ -81,6 +81,7 @@ if(GAIA_OS_LINUX)
   # Linux
   set(COMPILE_FLAGS -Wall -Werror -Wextra
     -Wno-unused-parameter
+    -Wno-unused-variable
   )
   if(GAIA_CXX_COMPILER_GNU)
     list(APPEND COMPILE_FLAGS -Wno-bidi-chars)

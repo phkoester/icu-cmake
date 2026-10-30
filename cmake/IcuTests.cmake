@@ -77,14 +77,14 @@ function(IcuAddOneIcuTest target)
       if(WIN32)
         set(stdIterator "/FIiterator")
       else()
-        set(stdIterator "SHELL:-include iterator")
+        # Two list items: the Makefile generator does not expand `SHELL:` in source-file options
+        set(stdIterator -include iterator)
       endif()
       set_source_files_properties("${source}" PROPERTIES COMPILE_OPTIONS "${stdIterator}")
     endif()
   endforeach()
 
   add_executable(${target} ${ARG_SOURCES})
-  target_compile_options(${target} PRIVATE ${icuTestCompileFlags})
   IcuApplyCommonSettings(${target})
   target_include_directories(${target}
     PRIVATE
@@ -355,10 +355,6 @@ set(icuTopBuild "${icuTopBuild}/")
 file(TO_CMAKE_PATH "${ICU_TEST_ROOT}/fuzzer-input.txt" ICU_FUZZER_INPUT)
 file(MAKE_DIRECTORY "${ICU_TEST_ROOT}")
 file(WRITE "${ICU_FUZZER_INPUT}" "abc123\n")
-
-# ` -Werror` would reject ICU's test sources, and those sources are not patched
-set(icuTestCompileFlags ${COMPILE_FLAGS})
-list(REMOVE_ITEM icuTestCompileFlags -Werror)
 
 # ctestfw ---------------------------------------------------------------------------------------------------
 

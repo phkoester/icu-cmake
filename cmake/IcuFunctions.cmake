@@ -57,6 +57,8 @@ endfunction()
 #
 # Applies the compiler settings ICU's own build systems use to a target that compiles ICU sources.
 function(IcuApplyCommonSettings name)
+  target_compile_options(${name} PRIVATE ${COMPILE_FLAGS})
+
   set_target_properties(${name}
     PROPERTIES
       C_STANDARD 11
@@ -81,8 +83,6 @@ function(IcuApplyCommonSettings name)
         WIN32_LEAN_AND_MEAN
     )
   endif()
-
-  target_compile_options(${name} PRIVATE ${COMPILE_FLAGS})
 endfunction()
 
 # IcuFetch(name url)

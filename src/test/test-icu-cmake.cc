@@ -122,16 +122,49 @@ testIo() {
   }
 }
 
+struct Test {
+  const char* name;
+  void (*function)();
+};
+
+// `src/test/CMakeLists.txt` parses this table to register each entry as its own CTest test, so keep one
+// entry per line in the form `{"Name", testName},`
+const Test tests[] = {
+  {"Version", testVersion},
+  {"ResourceBundle", testResourceBundle},
+  {"NumberFormat", testNumberFormat},
+  {"BreakIterator", testBreakIterator},
+  {"Converter", testConverter},
+  {"Io", testIo},
+};
+
 } // namespace
 
+// Usage: `test-icu-cmake` runs all tests, `test-icu-cmake --list` lists them, `test-icu-cmake <name>` runs one
 int
-main() {
-  testVersion();
-  testResourceBundle();
-  testNumberFormat();
-  testBreakIterator();
-  testConverter();
-  testIo();
+main(int argc, char** argv) {
+  if (argc > 2) {
+    fprintf(stderr, "Usage: %s [--list | <test>]\n", argv[0]);
+    return 1;
+  }
+  if (argc == 2 && strcmp(argv[1], "--list") == 0) {
+    for (const Test& test : tests) {
+      printf("%s\n", test.name);
+    }
+    return 0;
+  }
+
+  bool found = false;
+  for (const Test& test : tests) {
+    if (argc == 1 || strcmp(argv[1], test.name) == 0) {
+      test.function();
+      found = true;
+    }
+  }
+  if (!found) {
+    fprintf(stderr, "Unknown test: %s\n", argv[1]);
+    return 1;
+  }
 
   printf("%d failure(s)\n", failures);
   return failures == 0 ? 0 : 1;
