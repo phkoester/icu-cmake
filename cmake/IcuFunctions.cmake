@@ -14,7 +14,6 @@
 function(IcuAddObjectLibrary name dir)
   IcuReadSources(${dir} sources)
   add_library(${name} OBJECT ${sources})
-  target_compile_options(${name} PRIVATE ${COMPILE_FLAGS})
   IcuApplyCommonSettings(${name})
   target_include_directories(${name} PUBLIC ${dir})
 
@@ -37,7 +36,6 @@ function(IcuAddTool name)
 
   set(target icu-${name})
   add_executable(${target} ${sources})
-  target_compile_options(${target} PRIVATE ${COMPILE_FLAGS})
   IcuApplyCommonSettings(${target})
   target_include_directories(${target} PRIVATE ${dir})
   target_compile_definitions(${target} PRIVATE U_STATIC_IMPLEMENTATION)
@@ -83,6 +81,8 @@ function(IcuApplyCommonSettings name)
         WIN32_LEAN_AND_MEAN
     )
   endif()
+
+  target_compile_options(${name} PRIVATE ${COMPILE_FLAGS})
 endfunction()
 
 # IcuFetch(name url)

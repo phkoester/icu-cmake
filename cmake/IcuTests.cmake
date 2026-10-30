@@ -23,7 +23,6 @@ function(IcuAddCtestfw target)
 
   IcuReadSources(${ICU_SOURCE_DIR}/tools/ctestfw sources)
   add_library(${target} STATIC ${sources})
-  target_compile_options(${target} PRIVATE ${COMPILE_FLAGS})
   IcuApplyCommonSettings(${target})
   target_include_directories(${target}
     PUBLIC

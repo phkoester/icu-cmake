@@ -4,9 +4,9 @@
 
 cmake_minimum_required(VERSION 4.2)
 
-include(FetchContent)
-
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/IcuFunctions.cmake)
+
+include(FetchContent)
 
 # Project ---------------------------------------------------------------------------------------------------
 
@@ -65,10 +65,10 @@ else()
 endif()
 
 GaiaAddVar(ICU_CMAKE_BUILD_ICU_TEST BOOL   ${ICU_CMAKE_MASTER_PROJECT} "Build the ICU tests")
-GaiaAddVar(ICU_CMAKE_BUILD_TEST     BOOL   ${ICU_CMAKE_MASTER_PROJECT} "Build the unit tests")
-GaiaAddVar(ICU_CMAKE_DATA_FORMAT    STRING ${defaultDataFormat__}      "Format of the generated data: `asm`, `object`, or `c`")
+GaiaAddVar(ICU_CMAKE_BUILD_TEST     BOOL   ${ICU_CMAKE_MASTER_PROJECT} "Build the smoke test")
+GaiaAddVar(ICU_CMAKE_DATA_FORMAT    STRING ${defaultDataFormat__}      "How `genccode` emits the data: `asm`, `object`, or `c`")
 GaiaAddVar(ICU_CMAKE_DATA_VERBOSE   BOOL   OFF                         "Print every command of the ICU data build")
-GaiaAddVar(ICU_CMAKE_ICU_VERSION    STRING 79.1                        "ICU version to download (release-VERSION tag, 78.1 or later)")
+GaiaAddVar(ICU_CMAKE_ICU_VERSION    STRING 79.1                        "ICU version to download (`release-VERSION` tag; 78.1 or later use this naming scheme)")
 
 # Set compiler and linker options ---------------------------------------------------------------------------
 
@@ -80,13 +80,14 @@ set(LINK_FLAGS)
 if(GAIA_OS_LINUX)
   # Linux
   set(COMPILE_FLAGS -Wall -Werror -Wextra
-    -Wno-bidi-chars
-    -Wno-ignored-attributes
     -Wno-unused-parameter
   )
+  if(GAIA_CXX_COMPILER_GNU)
+    list(APPEND COMPILE_FLAGS -Wno-bidi-chars)
+  endif()
 elseif(GAIA_OS_WINDOWS)
-  if(GAIA_CXX_COMPILER_CLANG)
-    # Windows, Clang
+  if(GAIA_CXX_COMPILER_LLVM)
+    # Windows, LLVM
     set(COMPILE_FLAGS -Werror -Wextra
       -Wno-deprecated-declarations
       -Wno-format
