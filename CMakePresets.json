@@ -2,11 +2,13 @@
   "version": 8,
   "cmakeMinimumRequired": {
     "major": 4,
-    "minor": 2
+    "minor": 2,
+    "patch": 0
   },
   "configurePresets": [
     {
       "name": "linux-debug",
+      "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
@@ -14,14 +16,27 @@
     },
     {
       "name": "linux-release",
+      "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
-      "name": "windows",
-      "binaryDir": "${sourceDir}/build"
+      "name": "windows-debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "windows-release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     }
   ],
   "buildPresets": [
@@ -35,13 +50,11 @@
     },
     {
       "name": "windows-debug",
-      "configurePreset": "windows",
-      "configuration": "Debug"
+      "configurePreset": "windows-debug"
     },
     {
       "name": "windows-release",
-      "configurePreset": "windows",
-      "configuration": "Release"
+      "configurePreset": "windows-release"
     }
   ],
   "testPresets": [
@@ -55,13 +68,11 @@
     },
     {
       "name": "windows-debug",
-      "configurePreset": "windows",
-      "configuration": "Debug"
+      "configurePreset": "windows-debug"
     },
     {
       "name": "windows-release",
-      "configurePreset": "windows",
-      "configuration": "Release"
+      "configurePreset": "windows-release"
     }
   ]
 }

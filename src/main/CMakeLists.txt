@@ -20,13 +20,16 @@ set(ICU_TOOL_DIR      ${CMAKE_CURRENT_BINARY_DIR}/tools)
 
 # `unix-exec` expects tools at `TOOL_DIR/name`. With a multi-config generator, each configuration gets its
 # own `TOOL_DIR`. Native Windows Python uses `windows-exec` and a per-tool directory; see `IcuAddTool`.
+# `windows-exec` always inserts `TOOL_CFG` into the path, so single-config generators pass `.`.
 get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(isMultiConfig)
-  set(toolBinDirSuffix /$<CONFIG>)
+  set(ICU_TOOL_CFG        $<CONFIG>)
+  set(ICU_TOOL_CFG_SUFFIX /$<CONFIG>)
 else()
-  set(toolBinDirSuffix)
+  set(ICU_TOOL_CFG        .)
+  set(ICU_TOOL_CFG_SUFFIX)
 endif()
-set(ICU_TOOL_BIN_DIR ${ICU_TOOL_DIR}${toolBinDirSuffix})
+set(ICU_TOOL_BIN_DIR ${ICU_TOOL_DIR}${ICU_TOOL_CFG_SUFFIX})
 
 # System libraries ..........................................................................................
 
@@ -154,9 +157,9 @@ GaiaPythonPath("${dataOutDir}"          pyOutDir)
 GaiaPythonPath("${dataTmpDir}"          pyTmpDir)
 GaiaPythonPath("${ICU_TOOL_DIR}"        pyToolDir)
 if(GAIA_PYTHON_NATIVE_WINDOWS)
-  set(databuilderArgs --mode windows-exec --tool_dir "${pyToolDir}" --tool_cfg "$<CONFIG>")
+  set(databuilderArgs --mode windows-exec --tool_dir "${pyToolDir}" --tool_cfg "${ICU_TOOL_CFG}")
 else()
-  set(pyToolDir "${pyToolDir}${toolBinDirSuffix}")
+  set(pyToolDir "${pyToolDir}${ICU_TOOL_CFG_SUFFIX}")
   set(databuilderArgs --mode unix-exec --tool_dir "${pyToolDir}")
 endif()
 set(databuilderDeps)

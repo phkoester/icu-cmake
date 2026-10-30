@@ -28,8 +28,8 @@ endfunction()
 # IcuAddTool(name)
 #
 # Adds a build-time tool from `tools/name/sources.txt`. MSYS and Linux place it at `ICU_TOOL_BIN_DIR/name`
-# for `unix-exec`. Native Windows Python places it at `ICU_TOOL_DIR/name/<config>/name.exe` for
-# `windows-exec`.
+# for `unix-exec`. Native Windows Python places it at `ICU_TOOL_DIR/name/name.exe` for `windows-exec`, with
+# a `<config>` directory before `name.exe` under a multi-config generator.
 function(IcuAddTool name)
   set(dir ${ICU_SOURCE_DIR}/tools/${name})
   IcuReadSources(${dir} sources)
@@ -42,7 +42,7 @@ function(IcuAddTool name)
   target_link_libraries(${target} PRIVATE ${ICU_TOOL_OBJECT_LIBS} icudata-stub ${ICU_SYSTEM_LIBS})
 
   if(GAIA_PYTHON_NATIVE_WINDOWS)
-    set(toolDir "${ICU_TOOL_DIR}/${name}/$<CONFIG>")
+    set(toolDir ${ICU_TOOL_DIR}/${name}${ICU_TOOL_CFG_SUFFIX})
   else()
     set(toolDir ${ICU_TOOL_BIN_DIR})
   endif()
