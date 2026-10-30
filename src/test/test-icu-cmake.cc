@@ -1,12 +1,14 @@
-//
-// test-icu-cmake.cc
-//
-// Smoke test: Checks that the ICU libraries link and that the real (non-stub) data is available.
-//
-
-#include <cstdio>
-#include <cstring>
-#include <string>
+/*
+ * test-icu-cmake.cc
+ *
+ * Smoke test: Checks that the ICU libraries link and that the real (non-stub) data is available
+ *
+ * Usage:
+ *
+ * - `test-icu-cmake` runs all tests
+ * - `test-icu-cmake --list` lists them
+ * - `test-icu-cmake <name>` runs one
+ */
 
 #include "unicode/ubrk.h"
 #include "unicode/ucnv.h"
@@ -17,7 +19,13 @@
 #include "unicode/uvernum.h"
 #include "unicode/uversion.h"
 
+#include <cstdio>
+#include <cstring>
+#include <string>
+
 using namespace std;
+
+// Local functions ------------------------------------------------------------------------------------------
 
 namespace {
 
@@ -43,45 +51,9 @@ toUtf8(const UChar* s, int32_t length) {
   return U_SUCCESS(status) ? out : string();
 }
 
-void
-testVersion() {
-  UVersionInfo info;
-  char buffer[U_MAX_VERSION_STRING_LENGTH];
-  u_getVersion(info);
-  u_versionToString(info, buffer);
-  printf("ICU version: %s\n", buffer);
-  check(strcmp(buffer, U_ICU_VERSION) == 0, "u_getVersion matches U_ICU_VERSION");
-}
+} // namespace
 
-void
-testResourceBundle() {
-  // Opening a locale bundle fails against the stub data, so this proves the real data is linked in
-  UErrorCode status = U_ZERO_ERROR;
-  UResourceBundle* bundle = ures_open(nullptr, "de", &status);
-  check(U_SUCCESS(status) && status != U_USING_DEFAULT_WARNING && status != U_USING_FALLBACK_WARNING,
-        "ures_open(\"de\") finds the German locale data");
-  if (U_SUCCESS(status)) {
-    int32_t length = 0;
-    const UChar* name = ures_getStringByKey(bundle, "ExemplarCharacters", &length, &status);
-    check(U_SUCCESS(status) && name != nullptr && length > 0, "ures_getStringByKey(\"ExemplarCharacters\")");
-  }
-  ures_close(bundle);
-}
-
-void
-testNumberFormat() {
-  UErrorCode status = U_ZERO_ERROR;
-  UNumberFormat* format = unum_open(UNUM_DECIMAL, nullptr, 0, "de_DE", nullptr, &status);
-  check(U_SUCCESS(status), "unum_open(\"de_DE\")");
-  if (U_SUCCESS(status)) {
-    UChar buffer[64];
-    int32_t length = unum_formatDouble(format, 1234567.89, buffer, 64, nullptr, &status);
-    string formatted = toUtf8(buffer, length);
-    printf("Formatted number: %s\n", formatted.c_str());
-    check(U_SUCCESS(status) && formatted == "1.234.567,89", "unum_formatDouble uses German separators");
-  }
-  unum_close(format);
-}
+// Test functions -------------------------------------------------------------------------------------------
 
 void
 testBreakIterator() {
@@ -122,6 +94,47 @@ testIo() {
   }
 }
 
+void
+testNumberFormat() {
+  UErrorCode status = U_ZERO_ERROR;
+  UNumberFormat* format = unum_open(UNUM_DECIMAL, nullptr, 0, "de_DE", nullptr, &status);
+  check(U_SUCCESS(status), "unum_open(\"de_DE\")");
+  if (U_SUCCESS(status)) {
+    UChar buffer[64];
+    int32_t length = unum_formatDouble(format, 1234567.89, buffer, 64, nullptr, &status);
+    string formatted = toUtf8(buffer, length);
+    printf("Formatted number: %s\n", formatted.c_str());
+    check(U_SUCCESS(status) && formatted == "1.234.567,89", "unum_formatDouble uses German separators");
+  }
+  unum_close(format);
+}
+
+void
+testResourceBundle() {
+  // Opening a locale bundle fails against the stub data, so this proves the real data is linked in
+  UErrorCode status = U_ZERO_ERROR;
+  UResourceBundle* bundle = ures_open(nullptr, "de", &status);
+  check(U_SUCCESS(status) && status != U_USING_DEFAULT_WARNING && status != U_USING_FALLBACK_WARNING,
+        "ures_open(\"de\") finds the German locale data");
+  if (U_SUCCESS(status)) {
+    int32_t length = 0;
+    const UChar* name = ures_getStringByKey(bundle, "ExemplarCharacters", &length, &status);
+    check(U_SUCCESS(status) && name != nullptr && length > 0, "ures_getStringByKey(\"ExemplarCharacters\")");
+  }
+  ures_close(bundle);
+}
+
+void
+testVersion() {
+  UVersionInfo info;
+  char buffer[U_MAX_VERSION_STRING_LENGTH];
+  u_getVersion(info);
+  u_versionToString(info, buffer);
+  printf("ICU version: %s\n", buffer);
+  check(strcmp(buffer, U_ICU_VERSION) == 0, "u_getVersion matches U_ICU_VERSION");
+}
+
+// `Test` ---------------------------------------------------------------------------------------------------
 struct Test {
   const char* name;
   void (*function)();
@@ -138,9 +151,8 @@ const Test tests[] = {
   {"Io", testIo},
 };
 
-} // namespace
+// `main` ---------------------------------------------------------------------------------------------------
 
-// Usage: `test-icu-cmake` runs all tests, `test-icu-cmake --list` lists them, `test-icu-cmake <name>` runs one
 int
 main(int argc, char** argv) {
   if (argc > 2) {

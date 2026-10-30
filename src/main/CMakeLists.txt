@@ -9,7 +9,7 @@
 # 2. The stub data library and the ICU build tools (linked against the object libraries and the stub data)
 # 3. The ICU data, generated from the text sources by `icutools.databuilder` and the tools
 # 4. The libraries, assembled from the object libraries and the generated data. Static, unless
-#    `BUILD_SHARED_LIBS` is on (`.so` on Linux, DLL on Windows).
+#    `BUILD_SHARED_LIBS` is on
 #
 
 include(GNUInstallDirs)
@@ -325,10 +325,14 @@ set_target_properties(icutu
 )
 add_library(icu-cmake::tu ALIAS icutu)
 
-# ICU's own tests -------------------------------------------------------------------------------------------
+# Export to the parent scope --------------------------------------------------------------------------------
 
-if(BUILD_TESTING AND ICU_CMAKE_BUILD_ICU_TEST)
-  include(${ICU_CMAKE_DIR}/cmake/IcuTests.cmake)
-endif()
+set(ICU_DATA_DIR         ${ICU_DATA_DIR}         PARENT_SCOPE)
+set(ICU_DATA_LIST        ${dataList}             PARENT_SCOPE)
+set(ICU_DATABUILDER_ARGS ${databuilderArgs}      PARENT_SCOPE)
+set(ICU_SYSTEM_LIBS      ${ICU_SYSTEM_LIBS}      PARENT_SCOPE)
+set(ICU_TOOL_BIN_DIR     ${ICU_TOOL_BIN_DIR}     PARENT_SCOPE)
+set(ICU_TOOL_DIR         ${ICU_TOOL_DIR}         PARENT_SCOPE)
+set(ICU_TOOL_OBJECT_LIBS ${ICU_TOOL_OBJECT_LIBS} PARENT_SCOPE)
 
 # EOF

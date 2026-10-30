@@ -119,10 +119,12 @@ function(IcuAddOneIcuTest target)
   add_dependencies(${target} icu-testdata)
   GaiaCopyRuntimeFiles(${target})
 
-  # `make test` runs CTest in `src/test` only. The entry is recorded here and added from that directory.
-  set_property(GLOBAL APPEND PROPERTY ICU_CMAKE_ICU_TEST_TARGETS "${target}")
-  set_property(GLOBAL PROPERTY "ICU_CMAKE_ICU_TEST_${target}_DIR" "${ARG_TEST_DIR}")
-  set_property(GLOBAL PROPERTY "ICU_CMAKE_ICU_TEST_${target}_ARGS" "${ARG_ARGS}")
+  add_test(NAME ${target} COMMAND ${target} ${ARG_ARGS})
+  set_tests_properties(${target}
+    PROPERTIES
+      WORKING_DIRECTORY "${ARG_TEST_DIR}"
+      TIMEOUT 3600
+  )
 endfunction()
 
 # IcuAddTestsFromMakefile(makefile)
@@ -424,8 +426,9 @@ add_custom_command(
       --src_dir "${pyTestSrc}"
       --out_dir "${pyTestOut}"
       --tmp_dir "${pyTestTmp}"
-      ${databuilderArgs}
-  DEPENDS icu-gentest icu-gennorm2 ${dataList}
+      ${ICU_DATABUILDER_ARGS}
+  # The data list is generated in `src/main`. Naming `icudata` as well makes sure it is built first.
+  DEPENDS icu-gentest icu-gennorm2 icudata ${ICU_DATA_LIST}
     ${ICU_SOURCE_DIR}/test/testdata/BUILDRULES.py
     ${ICU_CMAKE_DIR}/cmake/IcuCreateDirectoryLink.cmake
   WORKING_DIRECTORY ${ICU_SOURCE_DIR}/python

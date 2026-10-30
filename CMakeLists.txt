@@ -155,14 +155,11 @@ GaiaStatus("ICU_VERSION: ${ICU_VERSION}, data package: ${ICU_DATA_NAME}")
 
 # Add subdirectories ----------------------------------------------------------------------------------------
 
-# `add_test` runs from `src/test` (the directory `make test` executes). The ICU programs themselves are
-# built from `src/main`, which is added first
 set(ICU_CMAKE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-if(BUILD_TESTING AND (ICU_CMAKE_BUILD_TEST OR ICU_CMAKE_BUILD_ICU_TEST))
-  enable_testing()
-endif()
+
 add_subdirectory(src/main)
 if(BUILD_TESTING AND (ICU_CMAKE_BUILD_TEST OR ICU_CMAKE_BUILD_ICU_TEST))
+  enable_testing()
   add_subdirectory(src/test)
 endif()
 
