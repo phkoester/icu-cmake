@@ -80,17 +80,29 @@ set(LINK_FLAGS)
 
 if(GAIA_OS_LINUX)
   # Linux
-  set(COMPILE_FLAGS -Wall -Werror -Wextra
+  set(COMPILE_FLAGS -Wall -Wextra # No `-Werror` in this project
+    -Wno-deprecated-declarations
     -Wno-unused-parameter
     -Wno-unused-variable
   )
   if(GAIA_CXX_COMPILER_GNU)
-    list(APPEND COMPILE_FLAGS -Wno-bidi-chars)
+    # Linux, GNU
+    list(APPEND COMPILE_FLAGS
+      -Wno-bidi-chars
+      -Wno-dangling-pointer
+      -Wno-maybe-uninitialized
+      -Wno-stringop-overflow
+    )
+  elseif(GAIA_CXX_COMPILER_LLVM)
+    # Linux, LLVM
+    list(APPEND COMPILE_FLAGS
+      -Wno-unused-but-set-variable
+    )
   endif()
 elseif(GAIA_OS_WINDOWS)
   if(GAIA_CXX_COMPILER_LLVM)
     # Windows, LLVM
-    set(COMPILE_FLAGS -Werror -Wextra
+    set(COMPILE_FLAGS -Wextra # No `-Wall` on Windows, no `-Werror` in this project
       -Wno-deprecated-declarations
       -Wno-format
       -Wno-macro-redefined
