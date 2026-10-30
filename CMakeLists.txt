@@ -102,7 +102,7 @@ elseif(GAIA_OS_WINDOWS)
     )
   elseif(GAIA_CXX_COMPILER_MSVC)
     # Windows, MSVC
-    set(COMPILE_FLAGS /bigobj /wd4005 /wd4312 /wd4477 /wd4805 /Zc:preprocessor)
+    set(COMPILE_FLAGS /bigobj /wd4005 /wd4068 /wd4312 /wd4477 /wd4805 /Zc:preprocessor)
   endif()
 endif()
 
@@ -156,7 +156,7 @@ GaiaStatus("ICU_VERSION: ${ICU_VERSION}, data package: ${ICU_DATA_NAME}")
 # Add subdirectories ----------------------------------------------------------------------------------------
 
 # `add_test` runs from `src/test` (the directory `make test` executes). The ICU programs themselves are
-# built from `src/main`, which is added first.
+# built from `src/main`, which is added first
 set(ICU_CMAKE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 if(BUILD_TESTING AND (ICU_CMAKE_BUILD_TEST OR ICU_CMAKE_BUILD_ICU_TEST))
   enable_testing()

@@ -116,8 +116,8 @@ function(IcuAddOneIcuTest target)
       ${winLibs}
   )
   set_target_properties(${target} PROPERTIES LINKER_LANGUAGE CXX)
-  GaiaCopyRuntimeFiles(${target})
   add_dependencies(${target} icu-testdata)
+  GaiaCopyRuntimeFiles(${target})
 
   # `make test` runs CTest in `src/test` only. The entry is recorded here and added from that directory.
   set_property(GLOBAL APPEND PROPERTY ICU_CMAKE_ICU_TEST_TARGETS "${target}")
@@ -159,7 +159,7 @@ function(IcuAddTestsFromMakefile makefile)
       endif()
     elseif(line MATCHES "^[${tab}]")
       if(line MATCHES "\\$\\(INVOKE\\)|\\./\\$\\((TARGET|TESTTARGET)\\)")
-        # A leading `-` tells Make to ignore a failing command. `compat` is written that way.
+        # A leading `-` tells Make to ignore a failing command. `compat` is written that way
         if(NOT line MATCHES "^[${tab}][ ${tab}]*-")
           set(runs TRUE)
           if(runRecipe STREQUAL "")
@@ -237,7 +237,7 @@ function(IcuAddTestsFromMakefile makefile)
     endif()
   endif()
   if(NOT programs)
-    GaiaFatalError("No test program in ${makefile}")
+    GaiaFatalError("No test program in `${makefile}`")
   endif()
 
   cmake_path(GET makefile PARENT_PATH testDir)
@@ -251,7 +251,7 @@ function(IcuAddTestsFromMakefile makefile)
     list(APPEND extraLibs m)
   endif()
 
-  # Fuzzer binaries share every object that is not itself a `*_fuzzer` program.
+  # Fuzzer binaries share every object that is not itself a `*_fuzzer` program
   set(commonSources)
   if(fuzzer)
     foreach(object IN LISTS objectNames)
@@ -266,7 +266,7 @@ function(IcuAddTestsFromMakefile makefile)
       endif()
       IcuTestSourceFromObject("${testDir}" "${object}" source)
       if(source STREQUAL "")
-        GaiaFatalError("No source for ${object} in ${makefile}")
+        GaiaFatalError("No source for `${object}` in `${makefile}`")
       endif()
       list(APPEND commonSources "${source}")
     endforeach()
@@ -275,11 +275,11 @@ function(IcuAddTestsFromMakefile makefile)
   set(added)
   foreach(program IN LISTS programs)
     if(NOT program MATCHES "^[A-Za-z_][A-Za-z0-9_+-]*$")
-      GaiaFatalError("Invalid test name `${program}` in ${makefile}")
+      GaiaFatalError("Invalid test name `${program}` in `${makefile}`")
     endif()
     set(target "icu-${program}")
     if(TARGET ${target})
-      GaiaFatalError("Duplicate ICU test `${target}` from ${makefile}")
+      GaiaFatalError("Duplicate ICU test `${target}` from `${makefile}`")
     endif()
 
     set(sources)
@@ -287,25 +287,25 @@ function(IcuAddTestsFromMakefile makefile)
       set(sources ${commonSources})
       IcuTestSourceFromObject("${testDir}" "${program}.o" ownSource)
       if(ownSource STREQUAL "")
-        GaiaFatalError("No source for ${program}.o in ${makefile}")
+        GaiaFatalError("No source for `${program}.o` in `${makefile}`")
       endif()
       list(APPEND sources "${ownSource}")
     else()
       foreach(object IN LISTS objectNames)
         IcuTestSourceFromObject("${testDir}" "${object}" source)
         if(source STREQUAL "")
-          GaiaFatalError("No source for ${object} in ${makefile}")
+          GaiaFatalError("No source for `${object}` in `${makefile}`")
         endif()
         list(APPEND sources "${source}")
       endforeach()
     endif()
     if(NOT sources)
-      GaiaFatalError("No sources for `${program}` in ${makefile}")
+      GaiaFatalError("No sources for `${program}` in `${makefile}`")
     endif()
     list(REMOVE_DUPLICATES sources)
 
     # Arguments are whatever the makefile passes after `./$(TARGET)`. Empty option variables such as
-    # `$(INTLTEST_OPTS)` are dropped. `$(top_srcdir)` is this ICU source tree.
+    # `$(INTLTEST_OPTS)` are dropped. `$(top_srcdir)` is this ICU source tree
     set(testArgs)
     if(fuzzer)
       set(testArgs "${ICU_FUZZER_INPUT}" -q)
@@ -342,9 +342,10 @@ endfunction()
 
 set(icuUnicodeHeader ${ICU_SOURCE_DIR}/common/unicode/uchar.h)
 file(STRINGS "${icuUnicodeHeader}" icuUnicodeLine REGEX "^#define[ \t]+U_UNICODE_VERSION[ \t]+\"")
-string(REGEX REPLACE "^#define[ \t]+U_UNICODE_VERSION[ \t]+\"([^\"]+)\".*" "\\1" icuUnicodeVersion "${icuUnicodeLine}")
+string(REGEX REPLACE
+  "^#define[ \t]+U_UNICODE_VERSION[ \t]+\"([^\"]+)\".*" "\\1" icuUnicodeVersion "${icuUnicodeLine}")
 if(NOT icuUnicodeVersion MATCHES "^[0-9.]+$")
-  GaiaFatalError("Cannot parse U_UNICODE_VERSION from ${icuUnicodeHeader}")
+  GaiaFatalError("Cannot parse `U_UNICODE_VERSION` from `${icuUnicodeHeader}`")
 endif()
 
 file(TO_CMAKE_PATH "${ICU_SOURCE_DIR}" icuTopSrc)
@@ -379,26 +380,28 @@ add_dependencies(icu-gentest ${gentestCtestfw})
 #
 # Release source archives omit `data/unidata`. `gensprep` and the tests both look for it at
 # `<ICU source>/data/unidata`, which is outside `source/test`.
+#
+# -----------------------------------------------------------------------------------------------------------
 
 set(icuUnidataFile ${ICU_SOURCE_DIR}/data/unidata/UnicodeData.txt)
 if(NOT EXISTS "${icuUnidataFile}")
   if(NOT EXISTS "${ICU_DATA_SOURCE_DIR}/unidata/UnicodeData.txt")
-    GaiaFatalError("No UnicodeData.txt in ${ICU_SOURCE_DIR}/data/unidata or ${ICU_DATA_SOURCE_DIR}/unidata")
+    GaiaFatalError("No `UnicodeData.txt` in `${ICU_SOURCE_DIR}/data/unidata` or `${ICU_DATA_SOURCE_DIR}/unidata`")
   endif()
   IcuCreateDirectoryLink("${ICU_DATA_SOURCE_DIR}/unidata" "${ICU_SOURCE_DIR}/data/unidata")
-  GaiaStatus("Linked ${ICU_SOURCE_DIR}/data/unidata to the fetched Unicode data")
+  GaiaStatus("Linked `${ICU_SOURCE_DIR}/data/unidata` to the fetched Unicode data")
 endif()
 
 # Test data -------------------------------------------------------------------------------------------------
 
 set(icuTestDataOut ${ICU_TEST_ROOT}/test/testdata/out)
-# Tmp files are not packaged. `nam.typ` and the old `zoneinfo64.res` are opened as individual files
-# under the path `loadTestData()` returns, which is this directory.
+# Temporary files are not packaged. `nam.typ` and the old `zoneinfo64.res` are opened as individual files
+# under the path `loadTestData()` returns, which is this directory
 set(icuTestDataTmp ${icuTestDataOut}/testdata)
 set(icuTestDataList ${icuTestDataTmp}/testdata.lst)
 set(icuTestDataDat ${icuTestDataOut}/testdata.dat)
-# pkgdata's own scratch directory. It is not the unpackaged-file directory: those files must remain
-# beside testdata.dat after packaging.
+# pkgdata's own scratch directory. It is not the unpackaged-file directory: those files must remain beside
+# testdata.dat after packaging
 set(icuTestPkgTmp ${ICU_TEST_ROOT}/test/testdata/tmp)
 
 GaiaPythonPath("${ICU_SOURCE_DIR}/test/testdata" pyTestSrc)
@@ -406,25 +409,25 @@ GaiaPythonPath("${icuTestDataOut}" pyTestOut)
 GaiaPythonPath("${icuTestDataTmp}" pyTestTmp)
 
 # `loadTestData()` opens `<U_TOPBUILDDIR>/test/testdata/out/testdata`. `genrb -i` reads
-# `<out>/build/<data package>/coll/ucadata.icu`, so the link is the parent of the loose package
-# and not the package directory itself. `ctest_dataOutDir()` reads `<U_TOPBUILDDIR>/data/out/build/`.
+# `<out>/build/<data package>/coll/ucadata.icu`, so the link is the parent of the loose package and not the
+# package directory itself. `ctest_dataOutDir()` reads `<U_TOPBUILDDIR>/data/out/build/`
 add_custom_command(
   OUTPUT  ${icuTestDataList}
   COMMAND ${CMAKE_COMMAND} -E rm -rf "${icuTestDataOut}"
   COMMAND ${CMAKE_COMMAND} -E make_directory "${icuTestDataOut}" "${icuTestDataTmp}" "${ICU_TEST_ROOT}/data/out"
   COMMAND ${CMAKE_COMMAND} "-Doriginal=${ICU_DATA_DIR}/out" "-DlinkName=${icuTestDataOut}/build"
-            -P ${ICU_CMAKE_DIR}/cmake/IcuCreateDirectoryLink.cmake
+    -P ${ICU_CMAKE_DIR}/cmake/IcuCreateDirectoryLink.cmake
   COMMAND ${CMAKE_COMMAND} "-Doriginal=${ICU_DATA_DIR}/out" "-DlinkName=${ICU_TEST_ROOT}/data/out/build"
-            -P ${ICU_CMAKE_DIR}/cmake/IcuCreateDirectoryLink.cmake
+    -P ${ICU_CMAKE_DIR}/cmake/IcuCreateDirectoryLink.cmake
   COMMAND ${CMAKE_COMMAND} -E env PYTHONDONTWRITEBYTECODE=1
-            ${Python3_EXECUTABLE} -m icutools.databuilder
-              --src_dir "${pyTestSrc}"
-              --out_dir "${pyTestOut}"
-              --tmp_dir "${pyTestTmp}"
-              ${databuilderArgs}
+    ${Python3_EXECUTABLE} -m icutools.databuilder
+      --src_dir "${pyTestSrc}"
+      --out_dir "${pyTestOut}"
+      --tmp_dir "${pyTestTmp}"
+      ${databuilderArgs}
   DEPENDS icu-gentest icu-gennorm2 ${dataList}
-          ${ICU_SOURCE_DIR}/test/testdata/BUILDRULES.py
-          ${ICU_CMAKE_DIR}/cmake/IcuCreateDirectoryLink.cmake
+    ${ICU_SOURCE_DIR}/test/testdata/BUILDRULES.py
+    ${ICU_CMAKE_DIR}/cmake/IcuCreateDirectoryLink.cmake
   WORKING_DIRECTORY ${ICU_SOURCE_DIR}/python
   COMMENT "icu-cmake: Building the ICU test data"
   VERBATIM
@@ -453,10 +456,10 @@ foreach(makefile IN LISTS icuTestMakefiles)
   IcuAddTestsFromMakefile("${makefile}")
 endforeach()
 if(NOT icuDiscoveredTests)
-  GaiaFatalError("No ICU tests were discovered under ${ICU_SOURCE_DIR}/test")
+  GaiaFatalError("No ICU tests were discovered under `${ICU_SOURCE_DIR}/test`")
 endif()
 list(SORT icuDiscoveredTests)
 string(JOIN ", " icuDiscoveredText ${icuDiscoveredTests})
-GaiaStatus("ICU tests: ${icuDiscoveredText}")
+GaiaStatus("Discovered ICU tests: ${icuDiscoveredText}")
 
 # EOF
