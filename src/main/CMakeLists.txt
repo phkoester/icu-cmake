@@ -324,4 +324,10 @@ set_target_properties(icutu
 )
 add_library(icu-cmake::tu ALIAS icutu)
 
+# ICU's own tests -------------------------------------------------------------------------------------------
+
+if(BUILD_TESTING AND ICU_CMAKE_BUILD_ICU_TEST)
+  include(${ICU_CMAKE_DIR}/cmake/IcuTests.cmake)
+endif()
+
 # EOF

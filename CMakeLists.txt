@@ -64,10 +64,11 @@ else()
   set(defaultDataFormat__ asm)
 endif()
 
-GaiaAddVar(ICU_CMAKE_BUILD_TEST   BOOL   ${ICU_CMAKE_MASTER_PROJECT} "Enable testing and build the smoke test")
-GaiaAddVar(ICU_CMAKE_DATA_FORMAT  STRING ${defaultDataFormat__}      "Format of the generated data: `asm`, `object`, or `c`")
-GaiaAddVar(ICU_CMAKE_DATA_VERBOSE BOOL   OFF                         "Print every command of the ICU data build")
-GaiaAddVar(ICU_CMAKE_ICU_VERSION  STRING 79.1                        "ICU version to download (release-VERSION tag, 78.1 or later)")
+GaiaAddVar(ICU_CMAKE_BUILD_ICU_TEST BOOL   ${ICU_CMAKE_MASTER_PROJECT} "Build the ICU tests")
+GaiaAddVar(ICU_CMAKE_BUILD_TEST     BOOL   ${ICU_CMAKE_MASTER_PROJECT} "Build the unit tests")
+GaiaAddVar(ICU_CMAKE_DATA_FORMAT    STRING ${defaultDataFormat__}      "Format of the generated data: `asm`, `object`, or `c`")
+GaiaAddVar(ICU_CMAKE_DATA_VERBOSE   BOOL   OFF                         "Print every command of the ICU data build")
+GaiaAddVar(ICU_CMAKE_ICU_VERSION    STRING 79.1                        "ICU version to download (release-VERSION tag, 78.1 or later)")
 
 # Set compiler and linker options ---------------------------------------------------------------------------
 
@@ -78,7 +79,11 @@ set(LINK_FLAGS)
 
 if(GAIA_OS_LINUX)
   # Linux
-  set(COMPILE_FLAGS -Wall -Werror -Wextra)
+  set(COMPILE_FLAGS -Wall -Werror -Wextra
+    -Wno-bidi-chars
+    -Wno-ignored-attributes
+    -Wno-unused-parameter
+  )
 elseif(GAIA_OS_WINDOWS)
   if(GAIA_CXX_COMPILER_CLANG)
     # Windows, Clang
@@ -146,9 +151,14 @@ GaiaStatus("ICU_VERSION: ${ICU_VERSION}, data package: ${ICU_DATA_NAME}")
 
 # Add subdirectories ----------------------------------------------------------------------------------------
 
-add_subdirectory(src/main)
-if(BUILD_TESTING AND ICU_CMAKE_BUILD_TEST)
+# `add_test` runs from `src/test` (the directory `make test` executes). The ICU programs themselves are
+# built from `src/main`, which is added first.
+set(ICU_CMAKE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+if(BUILD_TESTING AND (ICU_CMAKE_BUILD_TEST OR ICU_CMAKE_BUILD_ICU_TEST))
   enable_testing()
+endif()
+add_subdirectory(src/main)
+if(BUILD_TESTING AND (ICU_CMAKE_BUILD_TEST OR ICU_CMAKE_BUILD_ICU_TEST))
   add_subdirectory(src/test)
 endif()
 
