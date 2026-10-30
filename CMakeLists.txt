@@ -18,12 +18,12 @@ if(NOT DEFINED ICU_CMAKE_MASTER_PROJECT)
   endif()
 endif()
 
-project(icu-cmake VERSION 0.1.1)
+project(icu-cmake VERSION 0.1.2)
 
 # Versions --------------------------------------------------------------------------------------------------
 
-set(ICU_CMAKE_GAIA_VERSION 1.2.2)
-set(ICU_CMAKE_GTEST_VERSION 1.17.0)
+set(ICU_CMAKE_GAIA_VERSION 1.2.3)
+set(ICU_CMAKE_GTEST_VERSION 1.18.0)
 
 # Gaia ------------------------------------------------------------------------------------------------------
 
