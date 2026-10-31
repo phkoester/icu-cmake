@@ -260,11 +260,13 @@ if(BUILD_SHARED_LIBS)
     target_link_options(icudata PRIVATE -nodefaultlibs -nostdlib)
   endif()
 endif()
+# The data symbol is exported explicitly (see above). Exporting all symbols would make CMake scan the
+# `genccode` object file, which neither CMake nor `nm` can parse.
 set_target_properties(icudata
   PROPERTIES
-    EXPORT_NAME     data
-    LINKER_LANGUAGE C
-    OUTPUT_NAME     icudata
+    EXPORT_NAME                data
+    LINKER_LANGUAGE            C
+    OUTPUT_NAME                icudata
 )
 add_library(ICU::data ALIAS icudata)
 
