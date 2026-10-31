@@ -88,6 +88,10 @@ All of the following options may be supplied either as defined CMake variables o
   makefiles under `source/test`. `perf` benchmarks are not run by ICU's `check` target. `hdrtst`, `depstest`,
   and `letest` are not registered. `letest` needs the layout library, which this project does not build.
 
+## Third-Party Components
+
+- [ICU](https://github.com/unicode-org/icu) ([license](license/ICU/LICENSE))
+
 ## License
 
 Licensed under either of
@@ -97,7 +101,3 @@ Licensed under either of
 - MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 
 at your option.
-
-## Third-Party Components
-
-- [ICU](https://github.com/unicode-org/icu) ([license](license/ICU/LICENSE))
