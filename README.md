@@ -38,7 +38,7 @@ include(FetchContent)
 # Select the desired ICU version
 set(MY_ICU_VERSION 79.1)
 
-# Look for an installed ICU package. If it can be found, there is nothing left to do
+# Look for an already-installed ICU package. If it can be found, there is nothing left to do
 find_package(ICU ${MY_ICU_VERSION} COMPONENTS uc)
 if(NOT ICU_FOUND)
   # Declare the icu-cmake repository
