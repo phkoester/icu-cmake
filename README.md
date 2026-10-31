@@ -8,13 +8,13 @@ With `BUILD_SHARED_LIBS` left `OFF`, they are static. With `BUILD_SHARED_LIBS` s
 `.so` on Linux and DLL on Windows. A Windows shared build also writes import libraries (`.lib`) beside the
 DLLs.
 
-| Linux                             | Windows                        | CMake Target      | Content
-| :-------------------------------- | :----------------------------- | :---------------- | :------
-| `libicudata.a` or `libicudata.so` | `icudata.lib` or `icudata.dll` | `icu-cmake::data` | The ICU data package (`icudtNNl` or `icudtNNb`)
-| `libicui18n.a` or `libicui18n.so` | `icui18n.lib` or `icui18n.dll` | `icu-cmake::i18n` | Internationalization library
-| `libicuio.a` or `libicuio.so`     | `icuio.lib` or `icuio.dll`     | `icu-cmake::io`   | Unicode standard I/O library
-| `libicutu.a` or `libicutu.so`     | `icutu.lib` or `icutu.dll`     | `icu-cmake::tu`   | Tool utilities
-| `libicuuc.a` or `libicuuc.so`     | `icuuc.lib` or `icuuc.dll`     | `icu-cmake::uc`   | Common library
+| Linux                             | Windows                        | CMake Target | Content
+| :-------------------------------- | :----------------------------- | :----------- | :------
+| `libicudata.a` or `libicudata.so` | `icudata.lib` or `icudata.dll` | `ICU::data`  | The ICU data package (`icudtNNl` or `icudtNNb`)
+| `libicui18n.a` or `libicui18n.so` | `icui18n.lib` or `icui18n.dll` | `ICU::i18n`  | Internationalization library
+| `libicuio.a` or `libicuio.so`     | `icuio.lib` or `icuio.dll`     | `ICU::io`    | Unicode standard I/O library
+| `libicutu.a` or `libicutu.so`     | `icutu.lib` or `icutu.dll`     | `ICU::tu`    | Tool utilities
+| `libicuuc.a` or `libicuuc.so`     | `icuuc.lib` or `icuuc.dll`     | `ICU::uc`    | Common library
 
 Supported C++ toolchains on Linux are GNU (`g++`) and LLVM (`clang`). On Windows, they are LLVM
 (`clang-cl.exe`) and MSVC (`cl.exe`)
@@ -35,19 +35,26 @@ Adding icu-cmake to your project is straightforward:
 ```cmake
 include(FetchContent)
 
-# Declare the repository
-FetchContent_Declare(
-  icu-cmake
-  GIT_REPOSITORY https://github.com/phkoester/icu-cmake.git
-  GIT_TAG        v0.1.2
-)
+# Select the desired ICU version
+set(MY_ICU_VERSION 79.1)
 
-# Select desired ICU version, fetch `icu-cmake` as a subproject
-set(ICU_CMAKE_ICU_VERSION 79.1) # This is optional, `79.1` is the default
-FetchContent_MakeAvailable(icu-cmake)
+# Look for an installed ICU package. If it can be found, there is nothing left to do
+find_package(ICU ${MY_ICU_VERSION} COMPONENTS uc)
+if(NOT ICU_FOUND)
+  # Declare the icu-cmake repository
+  FetchContent_Declare(
+    icu-cmake
+    GIT_REPOSITORY https://github.com/phkoester/icu-cmake.git
+    GIT_TAG        v0.1.2
+  )
+
+  # Tell icu-cmake which ICU version we want, fetch the subproject
+  set(ICU_CMAKE_ICU_VERSION ${MY_ICU_VERSION})
+  FetchContent_MakeAvailable(icu-cmake)
+endif()
 
 # Link the common library to your target. That's it!
-target_link_libraries(my-target PRIVATE icu-cmake::uc)
+target_link_libraries(my-target PRIVATE ICU::uc)
 ```
 
 ## How It Works
@@ -62,8 +69,8 @@ target_link_libraries(my-target PRIVATE icu-cmake::uc)
    `icudtNNl.dat` (little-endian) or `icudtNNb.dat` (big-endian), and `genccode` turns the archive into an
    assembly file (Linux), an object file (Windows), or a C file.
 5. The libraries are assembled from the object libraries and the generated data. They are static unless
-   `BUILD_SHARED_LIBS` is on. `icu-cmake::uc` links `icu-cmake::data` publicly, so consumers never have to
-   care about link order. A static build publishes `U_STATIC_IMPLEMENTATION` through the library interface.
+   `BUILD_SHARED_LIBS` is on. `ICU::uc` links `ICU::data` publicly, so consumers never have to care about
+   link order. A static build publishes `U_STATIC_IMPLEMENTATION` through the library interface.
 
 ## CMake Options
 

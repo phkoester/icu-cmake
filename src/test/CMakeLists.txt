@@ -10,7 +10,7 @@ include(GoogleTest)
 
 if(ICU_CMAKE_BUILD_TEST)
   GaiaAddExecutable(test-icu-cmake test-icu-cmake.cc)
-  target_link_libraries(test-icu-cmake PRIVATE GTest::gtest_main icu-cmake::i18n icu-cmake::io icu-cmake::uc)
+  target_link_libraries(test-icu-cmake PRIVATE GTest::gtest_main ICU::i18n ICU::io ICU::uc)
   gtest_discover_tests(test-icu-cmake DISCOVERY_MODE PRE_TEST)
 endif()
 

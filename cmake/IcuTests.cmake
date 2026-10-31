@@ -96,8 +96,8 @@ function(IcuAddOneIcuTest target)
   target_link_libraries(${target}
     PRIVATE
       icu-ctestfw
-      icu-cmake::io
-      icu-cmake::tu
+      ICU::io
+      ICU::tu
       ${ARG_LIBS}
       ${winLibs}
   )
