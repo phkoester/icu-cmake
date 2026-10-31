@@ -2,9 +2,9 @@
 
 icu-cmake adds a CMake build to [ICU4C](https://github.com/unicode-org/icu). It downloads the ICU4C release
 source and data files, builds ICU's own data tools, generates the ICU data from the text sources, and
-produces the libraries shown in the following table.
+builds the libraries shown in the following table.
 
-With `BUILD_SHARED_LIBS` left `OFF` they are static. With `BUILD_SHARED_LIBS` set to `ON` they are shared:
+With `BUILD_SHARED_LIBS` left `OFF`, they are static. With `BUILD_SHARED_LIBS` set to `ON`, they are shared:
 `.so` on Linux and DLL on Windows. A Windows shared build also writes import libraries (`.lib`) beside the
 DLLs.
 
@@ -26,7 +26,6 @@ as that. See the [detailed instructions](#how-to-use-it-with-cmake).
 
 * CMake 4.2 or higher.
 * Python 3.8 or higher. On Windows, both a native Windows Python and an MSYS Python will work.
-* The Python package `semver`.
 * On Windows, a Developer Command Prompt from Microsoft Visual Studio is required.
 
 ## How to Use It with CMake

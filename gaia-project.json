@@ -3,8 +3,7 @@
  */
 
 {
-  "dependencies": ["gaia"],
-  "version": "0.1.2"
+  "dependencies": ["gaia"]
 }
 
 // EOF
