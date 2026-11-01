@@ -53,9 +53,12 @@ find_package(Threads REQUIRED)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_DISABLE_PRECOMPILE_HEADERS ON) # ccache will benefit from this in Windows
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT Embedded) # This makes ccache work in Windows
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS OFF)
+
 set(FETCHCONTENT_QUIET FALSE)
 
 # Configuration ---------------------------------------------------------------------------------------------
