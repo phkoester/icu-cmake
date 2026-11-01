@@ -89,7 +89,6 @@ if(GAIA_OS_LINUX)
     -Wno-unused-parameter
     -Wno-unused-variable
   )
-  list(APPEND LINK_FLAGS -static-libstdc++ -static-libgcc)
   if(GAIA_CXX_COMPILER_GNU)
     # Linux, GNU
     list(APPEND COMPILE_FLAGS
