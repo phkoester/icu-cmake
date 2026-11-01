@@ -84,11 +84,12 @@ set(LINK_FLAGS)
 
 if(GAIA_OS_LINUX)
   # Linux
-  set(COMPILE_FLAGS -Wall -Wextra # No `-Werror` in this project
+  list(APPEND COMPILE_FLAGS -Wall -Wextra # No `-Werror` in this project
     -Wno-deprecated-declarations
     -Wno-unused-parameter
     -Wno-unused-variable
   )
+  list(APPEND LINK_FLAGS -static-libstdc++ -static-libgcc)
   if(GAIA_CXX_COMPILER_GNU)
     # Linux, GNU
     list(APPEND COMPILE_FLAGS
@@ -106,7 +107,7 @@ if(GAIA_OS_LINUX)
 elseif(GAIA_OS_WINDOWS)
   if(GAIA_CXX_COMPILER_LLVM)
     # Windows, LLVM
-    set(COMPILE_FLAGS -Wextra # No `-Wall` on Windows, no `-Werror` in this project
+    list(APPEND COMPILE_FLAGS -Wextra # No `-Wall` on Windows, no `-Werror` in this project
       -Wno-deprecated-declarations
       -Wno-format
       -Wno-macro-redefined
@@ -119,7 +120,7 @@ elseif(GAIA_OS_WINDOWS)
     )
   elseif(GAIA_CXX_COMPILER_MSVC)
     # Windows, MSVC
-    set(COMPILE_FLAGS /bigobj /wd4005 /wd4068 /wd4312 /wd4477 /wd4805 /Zc:preprocessor)
+    list(APPEND COMPILE_FLAGS /bigobj /wd4005 /wd4068 /wd4312 /wd4477 /wd4805 /Zc:preprocessor)
   endif()
 endif()
 
