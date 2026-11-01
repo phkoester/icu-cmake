@@ -45,7 +45,7 @@ if(NOT ICU_FOUND)
   FetchContent_Declare(
     icu-cmake
     GIT_REPOSITORY https://github.com/phkoester/icu-cmake.git
-    GIT_TAG        v0.1.2
+    GIT_TAG        v0.1.3
   )
 
   # Tell icu-cmake which ICU version we want, fetch the subproject
