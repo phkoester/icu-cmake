@@ -42,7 +42,7 @@ endif()
 
 # Data format ...............................................................................................
 #
-# - `asm`:    `genccode -a gcc` writes a `.S` file (Linux)
+# - `asm`:    `genccode -a gcc` (or `gcc-darwin` on macOS) writes a `.S` file (Linux, macOS)
 # - `object`: `genccode -o` writes a `.obj` file directly (Windows)
 # - `c`:      `genccode` writes a `.c` file with a byte array (any platform; slow to compile)
 
@@ -201,7 +201,12 @@ add_custom_command(
 set(genccodeArgs -q -d ${ICU_GENERATED_DIR} -e ${ICU_DATA_ENTRY_POINT})
 if(ICU_CMAKE_DATA_FORMAT STREQUAL "asm")
   set(dataFile ${ICU_GENERATED_DIR}/${ICU_DATA_NAME}_dat.S)
-  list(APPEND genccodeArgs -a gcc)
+  if(APPLE)
+    # Mach-O: `gcc` emits ELF directives (`.type`, `.size`, `.section .rodata`) Apple's assembler rejects
+    list(APPEND genccodeArgs -a gcc-darwin)
+  else()
+    list(APPEND genccodeArgs -a gcc)
+  endif()
 elseif(ICU_CMAKE_DATA_FORMAT STREQUAL "object")
   set(dataFile ${ICU_GENERATED_DIR}/${ICU_DATA_NAME}_dat.obj)
   if(CMAKE_GENERATOR_PLATFORM MATCHES "^(Win32|x86)$")
