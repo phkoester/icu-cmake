@@ -7,22 +7,6 @@
   },
   "configurePresets": [
     {
-      "name": "darwin-debug",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/debug",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
-    },
-    {
-      "name": "darwin-release",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/release",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
-      }
-    },
-    {
       "name": "linux-debug",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/debug",
@@ -32,6 +16,22 @@
     },
     {
       "name": "linux-release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "macos-debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "macos-release",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/release",
       "cacheVariables": {
@@ -57,20 +57,20 @@
   ],
   "buildPresets": [
     {
-      "name": "darwin-debug",
-      "configurePreset": "linux-debug"
-    },
-    {
-      "name": "darwin-release",
-      "configurePreset": "linux-release"
-    },
-    {
       "name": "linux-debug",
       "configurePreset": "linux-debug"
     },
     {
       "name": "linux-release",
       "configurePreset": "linux-release"
+    },
+    {
+      "name": "macos-debug",
+      "configurePreset": "macos-debug"
+    },
+    {
+      "name": "macos-release",
+      "configurePreset": "macos-release"
     },
     {
       "name": "windows-debug",
@@ -83,20 +83,20 @@
   ],
   "testPresets": [
     {
-      "name": "darwin-debug",
-      "configurePreset": "linux-debug"
-    },
-    {
-      "name": "darwin-release",
-      "configurePreset": "linux-release"
-    },
-    {
       "name": "linux-debug",
       "configurePreset": "linux-debug"
     },
     {
       "name": "linux-release",
       "configurePreset": "linux-release"
+    },
+    {
+      "name": "macos-debug",
+      "configurePreset": "macos-debug"
+    },
+    {
+      "name": "macos-release",
+      "configurePreset": "macos-release"
     },
     {
       "name": "windows-debug",

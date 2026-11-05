@@ -202,7 +202,6 @@ set(genccodeArgs -q -d ${ICU_GENERATED_DIR} -e ${ICU_DATA_ENTRY_POINT})
 if(ICU_CMAKE_DATA_FORMAT STREQUAL "asm")
   set(dataFile ${ICU_GENERATED_DIR}/${ICU_DATA_NAME}_dat.S)
   if(APPLE)
-    # Mach-O: `gcc` emits ELF directives (`.type`, `.size`, `.section .rodata`) Apple's assembler rejects
     list(APPEND genccodeArgs -a gcc-darwin)
   else()
     list(APPEND genccodeArgs -a gcc)
