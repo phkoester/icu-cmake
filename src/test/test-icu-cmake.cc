@@ -73,12 +73,12 @@ check(TestContext& ctx, bool ok, const char* expression, string_view description
 
 // `CHECK(condition, format, args...)`: Records the check and continues
 #define CHECK(condition, ...) \
-  check(ctx, static_cast<bool>(condition), #condition, std::format(__VA_ARGS__), __FILE__, __LINE__)
+  check(ctx, static_cast<bool>(condition), #condition, format(__VA_ARGS__), __FILE__, __LINE__)
 
 // `REQUIRE(condition, format, args...)`: Records the check and returns from the test if it fails
 #define REQUIRE(condition, ...) \
   do { \
-    if (!check(ctx, static_cast<bool>(condition), #condition, std::format(__VA_ARGS__), __FILE__, __LINE__)) { \
+    if (!check(ctx, static_cast<bool>(condition), #condition, format(__VA_ARGS__), __FILE__, __LINE__)) { \
       info("Skipping the rest of this test because a required check failed"); \
       return; \
     } \
@@ -135,7 +135,7 @@ testVersion(TestContext& ctx) {
   UVersionInfo versionInfo;
   u_getVersion(versionInfo);
   string libraryVersion = versionToString(versionInfo);
-  info(std::format("Header version: {}, library version: {}", U_ICU_VERSION, libraryVersion));
+  info(format("Header version: {}, library version: {}", U_ICU_VERSION, libraryVersion));
   CHECK(
     libraryVersion == U_ICU_VERSION,
     "u_getVersion() (\"{}\") matches U_ICU_VERSION (\"{}\")",
