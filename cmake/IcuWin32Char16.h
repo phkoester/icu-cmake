@@ -22,7 +22,7 @@
 inline wchar_t*
 IcuCmakeToWide(char16_t* text) {
 #if defined(__clang__) || defined(__GNUC__)
-  // Same barrier ICU uses so Clang does not treat `char16_t` and `wchar_t` as non-aliasing.
+  // Same barrier ICU uses so Clang does not treat `char16_t` and `wchar_t` as nonaliasing.
   asm volatile("" : : "rm"(text) : "memory");
 #endif
   return reinterpret_cast<wchar_t*>(text);
@@ -31,7 +31,7 @@ IcuCmakeToWide(char16_t* text) {
 inline const wchar_t*
 IcuCmakeToWide(const char16_t* text) {
 #if defined(__clang__) || defined(__GNUC__)
-  // Same barrier ICU uses so Clang does not treat `char16_t` and `wchar_t` as non-aliasing.
+  // Same barrier ICU uses so Clang does not treat `char16_t` and `wchar_t` as nonaliasing.
   asm volatile("" : : "rm"(text) : "memory");
 #endif
   return reinterpret_cast<const wchar_t*>(text);

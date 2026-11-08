@@ -1,7 +1,7 @@
 /*
  * test-icu-cmake.cc
  *
- * Smoke test: Checks that the ICU libraries link and that the real (non-stub) data is available.
+ * Smoke test: Checks that the ICU libraries link and that the real (nonstub) data is available.
  *
  * This is a framework-less test executable. Each test is a plain function that records checks in a
  * `TestContext`. Every check is reported as it happens, and a summary is printed at the end. The exit code is
@@ -220,7 +220,7 @@ testResourceBundle(TestContext& ctx) {
     u_errorName(status));
   if (CHECK(
     exemplars != nullptr && length > 0,
-    "German exemplar characters are non-empty (length: {})",
+    "German exemplar characters are nonempty (length: {})",
     length)) {
     info(format("German exemplar characters: {}", toUtf8(exemplars, length)));
   }

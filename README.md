@@ -85,7 +85,7 @@ All of the following options may be supplied either as defined CMake variables o
 | `ICU_CMAKE_BUILD_TEST`     | `BOOL`     | `ON` if master project                    | Build the smoke test
 | `ICU_CMAKE_DATA_FORMAT`    | `STRING`   | `asm` (Darwin, Linux), `object` (Windows) | How `genccode` emits the data: `asm`, `object`, or `c`
 | `ICU_CMAKE_DATA_VERBOSE`   | `BOOL`     | `OFF`                                     | Print every command of the ICU data build
-| `ICU_CMAKE_ICU_VERSION`    | `STRING`   | `79.1`                                    | ICU version to download (`release-VERSION` tag; 78.1 or later use this naming scheme)
+| `ICU_CMAKE_ICU_VERSION`    | `STRING`   | `79.1`                                    | ICU version to download (`release-VERSION` tag; 78.1 and later use this naming scheme)
 
 ## Limitations
 
