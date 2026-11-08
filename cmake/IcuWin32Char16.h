@@ -54,3 +54,5 @@ LCMapStringW(
 }
 
 #endif // __cplusplus
+
+// EOF
