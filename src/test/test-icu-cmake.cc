@@ -230,15 +230,15 @@ testResourceBundle(TestContext& ctx) {
 void
 testNumberFormat(TestContext& ctx) {
   UErrorCode status = U_ZERO_ERROR;
-  UNumberFormat* format = unum_open(UNUM_DECIMAL, nullptr, 0, "de_DE", nullptr, &status);
+  UNumberFormat* numberFormat = unum_open(UNUM_DECIMAL, nullptr, 0, "de_DE", nullptr, &status);
   REQUIRE(
     U_SUCCESS(status),
     "unum_open(UNUM_DECIMAL, \"de_DE\") succeeds (status: {})",
     u_errorName(status));
 
   UChar buffer[64];
-  int32_t length = unum_formatDouble(format, 1234567.89, buffer, 64, nullptr, &status);
-  unum_close(format);
+  int32_t length = unum_formatDouble(numberFormat, 1234567.89, buffer, 64, nullptr, &status);
+  unum_close(numberFormat);
   CHECK(U_SUCCESS(status), "unum_formatDouble(1234567.89) succeeds (status: {})", u_errorName(status));
   string formatted = U_SUCCESS(status) ? toUtf8(buffer, length) : string();
   CHECK(formatted == "1.234.567,89", "German formatting yields \"1.234.567,89\" (got: \"{}\")", formatted);
