@@ -1,7 +1,7 @@
 #
 # IcuTests.cmake
 #
-# Builds ICU's own test programs from `source/test` and registers them with CTest.
+# Builds ICU’s own test programs from `source/test` and registers them with CTest.
 #
 # The programs and their source lists come from each `Makefile.in`. Nothing under `source/test` is modified.
 # A makefile is a test when its `check-local` (or `check`) recipe runs a program and Make is not told to
@@ -120,7 +120,7 @@ function(IcuAddTestsFromMakefile makefile)
   file(READ "${makefile}" text)
   string(REPLACE "\r\n" "\n" text "${text}")
   string(REPLACE "\r" "\n" text "${text}")
-  # CMake's regex has no `\t`. A tab has to be inserted into the character class
+  # CMake’s regex has no `\t`. A tab has to be inserted into the character class
   string(ASCII 9 tab)
   string(REGEX REPLACE "\\\\[${tab} ]*\n" " " text "${text}")
   # Newlines become list separators, so semicolons already in the file have to survive that
@@ -402,7 +402,7 @@ set(icuTestDataOut ${ICU_TEST_ROOT}/test/testdata/out)
 set(icuTestDataTmp ${icuTestDataOut}/testdata)
 set(icuTestDataList ${icuTestDataTmp}/testdata.lst)
 set(icuTestDataDat ${icuTestDataOut}/testdata.dat)
-# pkgdata's own scratch directory. It is not the unpackaged-file directory: those files must remain beside
+# pkgdata’s own scratch directory. It is not the unpackaged-file directory: those files must remain beside
 # testdata.dat after packaging
 set(icuTestPkgTmp ${ICU_TEST_ROOT}/test/testdata/tmp)
 

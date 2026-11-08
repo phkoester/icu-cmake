@@ -12,7 +12,7 @@ if(ICU_CMAKE_BUILD_TEST)
   add_test(NAME test-icu-cmake COMMAND test-icu-cmake)
 endif()
 
-# ICU's own tests ...........................................................................................
+# ICU’s own tests ...........................................................................................
 
 if(ICU_CMAKE_BUILD_ICU_TEST)
   include(${ICU_CMAKE_DIR}/cmake/IcuTests.cmake)

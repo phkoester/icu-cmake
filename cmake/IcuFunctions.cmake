@@ -55,7 +55,7 @@ endfunction()
 
 # IcuApplyCommonSettings(name)
 #
-# Applies the compiler settings ICU's own build systems use to a target that compiles ICU sources.
+# Applies the compiler settings ICU’s own build systems use to a target that compiles ICU sources.
 function(IcuApplyCommonSettings name)
   target_compile_options(${name} PRIVATE ${COMPILE_FLAGS})
 

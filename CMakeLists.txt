@@ -140,7 +140,7 @@ GaiaStatus("ICU_SOURCE_DIR: ${ICU_SOURCE_DIR}")
 # ...........................................................................................................
 
 IcuFetch(icu-data ${ICU_RELEASE_URL}/icu4c-${ICU_CMAKE_ICU_VERSION}-data.zip)
-# The archive's single top-level directory `data/` is usually stripped during extraction
+# The archive’s single top-level directory `data/` is usually stripped during extraction
 if(EXISTS ${icu-data_SOURCE_DIR}/BUILDRULES.py)
   set(ICU_DATA_SOURCE_DIR ${icu-data_SOURCE_DIR})
 else()
