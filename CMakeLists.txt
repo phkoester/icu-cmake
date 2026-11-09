@@ -102,7 +102,15 @@ if(GAIA_OS_LINUX)
       -Wno-unused-but-set-variable
     )
   endif()
-elseif(GAIA_OS_WINDOWS)
+elseif(GAIA_OS_MACOS)
+  # macOS
+  list(APPEND COMPILE_FLAGS -Wall -Wextra # No `-Werror` in this project
+    -Wno-deprecated-declarations
+    -Wno-unused-parameter
+    -Wno-unused-variable
+  )
+else()
+  # Windows
   if(GAIA_CXX_COMPILER_LLVM)
     # Windows, LLVM
     list(APPEND COMPILE_FLAGS -Wextra # No `-Wall` on Windows, no `-Werror` in this project
