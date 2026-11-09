@@ -72,7 +72,7 @@ GaiaAddVar(ICU_CMAKE_BUILD_ICU_TEST BOOL   ${ICU_CMAKE_MASTER_PROJECT} "Build th
 GaiaAddVar(ICU_CMAKE_BUILD_TEST     BOOL   ${ICU_CMAKE_MASTER_PROJECT} "Build the smoke test")
 GaiaAddVar(ICU_CMAKE_DATA_FORMAT    STRING ${defaultDataFormat}        "How `genccode` emits the data: `asm`, `object`, or `c`")
 GaiaAddVar(ICU_CMAKE_DATA_VERBOSE   BOOL   OFF                         "Print every command of the ICU data build")
-GaiaAddVar(ICU_CMAKE_ICU_VERSION    STRING 79.1                        "ICU version to download (`release-VERSION` tag; 78.1 or later use this naming scheme)")
+GaiaAddVar(ICU_CMAKE_ICU_VERSION    STRING 79.1                        "ICU version to download (`release-VERSION` tag; 78.1 and later use this naming scheme)")
 
 # Set compiler and linker options ---------------------------------------------------------------------------
 
@@ -87,24 +87,19 @@ if(GAIA_OS_LINUX OR GAIA_OS_MACOS)
     -Wno-deprecated-declarations
     -Wno-unused-parameter
     -Wno-unused-variable
-  )
+    -Wno-unused-but-set-variable
+    )
   if(GAIA_CXX_COMPILER_GNU)
     # Linux/macOS, GNU
     list(APPEND COMPILE_FLAGS
-      -Wno-alloc-size-larger-than # XXX
-      -Wno-array-bounds # XXX
+      -Wno-alloc-size-larger-than
+      -Wno-array-bounds
       -Wno-bidi-chars
       -Wno-dangling-pointer
       -Wno-maybe-uninitialized
-      -Wno-restrict # XXX
+      -Wno-restrict
       -Wno-stringop-overflow
       -Wno-stringop-truncation
-      -Wno-unused-but-set-variable # XXX doppelt!
-    )
-  elseif(GAIA_CXX_COMPILER_LLVM)
-    # Linux/macOS, LLVM
-    list(APPEND COMPILE_FLAGS
-      -Wno-unused-but-set-variable # XXX doppelt!
     )
   endif()
 else()

@@ -73,16 +73,16 @@ target_link_libraries(my-target PRIVATE ICU::uc)
 
 All of the following options may be supplied either as defined CMake variables or as environment variables:
 
-| Name                       | Type       | Default                                   | Description
-| :------------------------- | :--------- | :---------------------------------------- | :----------
-| `BUILD_SHARED_LIBS`        | `BOOL`     | `OFF`                                     | Build shared libraries
-| `BUILD_TESTING`            | `BOOL`     | `ON`                                      | Enable testing: benchmarks and tests
-| `CMAKE_BUILD_TYPE`         | `STRING`   | `Release` if single configuration         | The build type (`Debug` or `Release`)
-| `ICU_CMAKE_BUILD_ICU_TEST` | `BOOL`     | `ON` if master project                    | Build the ICU tests
-| `ICU_CMAKE_BUILD_TEST`     | `BOOL`     | `ON` if master project                    | Build the smoke test
-| `ICU_CMAKE_DATA_FORMAT`    | `STRING`   | `asm` (Darwin, Linux), `object` (Windows) | How `genccode` emits the data: `asm`, `object`, or `c`
-| `ICU_CMAKE_DATA_VERBOSE`   | `BOOL`     | `OFF`                                     | Print every command of the ICU data build
-| `ICU_CMAKE_ICU_VERSION`    | `STRING`   | `79.1`                                    | ICU version to download (`release-VERSION` tag; 78.1 and later use this naming scheme)
+| Name                       | Type       | Default                                  | Description
+| :------------------------- | :--------- | :--------------------------------------- | :----------
+| `BUILD_SHARED_LIBS`        | `BOOL`     | `OFF`                                    | Build shared libraries
+| `BUILD_TESTING`            | `BOOL`     | `ON`                                     | Enable testing: benchmarks and tests
+| `CMAKE_BUILD_TYPE`         | `STRING`   | `Release` if single configuration        | The build type (`Debug` or `Release`)
+| `ICU_CMAKE_BUILD_ICU_TEST` | `BOOL`     | `ON` if master project                   | Build the ICU tests
+| `ICU_CMAKE_BUILD_TEST`     | `BOOL`     | `ON` if master project                   | Build the smoke test
+| `ICU_CMAKE_DATA_FORMAT`    | `STRING`   | `asm` (macOS, Linux), `object` (Windows) | How `genccode` emits the data: `asm`, `object`, or `c`
+| `ICU_CMAKE_DATA_VERBOSE`   | `BOOL`     | `OFF`                                    | Print every command of the ICU data build
+| `ICU_CMAKE_ICU_VERSION`    | `STRING`   | `79.1`                                   | ICU version to download (`release-VERSION` tag; 78.1 and later use this naming scheme)
 
 ## Limitations
 

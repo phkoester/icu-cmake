@@ -35,7 +35,7 @@ function(IcuCreateDirectoryLink original linkName)
     if(linkError)
       string(PREPEND linkError "\n")
     endif()
-    message(FATAL_ERROR "icu-cmake: Could not link `${linkName}` to `${original}`: ${result}${linkError}")
+    message(FATAL_ERROR "icu-cmake: Cannot link `${linkName}` to `${original}`: ${result}${linkError}")
   endif()
 endfunction()
 
