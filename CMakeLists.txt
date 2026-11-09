@@ -81,34 +81,32 @@ set(COMPILE_FEATURES)
 set(COMPILE_FLAGS)
 set(LINK_FLAGS)
 
-if(GAIA_OS_LINUX)
-  # Linux
+if(GAIA_OS_LINUX OR GAIA_OS_MACOS)
+  # Linux/macOS
   list(APPEND COMPILE_FLAGS -Wall -Wextra # No `-Werror` in this project
     -Wno-deprecated-declarations
     -Wno-unused-parameter
     -Wno-unused-variable
   )
   if(GAIA_CXX_COMPILER_GNU)
-    # Linux, GNU
+    # Linux/macOS, GNU
     list(APPEND COMPILE_FLAGS
+      -Wno-alloc-size-larger-than # XXX
+      -Wno-array-bounds # XXX
       -Wno-bidi-chars
       -Wno-dangling-pointer
       -Wno-maybe-uninitialized
+      -Wno-restrict # XXX
       -Wno-stringop-overflow
+      -Wno-stringop-truncation
+      -Wno-unused-but-set-variable # XXX doppelt!
     )
   elseif(GAIA_CXX_COMPILER_LLVM)
-    # Linux, LLVM
+    # Linux/macOS, LLVM
     list(APPEND COMPILE_FLAGS
-      -Wno-unused-but-set-variable
+      -Wno-unused-but-set-variable # XXX doppelt!
     )
   endif()
-elseif(GAIA_OS_MACOS)
-  # macOS
-  list(APPEND COMPILE_FLAGS -Wall -Wextra # No `-Werror` in this project
-    -Wno-deprecated-declarations
-    -Wno-unused-parameter
-    -Wno-unused-variable
-  )
 else()
   # Windows
   if(GAIA_CXX_COMPILER_LLVM)

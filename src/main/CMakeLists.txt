@@ -259,8 +259,9 @@ if(BUILD_SHARED_LIBS)
     if(NOT ICU_CMAKE_DATA_FORMAT STREQUAL "object")
       target_link_options(icudata PRIVATE "/EXPORT:${ICU_DATA_ENTRY_POINT}_dat,DATA")
     endif()
-  else()
-    # Same link line ICU uses for `libicudata`: the archive is pure data
+  elseif(NOT APPLE)
+    # Same link line ICU uses for `libicudata`: the archive is pure data. Not on macOS, where `ld` refuses to
+    # create a dylib that does not link with `libSystem`.
     target_link_options(icudata PRIVATE -nodefaultlibs -nostdlib)
   endif()
 endif()

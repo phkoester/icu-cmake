@@ -5,19 +5,16 @@ source and data files, builds ICU’s own data tools, generates the ICU data fro
 builds the libraries shown in the following table.
 
 With `BUILD_SHARED_LIBS` left `OFF`, they are static. With `BUILD_SHARED_LIBS` set to `ON`, they are shared:
-`.so` on Linux and DLL on Windows. A Windows shared build also writes import libraries (`.lib`) beside the
-DLLs.
+`.so` on Linux, `.dylib` on macOS, and `.dll` on Windows. A Windows shared build also writes import libraries
+(`.lib`) beside the DLLs.
 
-| Darwin, Linux                     | Windows                        | CMake Target | Content
-| :-------------------------------- | :----------------------------- | :----------- | :------
-| `libicudata.a` or `libicudata.so` | `icudata.lib` or `icudata.dll` | `ICU::data`  | The ICU data package (`icudtNNl` or `icudtNNb`)
-| `libicui18n.a` or `libicui18n.so` | `icui18n.lib` or `icui18n.dll` | `ICU::i18n`  | Internationalization library
-| `libicuio.a` or `libicuio.so`     | `icuio.lib` or `icuio.dll`     | `ICU::io`    | Unicode standard I/O library
-| `libicutu.a` or `libicutu.so`     | `icutu.lib` or `icutu.dll`     | `ICU::tu`    | Tool utilities
-| `libicuuc.a` or `libicuuc.so`     | `icuuc.lib` or `icuuc.dll`     | `ICU::uc`    | Common library
-
-Supported C++ toolchains on Linux are GNU (`g++`) and LLVM (`clang`). On Windows, they are LLVM
-(`clang-cl.exe`) and MSVC (`cl.exe`).
+| Linux (GNU, LLVM) | macOS (GNU, LLVM)    | Windows (LLVM, MSVC) | CMake Target | Content
+| :-----------------| :--------------------| :------------------- | :----------- | :------
+| `libicudata.a/so` | `libicudata.a/dylib` | `icudata.lib/dll`    | `ICU::data`  | The ICU data package (`icudtNNl` or `icudtNNb`)
+| `libicui18n.a/so` | `libicui18n.a/dylib` | `icui18n.lib/dll`    | `ICU::i18n`  | Internationalization library
+| `libicuio.a/so`   | `libicuio.a/dylib`   | `icuio.lib/dll`      | `ICU::io`    | Unicode standard I/O library
+| `libicutu.a/so`   | `libicutu.a/dylib`   | `icutu.lib/dll`      | `ICU::tu`    | Tool utilities
+| `libicuuc.a/so`   | `libicuuc.a/dylib`   | `icuuc.lib/dll`      | `ICU::uc`    | Common library
 
 icu-cmake may be used out of the box. Just fetch the content and link to the desired targets. It’s as simple
 as that. See the [detailed instructions](#how-to-use-it-with-cmake).
