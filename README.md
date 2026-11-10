@@ -21,9 +21,9 @@ as that. See the [detailed instructions](#how-to-use-it-with-cmake).
 
 ## CMake Requirements
 
-* CMake 4.2 or higher.
-* Python 3.10 or higher. On Windows, both a native Windows Python and an MSYS Python will work.
-* On Windows, a Developer Command Prompt from Microsoft Visual Studio is required.
+- CMake 4.2 or higher.
+- Python 3.10 or higher. On Windows, both a native Windows Python and an MSYS Python will work.
+- On Windows, a Developer Command Prompt from Microsoft Visual Studio is required.
 
 ## How to Use It with CMake
 
@@ -76,7 +76,7 @@ All of the following options may be supplied either as defined CMake variables o
 | Name                       | Type       | Default                                  | Description
 | :------------------------- | :--------- | :--------------------------------------- | :----------
 | `BUILD_SHARED_LIBS`        | `BOOL`     | `OFF`                                    | Build shared libraries
-| `BUILD_TESTING`            | `BOOL`     | `ON`                                     | Enable testing: benchmarks and tests
+| `BUILD_TESTING`            | `BOOL`     | `ON`                                     | Enable testing
 | `CMAKE_BUILD_TYPE`         | `STRING`   | `Release` if single configuration        | The build type (`Debug` or `Release`)
 | `ICU_CMAKE_BUILD_ICU_TEST` | `BOOL`     | `ON` if master project                   | Build the ICU tests
 | `ICU_CMAKE_BUILD_TEST`     | `BOOL`     | `ON` if master project                   | Build the smoke test

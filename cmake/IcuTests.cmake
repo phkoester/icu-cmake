@@ -370,7 +370,7 @@ else()
   set(gentestCtestfw icu-ctestfw)
 endif()
 
-# Tools used only to build the test data ...................................................................
+# Tools used only to build the test data ....................................................................
 
 IcuAddTool(gentest)
 IcuAddTool(gennorm2)
@@ -388,7 +388,8 @@ add_dependencies(icu-gentest ${gentestCtestfw})
 set(icuUnidataFile ${ICU_SOURCE_DIR}/data/unidata/UnicodeData.txt)
 if(NOT EXISTS "${icuUnidataFile}")
   if(NOT EXISTS "${ICU_DATA_SOURCE_DIR}/unidata/UnicodeData.txt")
-    GaiaFatalError("No `UnicodeData.txt` in `${ICU_SOURCE_DIR}/data/unidata` or `${ICU_DATA_SOURCE_DIR}/unidata`")
+    GaiaFatalError(
+      "No `UnicodeData.txt` in `${ICU_SOURCE_DIR}/data/unidata` or `${ICU_DATA_SOURCE_DIR}/unidata`")
   endif()
   IcuCreateDirectoryLink("${ICU_DATA_SOURCE_DIR}/unidata" "${ICU_SOURCE_DIR}/data/unidata")
   GaiaStatus("Linked `${ICU_SOURCE_DIR}/data/unidata` to the fetched Unicode data")

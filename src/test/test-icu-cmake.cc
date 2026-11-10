@@ -4,8 +4,8 @@
  * Smoke test: Checks that the ICU libraries link and that the real (nonstub) data is available.
  *
  * This is a framework-less test executable. Each test is a plain function that records checks in a
- * `TestContext`. Every check is reported as it happens, and a summary is printed at the end. The exit code is
- * `EXIT_SUCCESS` if all checks pass, `EXIT_FAILURE` otherwise.
+ * `TestContext`. Every check is reported as it happens, and a summary is printed at the end. The exit code
+ * is `EXIT_SUCCESS` if all checks pass, `EXIT_FAILURE` otherwise.
  *
  * Usage: `test-icu-cmake [--list] [TEST...]`. Without arguments, all tests are run; otherwise only the named
  * ones.
@@ -59,7 +59,8 @@ info(string_view message) {
 // Records and reports a single check. `expression` is the stringified condition, `description` says what is
 // being verified, in human terms
 bool
-check(TestContext& ctx, bool ok, const char* expression, string_view description, const char* file, int line) {
+check(
+  TestContext& ctx, bool ok, const char* expression, string_view description, const char* file, int line) {
   ++ctx.checks;
   if (ok) {
     printf("  [  OK  ] %.*s\n", static_cast<int>(description.size()), description.data());
