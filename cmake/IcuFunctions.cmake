@@ -27,9 +27,9 @@ endfunction()
 
 # IcuAddTool(name)
 #
-# Adds a build-time tool from `tools/name/sources.txt`. MSYS and Linux place it at `ICU_TOOL_BIN_DIR/name`
-# for `unix-exec`. Native Windows Python places it at `ICU_TOOL_DIR/name/name.exe` for `windows-exec`, with
-# a `<config>` directory before `name.exe` under a multi-config generator.
+# Adds a build-time tool from `tools/name/sources.txt`. Linux, macOS, and MSYS place it at
+# `ICU_TOOL_BIN_DIR/name` for `unix-exec`. Native Windows Python places it at `ICU_TOOL_DIR/name/name.exe`
+# for `windows-exec`, with `<config>` directory before `name.exe` under a multi-config generator.
 function(IcuAddTool name)
   set(dir ${ICU_SOURCE_DIR}/tools/${name})
   IcuReadSources(${dir} sources)

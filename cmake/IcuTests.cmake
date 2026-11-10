@@ -402,8 +402,8 @@ set(icuTestDataOut ${ICU_TEST_ROOT}/test/testdata/out)
 set(icuTestDataTmp ${icuTestDataOut}/testdata)
 set(icuTestDataList ${icuTestDataTmp}/testdata.lst)
 set(icuTestDataDat ${icuTestDataOut}/testdata.dat)
-# pkgdata’s own scratch directory. It is not the unpackaged-file directory: those files must remain beside
-# testdata.dat after packaging
+# `pkgdata`’s own scratch directory. It is not the unpackaged-file directory: those files must remain beside
+# `testdata.dat` after packaging
 set(icuTestPkgTmp ${ICU_TEST_ROOT}/test/testdata/tmp)
 
 GaiaPythonPath("${ICU_SOURCE_DIR}/test/testdata" pyTestSrc)
