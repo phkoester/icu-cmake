@@ -14,9 +14,9 @@
   #define NOMINMAX
 #endif
 
-#include <windows.h>
+#include <Windows.h>
 
-// `WIN32_LEAN_AND_MEAN` keeps `timeGetTime` out of `windows.h`. This test calls it
+// `WIN32_LEAN_AND_MEAN` keeps `timeGetTime` out of `Windows.h`. This test calls it
 #include <timeapi.h>
 
 inline wchar_t*

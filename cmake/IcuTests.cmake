@@ -46,7 +46,7 @@ function(IcuAddOneIcuTest target)
 
   # `collationperf` passes `char16_t *` to `CompareStringW` and `LCMapStringW`. MSVC converts that to
   # `wchar_t *`. Clang does not. The prefix header adds the missing overloads and `timeGetTime`, which
-  # `WIN32_LEAN_AND_MEAN` leaves out of `windows.h`. The fetched source stays as it is
+  # `WIN32_LEAN_AND_MEAN` leaves out of `Windows.h`. The fetched source stays as it is
   set(winLibs)
   foreach(source IN LISTS ARG_SOURCES)
     if(WIN32 AND source MATCHES "collationperf/collperf\\.cpp$")
