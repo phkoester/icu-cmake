@@ -118,7 +118,6 @@ add_library(icudata-stub STATIC ${stubSources})
 IcuApplyCommonSettings(icudata-stub)
 target_compile_definitions(icudata-stub PRIVATE STUBDATA_BUILD U_STATIC_IMPLEMENTATION)
 target_include_directories(icudata-stub PRIVATE ${ICU_SOURCE_DIR}/common)
-target_compile_options(icudata-stub PRIVATE)
 
 # Build tools -----------------------------------------------------------------------------------------------
 

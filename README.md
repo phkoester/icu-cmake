@@ -64,7 +64,7 @@ target_link_libraries(my-target PRIVATE ICU::uc)
    `makeconv`, and `pkgdata`) are built against the object libraries and the stub data library.
 4. `python -m icutools.databuilder` runs the tools on the text sources, `pkgdata` packs the result into
    `icudtNNl.dat` (little-endian) or `icudtNNb.dat` (big-endian), and `genccode` turns the archive into an
-   assembly file (Linux), an object file (Windows), or a C file.
+   assembly file (Linux, macOS), an object file (Windows), or a C file.
 5. The libraries are assembled from the object libraries and the generated data. They are static unless
    `BUILD_SHARED_LIBS` is on. `ICU::uc` links `ICU::data` publicly, so consumers never have to care about
    link order. A static build publishes `U_STATIC_IMPLEMENTATION` through the library interface.
