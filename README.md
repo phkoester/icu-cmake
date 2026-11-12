@@ -69,9 +69,9 @@ target_link_libraries(my-target PRIVATE ICU::uc)
    `BUILD_SHARED_LIBS` is on. `ICU::uc` links `ICU::data` publicly, so consumers never have to care about
    link order. A static build publishes `U_STATIC_IMPLEMENTATION` through the library interface.
 
-## CMake Options
+## CMake Variables
 
-All of the following options may be supplied either as defined CMake variables or as environment variables:
+All of the following may be supplied either as defined CMake variables or as environment variables:
 
 | Name                       | Type       | Default                                  | Description
 | :------------------------- | :--------- | :--------------------------------------- | :----------
