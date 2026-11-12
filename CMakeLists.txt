@@ -68,11 +68,11 @@ else()
   set(defaultDataFormat asm)
 endif()
 
-GaiaAddVar(ICU_CMAKE_BUILD_ICU_TEST BOOL   ${ICU_CMAKE_MASTER_PROJECT} "Build the ICU tests")
-GaiaAddVar(ICU_CMAKE_BUILD_TEST     BOOL   ${ICU_CMAKE_MASTER_PROJECT} "Build the smoke test")
-GaiaAddVar(ICU_CMAKE_DATA_FORMAT    STRING ${defaultDataFormat}        "How `genccode` emits the data: `asm`, `object`, or `c`")
-GaiaAddVar(ICU_CMAKE_DATA_VERBOSE   BOOL   OFF                         "Print every command of the ICU data build")
-GaiaAddVar(ICU_CMAKE_ICU_VERSION    STRING 79.1                        "ICU version to download (`release-VERSION` tag; 78.1 and later use this naming scheme)")
+GaiaAddVar(ICU_CMAKE_BUILD_ICU_TEST BOOL   "${ICU_CMAKE_MASTER_PROJECT}" "Build the ICU tests")
+GaiaAddVar(ICU_CMAKE_BUILD_TEST     BOOL   "${ICU_CMAKE_MASTER_PROJECT}" "Build the smoke test")
+GaiaAddVar(ICU_CMAKE_DATA_FORMAT    STRING "${defaultDataFormat}"        "How `genccode` emits the data: `asm`, `object`, or `c`")
+GaiaAddVar(ICU_CMAKE_DATA_VERBOSE   BOOL   OFF                           "Print every command of the ICU data build")
+GaiaAddVar(ICU_CMAKE_ICU_VERSION    STRING 79.1                          "ICU version to download (`release-VERSION` tag; 78.1 and later use this naming scheme)")
 
 # Set compiler and linker options ---------------------------------------------------------------------------
 
