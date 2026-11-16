@@ -89,7 +89,7 @@ endfunction()
 #
 # Downloads and extracts an archive, setting `${name}_SOURCE_DIR`.
 function(IcuFetch name url)
-  GaiaStatus("Fetching `${url}` ...")
+  GaiaStatus("fetching `${url}` ...")
   FetchContent_Declare(
     ${name}
     URL ${url}
@@ -108,7 +108,7 @@ endfunction()
 function(IcuReadSources dir out)
   set(file ${dir}/sources.txt)
   if(NOT EXISTS ${file})
-    GaiaFatalError("Missing `${file}`")
+    GaiaFatalError("missing `${file}`")
   endif()
 
   file(STRINGS ${file} lines)
@@ -130,7 +130,7 @@ endfunction()
 function(IcuReadVersion sourceDir outVersion outMajor)
   set(header ${sourceDir}/common/unicode/uvernum.h)
   if(NOT EXISTS ${header})
-    GaiaFatalError("Missing `${header}`")
+    GaiaFatalError("missing `${header}`")
   endif()
 
   file(STRINGS ${header} majorLine REGEX "^#define U_ICU_VERSION_MAJOR_NUM[ \t]+[0-9]+")
@@ -140,7 +140,7 @@ function(IcuReadVersion sourceDir outVersion outMajor)
   string(REGEX REPLACE "^#define U_ICU_VERSION[ \t]+\"([0-9.]+)\".*$" "\\1" version "${versionLine}")
 
   if(NOT major MATCHES "^[0-9]+$" OR NOT version MATCHES "^[0-9.]+$")
-    GaiaFatalError("Cannot parse the ICU version from `${header}`")
+    GaiaFatalError("cannot parse the ICU version from `${header}`")
   endif()
 
   set(${outVersion} ${version} PARENT_SCOPE)

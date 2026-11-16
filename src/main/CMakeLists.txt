@@ -47,7 +47,7 @@ endif()
 # - `c`:      `genccode` writes a `.c` file with a byte array (any platform; slow to compile)
 
 if(NOT ICU_CMAKE_DATA_FORMAT MATCHES "^(asm|object|c)$")
-  GaiaFatalError("ICU_CMAKE_DATA_FORMAT: Invalid value `${ICU_CMAKE_DATA_FORMAT}`")
+  GaiaFatalError("ICU_CMAKE_DATA_FORMAT: invalid value `${ICU_CMAKE_DATA_FORMAT}`")
 endif()
 if(ICU_CMAKE_DATA_FORMAT STREQUAL "asm" AND WIN32)
   GaiaFatalError("ICU_CMAKE_DATA_FORMAT=asm is not supported on Windows")
