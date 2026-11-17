@@ -47,13 +47,13 @@ jobs:
             ca-certificates ccache cmake g++ git ninja-build python3 tzdata
 
       - name: Check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           path: icu-cmake
 
       # icu-cmake uses `GAIA_DIR` as Gaia's source instead of fetching the tag `v${ICU_CMAKE_GAIA_VERSION}`
       - name: Check out Gaia
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: phkoester/gaia
           ref: main
@@ -64,7 +64,7 @@ jobs:
         run: git config --global --add safe.directory '*'
 
       - name: Restore ccache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .ccache
           key: ccache-linux-release-${{ github.sha }}
