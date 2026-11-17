@@ -119,7 +119,8 @@ else()
     )
   elseif(GAIA_CXX_COMPILER_MSVC)
     # Windows, MSVC
-    list(APPEND COMPILE_FLAGS /bigobj /wd4005 /wd4068 /wd4312 /wd4477 /wd4805 /Zc:preprocessor)
+    # `/utf-8`: The ICU sources are UTF-8 without a BOM. MSVC would read them in the ANSI code page
+    list(APPEND COMPILE_FLAGS /bigobj /utf-8 /wd4005 /wd4068 /wd4312 /wd4477 /wd4805 /Zc:preprocessor)
   endif()
 endif()
 
