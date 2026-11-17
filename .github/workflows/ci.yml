@@ -83,3 +83,114 @@ jobs:
       - name: Show ccache statistics
         if: always()
         run: ccache --show-stats
+
+  macos:
+    name: macOS (LLVM, Release)
+    runs-on: macos-latest
+    timeout-minutes: 120
+
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_MAXSIZE: 2G
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+      GAIA_DIR: ${{ github.workspace }}/gaia
+
+    defaults:
+      run:
+        working-directory: icu-cmake
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          path: icu-cmake
+
+      # icu-cmake uses `GAIA_DIR` as Gaia's source instead of fetching the tag `v${ICU_CMAKE_GAIA_VERSION}`
+      - name: Check out Gaia
+        uses: actions/checkout@v7
+        with:
+          repository: phkoester/gaia
+          ref: main
+          path: gaia
+
+      # Installing an outdated formula upgrades it, so this also makes sure CMake is 4.2 or higher
+      - name: Install packages
+        run: brew install ccache cmake ninja
+
+      - name: Restore ccache
+        uses: actions/cache@v6
+        with:
+          path: .ccache
+          key: ccache-macos-release-${{ github.sha }}
+          restore-keys: ccache-macos-release-
+
+      # Builds the smoke test and ICU's own tests
+      - name: Configure
+        run: cmake --preset macos-release -DICU_CMAKE_BUILD_TEST=ON -DICU_CMAKE_BUILD_ICU_TEST=ON
+
+      - name: Build
+        run: cmake --build --preset macos-release
+
+      - name: Test
+        run: ctest --test-dir build/release --output-on-failure --parallel "$(sysctl -n hw.ncpu)"
+
+      - name: Show ccache statistics
+        if: always()
+        run: ccache --show-stats
+
+  windows:
+    name: Windows (MSVC, Release)
+    runs-on: windows-latest
+    timeout-minutes: 180
+
+    env:
+      CC: cl
+      CXX: cl
+      GAIA_DIR: ${{ github.workspace }}/gaia
+
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: icu-cmake
+
+    steps:
+      # Keep the sources byte for byte as committed
+      - name: Disable line-ending conversion
+        working-directory: .
+        run: git config --global core.autocrlf false
+
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          path: icu-cmake
+
+      # icu-cmake uses `GAIA_DIR` as Gaia's source instead of fetching the tag `v${ICU_CMAKE_GAIA_VERSION}`
+      - name: Check out Gaia
+        uses: actions/checkout@v7
+        with:
+          repository: phkoester/gaia
+          ref: main
+          path: gaia
+
+      - name: Install packages
+        run: python -m pip install --upgrade cmake ninja
+
+      # The equivalent of a Developer Command Prompt: run `vcvars64.bat` and export its environment to the
+      # following steps
+      - name: Set up MSVC
+        shell: cmd
+        run: |
+          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VS_DIR=%%i"
+          call "%VS_DIR%\VC\Auxiliary\Build\vcvars64.bat" || exit /b 1
+          set >> "%GITHUB_ENV%"
+
+      # Builds the smoke test and ICU's own tests
+      - name: Configure
+        run: cmake --preset windows-release -DICU_CMAKE_BUILD_TEST=ON -DICU_CMAKE_BUILD_ICU_TEST=ON
+
+      - name: Build
+        run: cmake --build --preset windows-release
+
+      - name: Test
+        run: ctest --test-dir build/release --output-on-failure --parallel $env:NUMBER_OF_PROCESSORS
