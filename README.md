@@ -1,5 +1,7 @@
 # icu-cmake
 
+[![CI](https://github.com/phkoester/icu-cmake/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/phkoester/icu-cmake/actions/workflows/ci.yml?query=branch%3Amain)
+
 icu-cmake adds a CMake build to [ICU4C](https://github.com/unicode-org/icu). It downloads the ICU4C release
 source and data files, builds ICU’s own data tools, generates the ICU data from the text sources, and
 builds the libraries shown in the following table.
