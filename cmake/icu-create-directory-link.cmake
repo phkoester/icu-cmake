@@ -1,9 +1,8 @@
-#
 # icu-create-directory-link.cmake
 #
 # Creates a directory symlink, or a junction on Windows when symlinks are not permitted.
-# Included for the function, or run with `cmake -Doriginal=... -DlinkName=... -P <this file>`.
 #
+# Included for the function, or run with `cmake -Doriginal=... -DlinkName=... -P <this file>`.
 
 # icuCreateDirectoryLink(original linkName)
 function(icuCreateDirectoryLink original linkName)

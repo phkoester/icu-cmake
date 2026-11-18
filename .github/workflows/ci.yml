@@ -1,6 +1,4 @@
-#
 # ci.yml
-#
 
 name: CI
 
@@ -194,3 +192,5 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build/release --output-on-failure --parallel $env:NUMBER_OF_PROCESSORS
+
+# EOF

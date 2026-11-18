@@ -1,8 +1,6 @@
-#
 # icu-functions.cmake
 #
 # Helper functions for building ICU4C with CMake.
-#
 
 # Functions -------------------------------------------------------------------------------------------------
 

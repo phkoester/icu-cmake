@@ -1,4 +1,3 @@
-#
 # icu-tests.cmake
 #
 # Builds ICU’s own test programs from `source/test` and registers them with CTest.
@@ -7,7 +6,6 @@
 # A makefile is a test when its `check-local` (or `check`) recipe runs a program and Make is not told to
 # ignore the result. `perf` does not run its benchmarks. `letest` is skipped when it needs the layout
 # library. `hdrtst` and `depstest` have no such program.
-#
 
 include(${CMAKE_CURRENT_LIST_DIR}/icu-create-directory-link.cmake)
 

@@ -1,4 +1,3 @@
-#
 # CMakeLists.txt
 #
 # Builds the ICU libraries `icudata`, `icuuc`, `icui18n`, `icuio`, and `icutu`.
@@ -10,7 +9,6 @@
 # 3. The ICU data, generated from the text sources by `icutools.databuilder` and the tools
 # 4. The libraries, assembled from the object libraries and the generated data. Static, unless
 #    `BUILD_SHARED_LIBS` is on
-#
 
 include(GNUInstallDirs)
 
