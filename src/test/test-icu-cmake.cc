@@ -11,6 +11,8 @@
  * ones.
  */
 
+#include "icu-cmake/version.h"
+
 #include "unicode/ubrk.h"
 #include "unicode/uchar.h"
 #include "unicode/uclean.h"
@@ -145,6 +147,17 @@ testVersion(TestContext& ctx) {
 }
 
 void
+testIcuCmakeVersion(TestContext& ctx) {
+  info(format("icu-cmake version: {}", icu_cmake::VERSION_NAME));
+  CHECK(!icu_cmake::VERSION_NAME.empty(), "icu_cmake::VERSION_NAME is not empty");
+  CHECK(
+    icu_cmake::VERSION ==
+      icu_cmake::VERSION_MAJOR * 1'000'000 + icu_cmake::VERSION_MINOR * 1'000 + icu_cmake::VERSION_PATCH,
+    "icu_cmake::VERSION ({}) matches its components",
+    icu_cmake::VERSION);
+}
+
+void
 testBreakIterator(TestContext& ctx) {
   UErrorCode status = U_ZERO_ERROR;
   const UChar text[] = u"Hello wonderful world";
@@ -250,6 +263,7 @@ testNumberFormat(TestContext& ctx) {
 const Test tests[] = {
   { "Init", "u_init() loads the ICU data", testInit },
   { "Version", "Library version matches the headers", testVersion },
+  { "IcuCmakeVersion", "Generated `icu-cmake/version.h` is usable", testIcuCmakeVersion },
   { "BreakIterator", "Word break iteration (break rules data)", testBreakIterator },
   { "Converter", "Charset conversion (converter data)", testConverter },
   { "Io", "Unicode stdio via the io library", testIo },

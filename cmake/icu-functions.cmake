@@ -1,20 +1,20 @@
 #
-# IcuFunctions.cmake
+# icu-functions.cmake
 #
 # Helper functions for building ICU4C with CMake.
 #
 
 # Functions -------------------------------------------------------------------------------------------------
 
-# IcuAddObjectLibrary(name dir [FOR_TOOLS])
+# icuAddObjectLibrary(name dir [FOR_TOOLS])
 #
 # Adds an object library from `dir/sources.txt`. `FOR_TOOLS` compiles with `U_STATIC_IMPLEMENTATION`
 # for the data tools, which always link statically against the stub data. Otherwise the objects follow
 # `BUILD_SHARED_LIBS`: position-independent code when shared, `U_STATIC_IMPLEMENTATION` when static.
-function(IcuAddObjectLibrary name dir)
-  IcuReadSources(${dir} sources)
+function(icuAddObjectLibrary name dir)
+  icuReadSources(${dir} sources)
   add_library(${name} OBJECT ${sources})
-  IcuApplyCommonSettings(${name})
+  icuApplyCommonSettings(${name})
   target_include_directories(${name} PUBLIC ${dir})
 
   if(ARGN STREQUAL "FOR_TOOLS" OR NOT BUILD_SHARED_LIBS)
@@ -25,18 +25,18 @@ function(IcuAddObjectLibrary name dir)
   endif()
 endfunction()
 
-# IcuAddTool(name)
+# icuAddTool(name)
 #
 # Adds a build-time tool from `tools/name/sources.txt`. Linux, macOS, and MSYS place it at
 # `ICU_TOOL_BIN_DIR/name` for `unix-exec`. Native Windows Python places it at `ICU_TOOL_DIR/name/name.exe`
 # for `windows-exec`, with `<config>` directory before `name.exe` under a multi-config generator.
-function(IcuAddTool name)
+function(icuAddTool name)
   set(dir ${ICU_SOURCE_DIR}/tools/${name})
-  IcuReadSources(${dir} sources)
+  icuReadSources(${dir} sources)
 
   set(target icu-${name})
   add_executable(${target} ${sources})
-  IcuApplyCommonSettings(${target})
+  icuApplyCommonSettings(${target})
   target_include_directories(${target} PRIVATE ${dir})
   target_compile_definitions(${target} PRIVATE U_STATIC_IMPLEMENTATION)
   target_link_libraries(${target} PRIVATE ${ICU_TOOL_OBJECT_LIBS} icudata-stub ${ICU_SYSTEM_LIBS})
@@ -53,10 +53,10 @@ function(IcuAddTool name)
   )
 endfunction()
 
-# IcuApplyCommonSettings(name)
+# icuApplyCommonSettings(name)
 #
 # Applies the compiler settings ICU’s own build systems use to a target that compiles ICU sources.
-function(IcuApplyCommonSettings name)
+function(icuApplyCommonSettings name)
   target_compile_options(${name} PRIVATE ${COMPILE_FLAGS})
 
   set_target_properties(${name}
@@ -85,11 +85,11 @@ function(IcuApplyCommonSettings name)
   endif()
 endfunction()
 
-# IcuFetch(name url)
+# icuFetch(name url)
 #
 # Downloads and extracts an archive, setting `${name}_SOURCE_DIR`.
-function(IcuFetch name url)
-  GaiaStatus("fetching `${url}` ...")
+function(icuFetch name url)
+  gaiaStatus("fetching `${url}` ...")
   FetchContent_Declare(
     ${name}
     URL ${url}
@@ -102,13 +102,13 @@ function(IcuFetch name url)
   set(${name}_SOURCE_DIR ${${name}_SOURCE_DIR} PARENT_SCOPE)
 endfunction()
 
-# IcuReadSources(dir out)
+# icuReadSources(dir out)
 #
 # Reads `dir/sources.txt` and returns the listed files with `dir/` prepended.
-function(IcuReadSources dir out)
+function(icuReadSources dir out)
   set(file ${dir}/sources.txt)
   if(NOT EXISTS ${file})
-    GaiaFatalError("missing `${file}`")
+    gaiaFatalError("missing `${file}`")
   endif()
 
   file(STRINGS ${file} lines)
@@ -124,13 +124,13 @@ function(IcuReadSources dir out)
   set(${out} ${sources} PARENT_SCOPE)
 endfunction()
 
-# IcuReadVersion(sourceDir outVersion outMajor)
+# icuReadVersion(sourceDir outVersion outMajor)
 #
 # Reads `U_ICU_VERSION` and `U_ICU_VERSION_MAJOR_NUM` from `common/unicode/uvernum.h`.
-function(IcuReadVersion sourceDir outVersion outMajor)
+function(icuReadVersion sourceDir outVersion outMajor)
   set(header ${sourceDir}/common/unicode/uvernum.h)
   if(NOT EXISTS ${header})
-    GaiaFatalError("missing `${header}`")
+    gaiaFatalError("missing `${header}`")
   endif()
 
   file(STRINGS ${header} majorLine REGEX "^#define U_ICU_VERSION_MAJOR_NUM[ \t]+[0-9]+")
@@ -140,7 +140,7 @@ function(IcuReadVersion sourceDir outVersion outMajor)
   string(REGEX REPLACE "^#define U_ICU_VERSION[ \t]+\"([0-9.]+)\".*$" "\\1" version "${versionLine}")
 
   if(NOT major MATCHES "^[0-9]+$" OR NOT version MATCHES "^[0-9.]+$")
-    GaiaFatalError("cannot parse the ICU version from `${header}`")
+    gaiaFatalError("cannot parse the ICU version from `${header}`")
   endif()
 
   set(${outVersion} ${version} PARENT_SCOPE)

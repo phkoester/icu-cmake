@@ -1,5 +1,5 @@
 /*
- * IcuWin32Char16.h
+ * icu-win32-char16.h
  *
  * Force-included on Windows for `test/perf/collationperf/collperf.cpp`. That file passes `char16_t *` where
  * the Win32 wide APIs take `wchar_t *`.

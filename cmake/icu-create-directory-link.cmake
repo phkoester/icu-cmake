@@ -1,12 +1,12 @@
 #
-# IcuCreateDirectoryLink.cmake
+# icu-create-directory-link.cmake
 #
 # Creates a directory symlink, or a junction on Windows when symlinks are not permitted.
 # Included for the function, or run with `cmake -Doriginal=... -DlinkName=... -P <this file>`.
 #
 
-# IcuCreateDirectoryLink(original linkName)
-function(IcuCreateDirectoryLink original linkName)
+# icuCreateDirectoryLink(original linkName)
+function(icuCreateDirectoryLink original linkName)
   if(IS_SYMLINK "${linkName}" OR EXISTS "${linkName}")
     return()
   endif()
@@ -45,7 +45,7 @@ if(CMAKE_SCRIPT_MODE_FILE AND CMAKE_SCRIPT_MODE_FILE STREQUAL CMAKE_CURRENT_LIST
   if(NOT DEFINED original OR NOT DEFINED linkName)
     message(FATAL_ERROR "icu-cmake: missing `-Doriginal` or `-DlinkName`")
   endif()
-  IcuCreateDirectoryLink("${original}" "${linkName}")
+  icuCreateDirectoryLink("${original}" "${linkName}")
 endif()
 
 # EOF

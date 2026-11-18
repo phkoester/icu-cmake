@@ -4,7 +4,7 @@
 
 cmake_minimum_required(VERSION 4.2)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmake/IcuFunctions.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/icu-functions.cmake)
 
 include(FetchContent)
 
@@ -68,11 +68,11 @@ else()
   set(defaultDataFormat asm)
 endif()
 
-GaiaAddVar(ICU_CMAKE_BUILD_ICU_TEST BOOL   "${ICU_CMAKE_MASTER_PROJECT}" "Build the ICU tests")
-GaiaAddVar(ICU_CMAKE_BUILD_TEST     BOOL   "${ICU_CMAKE_MASTER_PROJECT}" "Build the smoke test")
-GaiaAddVar(ICU_CMAKE_DATA_FORMAT    STRING "${defaultDataFormat}"        "How `genccode` emits the data: `asm`, `object`, or `c`")
-GaiaAddVar(ICU_CMAKE_DATA_VERBOSE   BOOL   OFF                           "Print every command of the ICU data build")
-GaiaAddVar(ICU_CMAKE_ICU_VERSION    STRING 79.1                          "ICU version to download (`release-VERSION` tag; 78.1 and later use this naming scheme)")
+gaiaAddVar(ICU_CMAKE_BUILD_ICU_TEST BOOL   "${ICU_CMAKE_MASTER_PROJECT}" "Build the ICU tests")
+gaiaAddVar(ICU_CMAKE_BUILD_TEST     BOOL   "${ICU_CMAKE_MASTER_PROJECT}" "Build the smoke test")
+gaiaAddVar(ICU_CMAKE_DATA_FORMAT    STRING "${defaultDataFormat}"        "How `genccode` emits the data: `asm`, `object`, or `c`")
+gaiaAddVar(ICU_CMAKE_DATA_VERBOSE   BOOL   OFF                           "Print every command of the ICU data build")
+gaiaAddVar(ICU_CMAKE_ICU_VERSION    STRING 79.1                          "ICU version to download (`release-VERSION` tag; 78.1 and later use this naming scheme)")
 
 # Set compiler and linker options ---------------------------------------------------------------------------
 
@@ -130,9 +130,9 @@ set(ICU_RELEASE_URL https://github.com/unicode-org/icu/releases/download/release
 
 # Fetch the ICU sources .....................................................................................
 
-IcuFetch(icu ${ICU_RELEASE_URL}/icu4c-${ICU_CMAKE_ICU_VERSION}-sources.tgz)
+icuFetch(icu ${ICU_RELEASE_URL}/icu4c-${ICU_CMAKE_ICU_VERSION}-sources.tgz)
 set(ICU_SOURCE_DIR ${icu_SOURCE_DIR}/source)
-GaiaStatus("ICU_SOURCE_DIR: ${ICU_SOURCE_DIR}")
+gaiaStatus("ICU_SOURCE_DIR: ${ICU_SOURCE_DIR}")
 
 # Fetch the ICU data sources ................................................................................
 #
@@ -141,7 +141,7 @@ GaiaStatus("ICU_SOURCE_DIR: ${ICU_SOURCE_DIR}")
 #
 # ...........................................................................................................
 
-IcuFetch(icu-data ${ICU_RELEASE_URL}/icu4c-${ICU_CMAKE_ICU_VERSION}-data.zip)
+icuFetch(icu-data ${ICU_RELEASE_URL}/icu4c-${ICU_CMAKE_ICU_VERSION}-data.zip)
 # The archive’s single top-level directory `data/` is usually stripped during extraction
 if(EXISTS ${icu-data_SOURCE_DIR}/BUILDRULES.py)
   set(ICU_DATA_SOURCE_DIR ${icu-data_SOURCE_DIR})
@@ -149,9 +149,9 @@ else()
   set(ICU_DATA_SOURCE_DIR ${icu-data_SOURCE_DIR}/data)
 endif()
 if(NOT EXISTS ${ICU_DATA_SOURCE_DIR}/BUILDRULES.py OR NOT EXISTS ${ICU_DATA_SOURCE_DIR}/locales/LOCALE_DEPS.json)
-  GaiaFatalError("no ICU data sources found in ${ICU_DATA_SOURCE_DIR}")
+  gaiaFatalError("no ICU data sources found in ${ICU_DATA_SOURCE_DIR}")
 endif()
-GaiaStatus("ICU_DATA_SOURCE_DIR: ${ICU_DATA_SOURCE_DIR}")
+gaiaStatus("ICU_DATA_SOURCE_DIR: ${ICU_DATA_SOURCE_DIR}")
 
 # Determine the ICU version and data-package name -----------------------------------------------------------
 
@@ -163,13 +163,13 @@ if(CMAKE_CXX_BYTE_ORDER STREQUAL "LITTLE_ENDIAN")
 elseif(CMAKE_CXX_BYTE_ORDER STREQUAL "BIG_ENDIAN")
   set(ICU_DATA_ENDIAN_LETTER b)
 else()
-  GaiaFatalError("cannot tell the target endianness from `CMAKE_CXX_BYTE_ORDER` (`${CMAKE_CXX_BYTE_ORDER}`)")
+  gaiaFatalError("cannot tell the target endianness from `CMAKE_CXX_BYTE_ORDER` (`${CMAKE_CXX_BYTE_ORDER}`)")
 endif()
 
-IcuReadVersion(${ICU_SOURCE_DIR} ICU_VERSION ICU_VERSION_MAJOR)
+icuReadVersion(${ICU_SOURCE_DIR} ICU_VERSION ICU_VERSION_MAJOR)
 set(ICU_DATA_NAME icudt${ICU_VERSION_MAJOR}${ICU_DATA_ENDIAN_LETTER}) # `l` or `b`; see the endianness check above
 set(ICU_DATA_ENTRY_POINT icudt${ICU_VERSION_MAJOR})
-GaiaStatus("ICU_VERSION: ${ICU_VERSION}, data package: ${ICU_DATA_NAME}")
+gaiaStatus("ICU_VERSION: ${ICU_VERSION}, data package: ${ICU_DATA_NAME}")
 
 # Add subdirectories ----------------------------------------------------------------------------------------
 

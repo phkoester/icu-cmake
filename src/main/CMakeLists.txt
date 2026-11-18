@@ -18,8 +18,11 @@ set(ICU_DATA_DIR      ${CMAKE_CURRENT_BINARY_DIR}/data)
 set(ICU_GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
 set(ICU_TOOL_DIR      ${CMAKE_CURRENT_BINARY_DIR}/tools)
 
+# `icu-cmake/version.h`, made available through `icuuc` and thus through every ICU library
+gaiaGenerateVersionHeader(${ICU_GENERATED_DIR} icu-cmake/version.h icu_cmake ${PROJECT_VERSION})
+
 # `unix-exec` expects tools at `TOOL_DIR/name`. With a multi-config generator, each configuration gets its
-# own `TOOL_DIR`. Native Windows Python uses `windows-exec` and a per-tool directory; see `IcuAddTool`.
+# own `TOOL_DIR`. Native Windows Python uses `windows-exec` and a per-tool directory; see `icuAddTool`.
 # `windows-exec` always inserts `TOOL_CFG` into the path, so single-config generators pass `.`.
 get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(isMultiConfig)
@@ -47,13 +50,13 @@ endif()
 # - `c`:      `genccode` writes a `.c` file with a byte array (any platform; slow to compile)
 
 if(NOT ICU_CMAKE_DATA_FORMAT MATCHES "^(asm|object|c)$")
-  GaiaFatalError("ICU_CMAKE_DATA_FORMAT: invalid value `${ICU_CMAKE_DATA_FORMAT}`")
+  gaiaFatalError("ICU_CMAKE_DATA_FORMAT: invalid value `${ICU_CMAKE_DATA_FORMAT}`")
 endif()
 if(ICU_CMAKE_DATA_FORMAT STREQUAL "asm" AND WIN32)
-  GaiaFatalError("ICU_CMAKE_DATA_FORMAT=asm is not supported on Windows")
+  gaiaFatalError("ICU_CMAKE_DATA_FORMAT=asm is not supported on Windows")
 endif()
 if(ICU_CMAKE_DATA_FORMAT STREQUAL "object" AND NOT WIN32)
-  GaiaFatalError("ICU_CMAKE_DATA_FORMAT=object is only supported on Windows")
+  gaiaFatalError("ICU_CMAKE_DATA_FORMAT=object is only supported on Windows")
 endif()
 if(ICU_CMAKE_DATA_FORMAT STREQUAL "asm")
   enable_language(ASM)
@@ -61,22 +64,22 @@ endif()
 
 # Object libraries ------------------------------------------------------------------------------------------
 
-IcuAddObjectLibrary(icuuc-obj ${ICU_SOURCE_DIR}/common)
+icuAddObjectLibrary(icuuc-obj ${ICU_SOURCE_DIR}/common)
 target_compile_definitions(icuuc-obj PRIVATE U_COMMON_IMPLEMENTATION)
 if(LINUX)
   # Lets `genccode` write ELF object files
   target_compile_definitions(icuuc-obj PUBLIC U_HAVE_ELF_H=1)
 endif()
 
-IcuAddObjectLibrary(icui18n-obj ${ICU_SOURCE_DIR}/i18n)
+icuAddObjectLibrary(icui18n-obj ${ICU_SOURCE_DIR}/i18n)
 target_compile_definitions(icui18n-obj PRIVATE U_I18N_IMPLEMENTATION)
 target_link_libraries(icui18n-obj PUBLIC icuuc-obj)
 
-IcuAddObjectLibrary(icuio-obj ${ICU_SOURCE_DIR}/io)
+icuAddObjectLibrary(icuio-obj ${ICU_SOURCE_DIR}/io)
 target_compile_definitions(icuio-obj PRIVATE U_IO_IMPLEMENTATION)
 target_link_libraries(icuio-obj PUBLIC icui18n-obj)
 
-IcuAddObjectLibrary(icutu-obj ${ICU_SOURCE_DIR}/tools/toolutil)
+icuAddObjectLibrary(icutu-obj ${ICU_SOURCE_DIR}/tools/toolutil)
 target_compile_definitions(icutu-obj
   PRIVATE
     U_TOOLUTIL_IMPLEMENTATION
@@ -88,14 +91,14 @@ target_link_libraries(icutu-obj PUBLIC icui18n-obj)
 # The data tools always link ICU statically. On Windows, objects compiled for a DLL dllimport symbols from
 # the other DLLs, so those objects cannot be linked into the tools. The tools get their own static objects.
 if(WIN32 AND BUILD_SHARED_LIBS)
-  IcuAddObjectLibrary(icuuc-tool ${ICU_SOURCE_DIR}/common FOR_TOOLS)
+  icuAddObjectLibrary(icuuc-tool ${ICU_SOURCE_DIR}/common FOR_TOOLS)
   target_compile_definitions(icuuc-tool PRIVATE U_COMMON_IMPLEMENTATION)
 
-  IcuAddObjectLibrary(icui18n-tool ${ICU_SOURCE_DIR}/i18n FOR_TOOLS)
+  icuAddObjectLibrary(icui18n-tool ${ICU_SOURCE_DIR}/i18n FOR_TOOLS)
   target_compile_definitions(icui18n-tool PRIVATE U_I18N_IMPLEMENTATION)
   target_link_libraries(icui18n-tool PUBLIC icuuc-tool)
 
-  IcuAddObjectLibrary(icutu-tool ${ICU_SOURCE_DIR}/tools/toolutil FOR_TOOLS)
+  icuAddObjectLibrary(icutu-tool ${ICU_SOURCE_DIR}/tools/toolutil FOR_TOOLS)
   target_compile_definitions(icutu-tool
     PRIVATE
       U_TOOLUTIL_IMPLEMENTATION
@@ -113,9 +116,9 @@ endif()
 #
 # The build tools link against this empty data package, which lets them run before the real data exists.
 
-IcuReadSources(${ICU_SOURCE_DIR}/stubdata stubSources)
+icuReadSources(${ICU_SOURCE_DIR}/stubdata stubSources)
 add_library(icudata-stub STATIC ${stubSources})
-IcuApplyCommonSettings(icudata-stub)
+icuApplyCommonSettings(icudata-stub)
 target_compile_definitions(icudata-stub PRIVATE STUBDATA_BUILD U_STATIC_IMPLEMENTATION)
 target_include_directories(icudata-stub PRIVATE ${ICU_SOURCE_DIR}/common)
 
@@ -134,7 +137,7 @@ set(ICU_TOOLS
   pkgdata
 )
 foreach(it IN LISTS ICU_TOOLS)
-  IcuAddTool(${it})
+  icuAddTool(${it})
 endforeach()
 
 set(toolTargets ${ICU_TOOLS})
@@ -151,10 +154,10 @@ set(datFile    ${ICU_DATA_DIR}/${ICU_DATA_NAME}.dat)
 
 # Step 1: Compile the text sources into binary data files ...................................................
 
-GaiaPythonPath("${ICU_DATA_SOURCE_DIR}" pySrcDir)
-GaiaPythonPath("${dataOutDir}"          pyOutDir)
-GaiaPythonPath("${dataTmpDir}"          pyTmpDir)
-GaiaPythonPath("${ICU_TOOL_DIR}"        pyToolDir)
+gaiaPythonPath("${ICU_DATA_SOURCE_DIR}" pySrcDir)
+gaiaPythonPath("${dataOutDir}"          pyOutDir)
+gaiaPythonPath("${dataTmpDir}"          pyTmpDir)
+gaiaPythonPath("${ICU_TOOL_DIR}"        pyToolDir)
 if(GAIA_PYTHON_NATIVE_WINDOWS)
   set(databuilderArgs --mode windows-exec --tool_dir "${pyToolDir}" --tool_cfg "${ICU_TOOL_CFG}")
 else()
@@ -245,7 +248,7 @@ endif()
 
 add_library(icudata ${icuLibraryType} ${dataFile})
 if(ICU_CMAKE_DATA_FORMAT STREQUAL "c")
-  IcuApplyCommonSettings(icudata)
+  icuApplyCommonSettings(icudata)
   target_include_directories(icudata PRIVATE ${ICU_SOURCE_DIR}/common)
   if(NOT BUILD_SHARED_LIBS)
     target_compile_definitions(icudata PRIVATE U_STATIC_IMPLEMENTATION)
@@ -284,7 +287,8 @@ endif()
 target_compile_features(icuuc INTERFACE cxx_std_17)
 # Imported targets are treated as system includes anyway, so only the build interface is marked `SYSTEM`
 target_include_directories(icuuc SYSTEM INTERFACE $<BUILD_INTERFACE:${ICU_SOURCE_DIR}/common>)
-target_include_directories(icuuc INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+target_include_directories(icuuc
+  INTERFACE $<BUILD_INTERFACE:${ICU_GENERATED_DIR}> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_link_libraries(icuuc PUBLIC icudata ${ICU_SYSTEM_LIBS})
 set_target_properties(icuuc
   PROPERTIES
