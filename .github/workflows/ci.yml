@@ -51,7 +51,7 @@ jobs:
         with:
           path: icu-cmake
 
-      # icu-cmake uses `GAIA_DIR` as Gaia's source instead of fetching the tag `v${ICU_CMAKE_GAIA_VERSION}`
+      # icu-cmake uses `GAIA_DIR` as Gaia’s source instead of fetching the tag `v${ICU_CMAKE_GAIA_VERSION}`
       - name: Check out Gaia
         uses: actions/checkout@v7
         with:
@@ -70,7 +70,7 @@ jobs:
           key: ccache-linux-release-${{ github.sha }}
           restore-keys: ccache-linux-release-
 
-      # Builds the smoke test and ICU's own tests
+      # Builds the smoke test and ICU’s own tests
       - name: Configure
         run: cmake --preset linux-release -DICU_CMAKE_BUILD_TEST=ON -DICU_CMAKE_BUILD_ICU_TEST=ON
 
@@ -106,7 +106,7 @@ jobs:
         with:
           path: icu-cmake
 
-      # icu-cmake uses `GAIA_DIR` as Gaia's source instead of fetching the tag `v${ICU_CMAKE_GAIA_VERSION}`
+      # icu-cmake uses `GAIA_DIR` as Gaia’s source instead of fetching the tag `v${ICU_CMAKE_GAIA_VERSION}`
       - name: Check out Gaia
         uses: actions/checkout@v7
         with:
@@ -125,7 +125,7 @@ jobs:
           key: ccache-macos-release-${{ github.sha }}
           restore-keys: ccache-macos-release-
 
-      # Builds the smoke test and ICU's own tests
+      # Builds the smoke test and ICU’s own tests
       - name: Configure
         run: cmake --preset macos-release -DICU_CMAKE_BUILD_TEST=ON -DICU_CMAKE_BUILD_ICU_TEST=ON
 
@@ -165,7 +165,7 @@ jobs:
         with:
           path: icu-cmake
 
-      # icu-cmake uses `GAIA_DIR` as Gaia's source instead of fetching the tag `v${ICU_CMAKE_GAIA_VERSION}`
+      # icu-cmake uses `GAIA_DIR` as Gaia’s source instead of fetching the tag `v${ICU_CMAKE_GAIA_VERSION}`
       - name: Check out Gaia
         uses: actions/checkout@v7
         with:
@@ -185,7 +185,7 @@ jobs:
           call "%VS_DIR%\VC\Auxiliary\Build\vcvars64.bat" || exit /b 1
           set >> "%GITHUB_ENV%"
 
-      # Builds the smoke test and ICU's own tests
+      # Builds the smoke test and ICU’s own tests
       - name: Configure
         run: cmake --preset windows-release -DICU_CMAKE_BUILD_TEST=ON -DICU_CMAKE_BUILD_ICU_TEST=ON
 
