@@ -8,14 +8,6 @@ include(FetchContent)
 
 # Project ---------------------------------------------------------------------------------------------------
 
-# Is this the master project?
-if(NOT DEFINED ICU_CMAKE_MASTER_PROJECT)
-  set(ICU_CMAKE_MASTER_PROJECT OFF)
-  if(NOT DEFINED PROJECT_NAME)
-    set(ICU_CMAKE_MASTER_PROJECT ON)
-  endif()
-endif()
-
 project(icu-cmake VERSION 0.1.4)
 
 # Versions --------------------------------------------------------------------------------------------------
@@ -61,16 +53,16 @@ set(FETCHCONTENT_QUIET FALSE)
 # Configuration ---------------------------------------------------------------------------------------------
 
 if(GAIA_OS_WINDOWS)
-  set(defaultDataFormat object)
+  set(ICU_CMAKE_DATA_FORMAT_DEFAULT object)
 else()
-  set(defaultDataFormat asm)
+  set(ICU_CMAKE_DATA_FORMAT_DEFAULT asm)
 endif()
 
-gaiaAddVar(ICU_CMAKE_BUILD_ICU_TEST BOOL   "${ICU_CMAKE_MASTER_PROJECT}" "Build the ICU tests")
-gaiaAddVar(ICU_CMAKE_BUILD_TEST     BOOL   "${ICU_CMAKE_MASTER_PROJECT}" "Build the smoke test")
-gaiaAddVar(ICU_CMAKE_DATA_FORMAT    STRING "${defaultDataFormat}"        "How `genccode` emits the data: `asm`, `object`, or `c`")
-gaiaAddVar(ICU_CMAKE_DATA_VERBOSE   BOOL   OFF                           "Print every command of the ICU data build")
-gaiaAddVar(ICU_CMAKE_ICU_VERSION    STRING 79.1                          "ICU version to download (`release-VERSION` tag; 78.1 and later use this naming scheme)")
+gaiaAddVar(ICU_CMAKE_BUILD_ICU_TEST BOOL   "${PROJECT_IS_TOP_LEVEL}"          "Build the ICU tests")
+gaiaAddVar(ICU_CMAKE_BUILD_TEST     BOOL   "${PROJECT_IS_TOP_LEVEL}"          "Build the smoke test")
+gaiaAddVar(ICU_CMAKE_DATA_FORMAT    STRING "${ICU_CMAKE_DATA_FORMAT_DEFAULT}" "How `genccode` emits the data: `asm`, `object`, or `c`")
+gaiaAddVar(ICU_CMAKE_DATA_VERBOSE   BOOL   OFF                                "Print every command of the ICU data build")
+gaiaAddVar(ICU_CMAKE_ICU_VERSION    STRING 79.1                               "ICU version to download (`release-VERSION` tag; 78.1 and later use this naming scheme)")
 
 # Set compiler and linker options ---------------------------------------------------------------------------
 
