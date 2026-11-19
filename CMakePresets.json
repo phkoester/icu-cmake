@@ -7,7 +7,7 @@
   },
   "configurePresets": [
     {
-      "name": "linux-debug",
+      "name": "debug",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/debug",
       "cacheVariables": {
@@ -15,7 +15,7 @@
       }
     },
     {
-      "name": "linux-release",
+      "name": "release",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/release",
       "cacheVariables": {
@@ -23,88 +23,62 @@
       }
     },
     {
-      "name": "macos-debug",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/debug",
+      "name": "config-Debug",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
+        "CMAKE_DEFAULT_BUILD_TYPE": "Debug"
       }
     },
     {
-      "name": "macos-release",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/release",
+      "name": "config-Release",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
-      }
-    },
-    {
-      "name": "windows-debug",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/debug",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
-    },
-    {
-      "name": "windows-release",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/release",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
+        "CMAKE_DEFAULT_BUILD_TYPE": "Release"
       }
     }
   ],
   "buildPresets": [
     {
-      "name": "linux-debug",
-      "configurePreset": "linux-debug"
+      "name": "debug",
+      "configurePreset": "debug"
     },
     {
-      "name": "linux-release",
-      "configurePreset": "linux-release"
+      "name": "release",
+      "configurePreset": "release"
     },
     {
-      "name": "macos-debug",
-      "configurePreset": "macos-debug"
+      "name": "config-Debug",
+      "configurePreset": "config-Debug",
+      "configuration": "Debug"
     },
     {
-      "name": "macos-release",
-      "configurePreset": "macos-release"
-    },
-    {
-      "name": "windows-debug",
-      "configurePreset": "windows-debug"
-    },
-    {
-      "name": "windows-release",
-      "configurePreset": "windows-release"
+      "name": "config-Release",
+      "configurePreset": "config-Release",
+      "configuration": "Release"
     }
   ],
   "testPresets": [
     {
-      "name": "linux-debug",
-      "configurePreset": "linux-debug"
+      "name": "debug",
+      "configurePreset": "debug"
     },
     {
-      "name": "linux-release",
-      "configurePreset": "linux-release"
+      "name": "release",
+      "configurePreset": "release"
     },
     {
-      "name": "macos-debug",
-      "configurePreset": "macos-debug"
+      "name": "config-Debug",
+      "configurePreset": "config-Debug",
+      "configuration": "Debug"
     },
     {
-      "name": "macos-release",
-      "configurePreset": "macos-release"
-    },
-    {
-      "name": "windows-debug",
-      "configurePreset": "windows-debug"
-    },
-    {
-      "name": "windows-release",
-      "configurePreset": "windows-release"
+      "name": "config-Release",
+      "configurePreset": "config-Release",
+      "configuration": "Release"
     }
   ]
 }
