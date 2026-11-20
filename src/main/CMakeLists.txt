@@ -22,7 +22,7 @@ gaiaGenerateVersionHeader(${ICU_GENERATED_DIR} icu-cmake/version.h icu_cmake ${P
 # `unix-exec` expects tools at `TOOL_DIR/name`. With a multi-config generator, each configuration gets its
 # own `TOOL_DIR`. Native Windows Python uses `windows-exec` and a per-tool directory; see `icuAddTool`.
 # `windows-exec` always inserts `TOOL_CFG` into the path, so single-config generators pass `.`.
-get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+gaiaIsMultiConfig(isMultiConfig)
 if(isMultiConfig)
   set(ICU_TOOL_CFG        $<CONFIG>)
   set(ICU_TOOL_CFG_SUFFIX /$<CONFIG>)

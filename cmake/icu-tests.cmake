@@ -415,7 +415,8 @@ gaiaPythonPath("${icuTestDataTmp}" pyTestTmp)
 add_custom_command(
   OUTPUT  ${icuTestDataList}
   COMMAND ${CMAKE_COMMAND} -E rm -rf "${icuTestDataOut}"
-  COMMAND ${CMAKE_COMMAND} -E make_directory "${icuTestDataOut}" "${icuTestDataTmp}" "${ICU_TEST_ROOT}/data/out"
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+    "${icuTestDataOut}" "${icuTestDataTmp}" "${ICU_TEST_ROOT}/data/out"
   COMMAND ${CMAKE_COMMAND} "-Doriginal=${ICU_DATA_DIR}/out" "-DlinkName=${icuTestDataOut}/build"
     -P ${ICU_CMAKE_DIR}/cmake/icu-create-directory-link.cmake
   COMMAND ${CMAKE_COMMAND} "-Doriginal=${ICU_DATA_DIR}/out" "-DlinkName=${ICU_TEST_ROOT}/data/out/build"
@@ -439,7 +440,7 @@ add_custom_command(
   OUTPUT  ${icuTestDataDat}
   COMMAND ${CMAKE_COMMAND} -E make_directory "${icuTestPkgTmp}"
   COMMAND icu-pkgdata -m common -q -c -p testdata -s "${icuTestDataOut}" -T "${icuTestPkgTmp}"
-            -d "${icuTestDataOut}" "${icuTestDataList}"
+    -d "${icuTestDataOut}" "${icuTestDataList}"
   DEPENDS icu-pkgdata ${icuTestDataList}
   COMMENT "icu-cmake: Packaging testdata.dat"
   VERBATIM
