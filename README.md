@@ -12,11 +12,11 @@ With `BUILD_SHARED_LIBS` left `OFF`, they are static. With `BUILD_SHARED_LIBS` s
 
 | Linux (GNU, LLVM) | macOS (GNU, LLVM)    | Windows (LLVM, MSVC) | CMake Target | Content
 | :-----------------| :--------------------| :------------------- | :----------- | :------
-| `libicudata.a/so` | `libicudata.a/dylib` | `icudata.lib/dll`    | `ICU::data`  | The ICU data package (`icudtNNl` or `icudtNNb`)
-| `libicui18n.a/so` | `libicui18n.a/dylib` | `icui18n.lib/dll`    | `ICU::i18n`  | Internationalization library
+| `libicudata.a/so` | `libicudata.a/dylib` | `icudata.lib/dll`    | `ICU::data`  | the ICU data package (`icudtNNl` or `icudtNNb`)
+| `libicui18n.a/so` | `libicui18n.a/dylib` | `icui18n.lib/dll`    | `ICU::i18n`  | internationalization library
 | `libicuio.a/so`   | `libicuio.a/dylib`   | `icuio.lib/dll`      | `ICU::io`    | Unicode standard I/O library
-| `libicutu.a/so`   | `libicutu.a/dylib`   | `icutu.lib/dll`      | `ICU::tu`    | Tool utilities
-| `libicuuc.a/so`   | `libicuuc.a/dylib`   | `icuuc.lib/dll`      | `ICU::uc`    | Common library
+| `libicutu.a/so`   | `libicutu.a/dylib`   | `icutu.lib/dll`      | `ICU::tu`    | tool utilities
+| `libicuuc.a/so`   | `libicuuc.a/dylib`   | `icuuc.lib/dll`      | `ICU::uc`    | common library
 
 icu-cmake may be used out of the box. Just fetch the content and link to the desired targets. It’s as simple
 as that. See the [detailed instructions](#how-to-use-it-with-cmake).
@@ -77,13 +77,13 @@ All of the following may be supplied either as defined CMake variables or as env
 
 | Name                       | Type       | Default                                  | Description
 | :------------------------- | :--------- | :--------------------------------------- | :----------
-| `BUILD_SHARED_LIBS`        | `BOOL`     | `OFF`                                    | Build shared libraries
-| `BUILD_TESTING`            | `BOOL`     | `ON`                                     | Enable testing
-| `CMAKE_BUILD_TYPE`         | `STRING`   | `Release` if single configuration        | The build type (`Debug` or `Release`)
-| `ICU_CMAKE_BUILD_ICU_TEST` | `BOOL`     | `ON` if top-level project                | Build the ICU tests
-| `ICU_CMAKE_BUILD_TEST`     | `BOOL`     | `ON` if top-level project                | Build the smoke test
-| `ICU_CMAKE_DATA_FORMAT`    | `STRING`   | `asm` (macOS, Linux), `object` (Windows) | How `genccode` emits the data: `asm`, `object`, or `c`
-| `ICU_CMAKE_DATA_VERBOSE`   | `BOOL`     | `OFF`                                    | Print every command of the ICU data build
+| `BUILD_SHARED_LIBS`        | `BOOL`     | `OFF`                                    | build shared libraries
+| `BUILD_TESTING`            | `BOOL`     | `ON`                                     | enable testing
+| `CMAKE_BUILD_TYPE`         | `STRING`   | `Release` if single configuration        | the build type (`Debug` or `Release`)
+| `ICU_CMAKE_BUILD_ICU_TEST` | `BOOL`     | `ON` if top-level project                | build the ICU tests
+| `ICU_CMAKE_BUILD_TEST`     | `BOOL`     | `ON` if top-level project                | build the smoke test
+| `ICU_CMAKE_DATA_FORMAT`    | `STRING`   | `asm` (macOS, Linux), `object` (Windows) | how `genccode` emits the data: `asm`, `object`, or `c`
+| `ICU_CMAKE_DATA_VERBOSE`   | `BOOL`     | `OFF`                                    | print every command of the ICU data build
 | `ICU_CMAKE_ICU_VERSION`    | `STRING`   | `79.1`                                   | ICU version to download (`release-VERSION` tag; 78.1 and later use this naming scheme)
 
 ## Limitations
