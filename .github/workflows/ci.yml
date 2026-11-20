@@ -70,13 +70,13 @@ jobs:
 
       # Builds the smoke test and ICU’s own tests
       - name: Configure
-        run: cmake --preset config-Release -DICU_CMAKE_BUILD_TEST=ON -DICU_CMAKE_BUILD_ICU_TEST=ON
+        run: cmake --preset multi -DICU_CMAKE_BUILD_TEST=ON -DICU_CMAKE_BUILD_ICU_TEST=ON
 
       - name: Build
-        run: cmake --build --preset config-Release
+        run: cmake --build --preset multi-Release
 
       - name: Test
-        run: ctest --preset config-Release --test-dir build --output-on-failure --parallel "$(nproc)"
+        run: ctest --preset multi-Release --test-dir build --output-on-failure --parallel "$(nproc)"
 
       - name: Show ccache statistics
         if: always()
@@ -125,13 +125,13 @@ jobs:
 
       # Builds the smoke test and ICU’s own tests
       - name: Configure
-        run: cmake --preset config-Release -DICU_CMAKE_BUILD_TEST=ON -DICU_CMAKE_BUILD_ICU_TEST=ON
+        run: cmake --preset multi -DICU_CMAKE_BUILD_TEST=ON -DICU_CMAKE_BUILD_ICU_TEST=ON
 
       - name: Build
-        run: cmake --build --preset config-Release
+        run: cmake --build --preset multi-Release
 
       - name: Test
-        run: ctest --preset config-Release --test-dir build --output-on-failure --parallel "$(sysctl -n hw.ncpu)"
+        run: ctest --preset multi-Release --test-dir build --output-on-failure --parallel "$(sysctl -n hw.ncpu)"
 
       - name: Show ccache statistics
         if: always()
@@ -185,12 +185,12 @@ jobs:
 
       # Builds the smoke test and ICU’s own tests
       - name: Configure
-        run: cmake --preset config-Release -DICU_CMAKE_BUILD_TEST=ON -DICU_CMAKE_BUILD_ICU_TEST=ON
+        run: cmake --preset multi -DICU_CMAKE_BUILD_TEST=ON -DICU_CMAKE_BUILD_ICU_TEST=ON
 
       - name: Build
-        run: cmake --build --preset config-Release
+        run: cmake --build --preset multi-Release
 
       - name: Test
-        run: ctest --preset config-Release --test-dir build --output-on-failure --parallel $env:NUMBER_OF_PROCESSORS
+        run: ctest --preset multi-Release --test-dir build --output-on-failure --parallel $env:NUMBER_OF_PROCESSORS
 
 # EOF

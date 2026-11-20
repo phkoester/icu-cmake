@@ -23,21 +23,11 @@
       }
     },
     {
-      "name": "config-Debug",
+      "name": "multi",
       "generator": "Ninja Multi-Config",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
-        "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
-        "CMAKE_DEFAULT_BUILD_TYPE": "Debug"
-      }
-    },
-    {
-      "name": "config-Release",
-      "generator": "Ninja Multi-Config",
-      "binaryDir": "${sourceDir}/build",
-      "cacheVariables": {
-        "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
-        "CMAKE_DEFAULT_BUILD_TYPE": "Release"
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release"
       }
     }
   ],
@@ -51,13 +41,13 @@
       "configurePreset": "release"
     },
     {
-      "name": "config-Debug",
-      "configurePreset": "config-Debug",
+      "name": "multi-Debug",
+      "configurePreset": "multi",
       "configuration": "Debug"
     },
     {
-      "name": "config-Release",
-      "configurePreset": "config-Release",
+      "name": "multi-Release",
+      "configurePreset": "multi",
       "configuration": "Release"
     }
   ],
@@ -71,13 +61,13 @@
       "configurePreset": "release"
     },
     {
-      "name": "config-Debug",
-      "configurePreset": "config-Debug",
+      "name": "multi-Debug",
+      "configurePreset": "multi",
       "configuration": "Debug"
     },
     {
-      "name": "config-Release",
-      "configurePreset": "config-Release",
+      "name": "multi-Release",
+      "configurePreset": "multi",
       "configuration": "Release"
     }
   ]
